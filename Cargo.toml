@@ -1,5 +1,28 @@
 [package]
-
 name = "pcg"
 version = "0.0.1"
 authors = ["James Tranovich <jtranovich@gmail.com>"]
+
+[dependencies.pistoncore-event]
+git = "https://github.com/pistondevelopers/event"
+
+[dependencies.piston2d-sprite]
+git = "https://github.com/pistondevelopers/sprite"
+
+[dependencies.piston2d-graphics]
+git = "https://github.com/pistondevelopers/graphics"
+
+[dependencies.piston2d-opengl_graphics]
+git = "https://github.com/pistondevelopers/opengl_graphics"
+
+[dependencies.shader_version]
+git = "https://github.com/pistondevelopers/shader_version"
+
+[dependencies.pistoncore-input]
+git = "https://github.com/pistondevelopers/input"
+
+[dependencies.pistoncore-sdl2_window]
+git = "https://github.com/pistondevelopers/sdl2_window"
+
+[dependencies.toml]
+git = "https://github.com/alexcrichton/toml-rs"
