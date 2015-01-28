@@ -1,4 +1,6 @@
-#[derive(Clone)]
+use std::{rand};
+
+#[derive(Clone, Rand, Debug)]
 pub enum CellProperty {
     Floor,
     Wall,
@@ -7,7 +9,7 @@ pub enum CellProperty {
     Door
 }
 
-#[derive(Clone)]
+#[derive(Clone, Rand, Debug)]
 pub enum CellOccupant
 {
     Monster,
@@ -30,7 +32,7 @@ impl Cell {
             x: x,
             y: y,
             property: property,
-            occupants: Vec::new()
+            occupants: vec![]
         }
     }
 
@@ -42,5 +44,16 @@ impl Cell {
 impl PartialEq for Cell {
     fn eq(&self, other: &Cell) -> bool {
         self.x == other.x && self.y == other.y
+    }
+}
+
+impl rand::Rand for Cell {
+    fn rand<R>(rng: &mut R) -> Cell {
+        Cell {
+            x: 0,
+            y: 0,
+            property: Some(rand::random::<CellProperty>()),
+            occupants: vec![]
+        }
     }
 }
