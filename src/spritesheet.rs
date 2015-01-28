@@ -1,7 +1,8 @@
 use std::io::fs::{PathExtensions};
 use std::io::{File};
-use std::collections::{BTreeMap};
+use std::collections::{BTreeMap, HashMap};
 use std::collections::btree_map::{Keys};
+use std::str::FromStr;
 use opengl_graphics::{Texture};
 use graphics::{Image};
 use toml::{Parser, Value, Table};
@@ -18,12 +19,12 @@ pub struct SpriteSheet {
 }
 
 enum SpriteType {
-    Unique(String),
+    Unique(String, String),
     Sequence(String, u32)
 }
 
 struct Sprite {
-    t: SpriteType, // TODO index by?
+    t: SpriteType,
     h: u32,
     w: u32,
     x: u32,
@@ -31,6 +32,8 @@ struct Sprite {
 }
 
 const default_tile_size: i64 = 16;
+
+type Coords = (u32, u32);
 
 struct TomlConfig;
 
@@ -48,17 +51,19 @@ impl TomlConfig {
         }
     }
 
-    /// override the default value from the given table location if it exists.
+    /// override the default value if the given table location exists.
     fn defaults(what: &Table, attribute: &str, default: i64) -> i64 {
         let wrapped_default = Value::Integer(default);
         let attr = what.get(attribute).unwrap_or(&wrapped_default);
         attr.as_integer().expect(format!("`{}` must be an integer", attribute).as_slice())
     }
 
+    /// given a TOML configuration file, extract the relevant
+    /// spritesheet information. returns a vector of `Sprite`s.
     fn process(toml_path: &Path) {
         let mut toml_file = File::open(toml_path);
         match toml_file.read_to_string() {
-            Err(why) => panic!("Could not read {}: {}", toml_path.display(), why),
+            Err(why) => panic!("Could not read configuration file {}: {}", toml_path.display(), why),
             Ok(contents) => {
                 let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
                 let sprites = value.get("sprites").expect("Configuration file does not have `sprites` entry.");
@@ -68,27 +73,59 @@ impl TomlConfig {
                 let mut attributes = sprites_table.iter()
                     .filter(|&(_, v)| v.type_str() == "table")
                     .map(|(k, v)| (k, v.as_table().unwrap()));
-                for (name, v) in attributes {
+                for (name, values) in attributes {
                     // look for a local tile_width or tile_height
-                    let tile_width = TomlConfig::defaults(v, "tile_width", tile_width);
-                    let tile_height = TomlConfig::defaults(v, "tile_height", tile_height);
-                    let info = v.iter().filter(|&(_, v)| v.type_str() == "table").collect();
-                    TomlConfig::process_sprite(name, info, tile_width, tile_height);
+                    let tile_width = TomlConfig::defaults(values, "tile_width", tile_width);
+                    let tile_height = TomlConfig::defaults(values, "tile_height", tile_height);
+                    TomlConfig::process_sprite(name, values, tile_width as u32, tile_height as u32);
                 }
             }
         }
     }
 
-    fn process_sprite(name: &String, ids: &Table, w: i64, h: i64) {
-
-        let test: Vec<String> = ids.keys().cloned().collect();
-
-        println!("{:?}", test);
+    /// auxiliary function. given a TOML table, convert it to a
+    /// straight up HashMap of tile_name, coords.
+    fn to_coords(what: &Table) -> HashMap<&String, Coords> {
+        let mut result: HashMap<&String, Coords> = HashMap::new();
+        let mut filtered = what
+            .iter()
+            .filter(|&(_, v)| v.type_str() == "array")
+            .map(|(k, v)| (k, v.as_slice().unwrap()));
+        for (k, v) in filtered {
+            if v.len() != 2 {
+                panic!("attribute {:?} is not a coordinate.", v);
+            }
+            let x = v[0].as_integer().expect("`x` must be an integer") as u32;
+            let y = v[1].as_integer().expect("`y` must be an integer") as u32;
+            result.insert(k, (x, y));
+        }
+        result
     }
-    // table: either a sequence or array of names (account for local h/w though)
-        // tile_width (local)
-        // sequences
-        // groups
+
+    // determine what kind of sprite we have.
+    fn process_sprite(name: &String, ids: &Table, w: u32, h: u32) -> Vec<Sprite> {
+        let info = TomlConfig::to_coords(ids);
+        if info.len() == 0 {
+            println!("Warning: `{}` has no valid sprite information.", name);
+            vec![]
+        } else {
+            let first = info.keys().next().unwrap();
+            let seq: Option<u32> = FromStr::from_str(first.as_slice());
+            match seq {
+                Some(_) => {
+                    info.iter().map(|(k, &(x, y))| {
+                        let id = FromStr::from_str(k.as_slice()).unwrap();
+                        Sprite { t: SpriteType::Sequence(name.clone(), id), x: x, y: y, w: w, h: h }
+                    }).collect()
+                },
+                _ => {
+                    info.iter().map(|(&k, &(x, y))| {
+                        Sprite { t: SpriteType::Unique(name.clone(), k.clone()), x: x, y: y, w: w, h: h }
+                    }).collect()
+                }
+            }
+        }
+    }
 }
 
 impl SpriteSheet {
