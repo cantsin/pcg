@@ -27,32 +27,44 @@ use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
 fn main() {
+    let tiles_width = 50us;
+    let tiles_height = 50us;
+    let tile_width = 16;
+    let tile_height = 16;
+    let spritesheet_filename = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png";
+
+    let screen_width = tiles_width * tile_width;
+    let screen_height = tiles_height * tile_height;
+
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
                                  event::WindowSettings {
                                      title: "PCG".to_string(),
-                                     size: [300, 300],
+                                     size: [screen_width as u32, screen_height as u32],
                                      fullscreen: false,
                                      exit_on_esc: true,
                                      samples: 0,
                                  });
     let ref mut gl = Gl::new(opengl);
+    let spritesheet = SpriteSheet::new(spritesheet_filename, 16, 16);
+    // let treasure = spritesheet.get_sprite("treasure").unwrap();
+    // let monster = spritesheet.get_sprite("monster").unwrap();
+    let trap = spritesheet.get_sprite("trap").unwrap();
 
-    // test.
-    let spritesheet = SpriteSheet::new("./assets/16x16_Jerom_CC-BY-SA-3.0_0.png", 16, 16);
-    let sprite = spritesheet.get_sprite("floor").unwrap();
-    let sprite2 = spritesheet.get_sprite("monster").unwrap();
-
-    let dungeon = Dungeon::new(50, 50);
-
-    // TODO. randomly generate a map.
+    // randomly generate a map.
+    let mut dungeon = Dungeon::new(tiles_width, tiles_height);
+    for i in 0..tiles_width {
+        for j in 0..tiles_height {
+            dungeon.cells[i][j].add(rand::random::<CellOccupant>());
+        }
+    }
 
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|args| {
             gl.draw([0, 0, args.width as i32, args.height as i32], |c, gl| {
                 clear([1.0; 4], gl);
-                sprite.draw(&spritesheet.texture, &c, gl);
+                trap.draw(&spritesheet.texture, &c, gl);
             });
         });
     }

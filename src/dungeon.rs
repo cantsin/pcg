@@ -3,10 +3,11 @@ use std::iter::{repeat};
 
 use cell::Cell;
 
+#[derive(Clone)]
 pub struct Dungeon {
-    width: usize,
-    height: usize,
-    cells: Vec<Vec<Cell>>
+    pub width: usize,
+    pub height: usize,
+    pub cells: Vec<Vec<Cell>>
 }
 
 impl Dungeon {
