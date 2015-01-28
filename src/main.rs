@@ -22,7 +22,7 @@ use sdl2_window::Sdl2Window;
 use event::RenderEvent;
 use graphics::{clear};
 
-use cell::{CellOccupant};
+//use cell::{CellOccupant};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
@@ -49,13 +49,13 @@ fn main() {
     let spritesheet = SpriteSheet::new(spritesheet_filename, 16, 16);
     // let treasure = spritesheet.get_sprite("treasure").unwrap();
     // let monster = spritesheet.get_sprite("monster").unwrap();
-    let trap = spritesheet.get_sprite("trap").unwrap();
+    let trap = spritesheet.get_sprite("trap").expect("trap");
 
     // randomly generate a map.
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);
     for i in 0..tiles_width {
         for j in 0..tiles_height {
-            dungeon.cells[i][j].add(rand::random::<CellOccupant>());
+            //dungeon.cells[i][j].add(rand::random::<CellOccupant>());
         }
     }
 

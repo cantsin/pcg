@@ -1,38 +1,51 @@
 use std::rand::{Rng, Rand};
 
-#[derive(Clone, Rand, Debug)]
-pub enum CellProperty {
-    Floor,
-    Wall,
-    Entrance,
-    Exit,
-    Door
+/// TOML
+enum CellType {
+    CellTile(String),
+    CellItem(String),
+    CellOccupant(String),
+    CellUnknown(String)
 }
 
-#[derive(Clone, Rand, Debug)]
-pub enum CellOccupant
-{
-    Monster,
-    Treasure,
-    Trap,
-    Teleporter
+impl CellType {
+    // parse?
+}
+
+type CellTypes = Vec<CellType>;
+
+#[derive(Clone)]
+enum CellTile {
+    Tile(String)
+}
+
+#[derive(Clone)]
+enum CellItem {
+    Item(String)
+}
+
+#[derive(Clone)]
+enum CellOccupant {
+    Occupant(String)
 }
 
 #[derive(Clone)]
 pub struct Cell {
     x: u32,
     y: u32,
-    property: Option<CellProperty>,
+    tile: Option<CellTile>,
     occupants: Vec<CellOccupant>,
+    items: Vec<CellItem>
 }
 
 impl Cell {
-    pub fn new(x: u32, y: u32, property: Option<CellProperty>) -> Cell {
+    pub fn new(x: u32, y: u32, tile: Option<CellTile>) -> Cell {
         Cell {
             x: x,
             y: y,
-            property: property,
-            occupants: vec![]
+            tile: tile,
+            occupants: vec![],
+            items: vec![],
         }
     }
 
@@ -52,8 +65,9 @@ impl Rand for Cell {
         Cell {
             x: 0,
             y: 0,
-            property: Some(rng.gen::<CellProperty>()),
-            occupants: vec![]
+            tile: None,
+            occupants: vec![],
+            items: vec![]
         }
     }
 }
