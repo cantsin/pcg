@@ -1,4 +1,4 @@
-use std::{rand};
+use std::rand::{Rng, Rand};
 
 #[derive(Clone, Rand, Debug)]
 pub enum CellProperty {
@@ -47,12 +47,12 @@ impl PartialEq for Cell {
     }
 }
 
-impl rand::Rand for Cell {
-    fn rand<R>(rng: &mut R) -> Cell {
+impl Rand for Cell {
+    fn rand<R: Rng>(rng: &mut R) -> Cell {
         Cell {
             x: 0,
             y: 0,
-            property: Some(rand::random::<CellProperty>()),
+            property: Some(rng.gen::<CellProperty>()),
             occupants: vec![]
         }
     }

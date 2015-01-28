@@ -1,3 +1,5 @@
+#![allow(unstable)]
+
 extern crate toml;
 extern crate shader_version;
 extern crate input;
@@ -13,15 +15,15 @@ mod cell;
 
 use std::{rand};
 use std::cell::RefCell;
-use std::collections::HashMap;
-use opengl_graphics::{Gl, Texture};
+use opengl_graphics::{Gl};
 use sdl2_window::Sdl2Window;
-use input::Button::Keyboard;
-use input::keyboard::Key;
+// use input::Button::Keyboard;
+// use input::keyboard::Key;
 use event::RenderEvent;
-use graphics::*;
+use graphics::{clear};
 
 use cell::{CellOccupant};
+use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
 fn main() {
@@ -41,13 +43,15 @@ fn main() {
     let sprite = spritesheet.get_sprite("floor").unwrap();
     let sprite2 = spritesheet.get_sprite("monster").unwrap();
 
+    let dungeon = Dungeon::new(50, 50);
+
     // TODO. randomly generate a map.
 
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|args| {
             gl.draw([0, 0, args.width as i32, args.height as i32], |c, gl| {
-                graphics::clear([1.0; 4], gl);
+                clear([1.0; 4], gl);
                 sprite.draw(&spritesheet.texture, &c, gl);
             });
         });
