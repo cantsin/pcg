@@ -1,3 +1,4 @@
+extern crate toml;
 extern crate shader_version;
 extern crate input;
 extern crate sprite;
@@ -37,8 +38,8 @@ fn main() {
 
     // test.
     let spritesheet = SpriteSheet::new("./assets/16x16_Jerom_CC-BY-SA-3.0_0.png", 16, 16);
-    let sprite = spritesheet.get_sprite("Floor").unwrap();
-    let sprite2 = spritesheet.get_sprite("Monster").unwrap();
+    let sprite = spritesheet.get_sprite("floor").unwrap();
+    let sprite2 = spritesheet.get_sprite("monster").unwrap();
 
     // TODO. randomly generate a map.
 
