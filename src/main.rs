@@ -31,7 +31,7 @@ fn main() {
     let tiles_height = 50us;
     let tile_width = 16;
     let tile_height = 16;
-    let spritesheet_filename = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png";
+    let spritesheet_path = Path::new("./assets/16x16_Jerom_CC-BY-SA-3.0_0.png");
 
     let screen_width = tiles_width * tile_width;
     let screen_height = tiles_height * tile_height;
@@ -46,10 +46,10 @@ fn main() {
                                      samples: 0,
                                  });
     let ref mut gl = Gl::new(opengl);
-    let spritesheet = SpriteSheet::new(spritesheet_filename, 16, 16);
+    let spritesheet = SpriteSheet::new(&spritesheet_path);
     // let treasure = spritesheet.get_sprite("treasure").unwrap();
     // let monster = spritesheet.get_sprite("monster").unwrap();
-    let trap = spritesheet.get_sprite("trap").expect("trap");
+    let trap = spritesheet.get_unique_sprite("occupants", "trap").expect("trap");
 
     // randomly generate a map.
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);

@@ -21,15 +21,15 @@ enum SpriteCategory {
 /// the sprite "area" on the texture.
 #[derive(Clone, Debug)]
 struct SpriteRect {
-    h: u32,
-    w: u32,
-    x: u32,
-    y: u32
+    h: i32,
+    w: i32,
+    x: i32,
+    y: i32
 }
 
 const default_tile_size: i64 = 16;
 
-type Coords = (u32, u32);
+type Coords = (i32, i32);
 
 struct TomlConfig;
 
@@ -74,7 +74,7 @@ impl TomlConfig {
                     // look for a local tile_width or tile_height
                     let tile_width = TomlConfig::defaults(values, "tile_width", tile_width);
                     let tile_height = TomlConfig::defaults(values, "tile_height", tile_height);
-                    let sprite = TomlConfig::process_sprite(name, values, tile_width as u32, tile_height as u32);
+                    let sprite = TomlConfig::process_sprite(name, values, tile_width as i32, tile_height as i32);
                     sprites.insert(name.clone(), sprite);
                 }
                 sprites
@@ -94,27 +94,27 @@ impl TomlConfig {
             if v.len() != 2 {
                 panic!("attribute {:?} is not a coordinate.", v);
             }
-            let x = v[0].as_integer().expect("`x` must be an integer") as u32;
-            let y = v[1].as_integer().expect("`y` must be an integer") as u32;
+            let x = v[0].as_integer().expect("`x` must be an integer") as i32;
+            let y = v[1].as_integer().expect("`y` must be an integer") as i32;
             result.insert(k, (x, y));
         }
         result
     }
 
     // determine what kind of sprite we have.
-    fn process_sprite(name: &String, ids: &Table, w: u32, h: u32) -> SpriteCategory {
+    fn process_sprite(name: &String, ids: &Table, w: i32, h: i32) -> SpriteCategory {
         let info = TomlConfig::to_coords(ids);
         if info.len() == 0 {
             println!("Warning: `{}` has no valid sprite information.", name);
             SpriteCategory::Sequence(vec![])
         } else {
             let first = info.keys().next().unwrap();
-            let seq: Option<u32> = FromStr::from_str(first.as_slice());
+            let seq: Option<i32> = FromStr::from_str(first.as_slice());
             match seq {
                 Some(_) => {
                     // TODO: order by id.
                     let seq = info.iter().map(|(k, &(x, y))| {
-                        let id: u32 = FromStr::from_str(k.as_slice()).unwrap();
+                        let id: i32 = FromStr::from_str(k.as_slice()).unwrap();
                         let rect = SpriteRect { x: x, y: y, w: w, h: h };
                         rect
                         }).collect();
@@ -134,10 +134,9 @@ impl TomlConfig {
 
 impl SpriteSheet {
 
-    pub fn new(path: &str, tile_width: u32, tile_height: u32) -> SpriteSheet {
-        let filepath = Path::new(path);
-        let texture = Texture::from_path(&filepath).unwrap();
-        let toml_filepath = TomlConfig::location(&filepath).expect("No spritesheet configuration file.");
+    pub fn new(filepath: &Path) -> SpriteSheet {
+        let texture = Texture::from_path(filepath).unwrap();
+        let toml_filepath = TomlConfig::location(filepath).expect("No spritesheet configuration file.");
         let sprites = TomlConfig::process(&toml_filepath);
         SpriteSheet {
             texture: texture,
@@ -145,23 +144,42 @@ impl SpriteSheet {
         }
     }
 
-    pub fn get_sprite(&self, name: &str) -> Option<Image> {
-        None
-        // TODO: implement.
-        // match self.mapping.get(name) {
-        //     Some(&ref val) => {
-        //         let coords = &val.as_slice().expect("coords");
-        //         let ref x = coords[0].as_integer().expect("x") as i32;
-        //         let ref y = coords[1].as_integer().expect("y") as i32;
-        //         let w = self.tile_width as i32;
-        //         let h = self.tile_height as i32;
-        //         Some(Image {
-        //             color: None,
-        //             rectangle: None,
-        //             source_rectangle: Some([x * w, y * h, w, h])
-        //         })
-        //     }
-        //     _ => None
-        // }
+    pub fn get_unique_sprite(&self, category: &str, name: &str) -> Option<Image> {
+        match self.sprites.get(category) {
+            Some(&SpriteCategory::Unique(ref result)) => {
+                match result.get(name) {
+                    Some(&ref sprite) => {
+                        Some(Image {
+                            color: None,
+                            rectangle: None,
+                            source_rectangle: Some([sprite.x * sprite.w,
+                                                    sprite.y * sprite.h,
+                                                    sprite.w,
+                                                    sprite.h])
+                        })
+                    }
+                    _ => None
+                }
+            }
+            _ => None
+        }
+    }
+
+    pub fn get_sequenced_sprite(&self, category: &str, id: u32) -> Option<Image> {
+        match self.sprites.get(category) {
+            Some(&SpriteCategory::Sequence(ref result)) => {
+                let n = id as usize % result.len();
+                let sprite = result.get(n).unwrap();
+                Some(Image {
+                    color: None,
+                    rectangle: None,
+                    source_rectangle: Some([sprite.x * sprite.w,
+                                            sprite.y * sprite.h,
+                                            sprite.w,
+                                            sprite.h])
+                })
+            }
+            _ => None
+        }
     }
 }
