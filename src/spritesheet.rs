@@ -1,30 +1,26 @@
-use std::io::fs::{PathExtensions};
 use std::io::{File};
-use std::collections::{BTreeMap, HashMap};
-use std::collections::btree_map::{Keys};
-use std::str::FromStr;
+use std::io::fs::{PathExtensions};
+use std::collections::{HashMap};
+use std::str::{FromStr};
 use opengl_graphics::{Texture};
 use graphics::{Image};
 use toml::{Parser, Value, Table};
 
-/// Sprite sheets must have an associated configuration file (in TOML).
 pub struct SpriteSheet {
     pub texture: Texture,
-    pub sprites: Vec<Sprite>,
-    pub tile_width: u32,
-    pub tile_height: u32,
-    /// each spritesheet must have a corresponding toml file that
-    /// allows us to retrieve sprite tiles by name.
-    pub mapping: BTreeMap<String, Value>
+    pub sprites: HashMap<String, SpriteCategory>
 }
 
-enum SpriteType {
-    Unique(String, String),
-    Sequence(String, u32)
+/// sprite categories are equivalent to TOML blocks.
+#[derive(Clone, Debug)]
+enum SpriteCategory {
+    Unique(HashMap<String, SpriteRect>),
+    Sequence(Vec<SpriteRect>)
 }
 
-struct Sprite {
-    t: SpriteType,
+/// the sprite "area" on the texture.
+#[derive(Clone, Debug)]
+struct SpriteRect {
     h: u32,
     w: u32,
     x: u32,
@@ -59,8 +55,8 @@ impl TomlConfig {
     }
 
     /// given a TOML configuration file, extract the relevant
-    /// spritesheet information. returns a vector of `Sprite`s.
-    fn process(toml_path: &Path) {
+    /// spritesheet information. returns a hashmap of `Sprite`s.
+    fn process(toml_path: &Path) -> HashMap<String, SpriteCategory> {
         let mut toml_file = File::open(toml_path);
         match toml_file.read_to_string() {
             Err(why) => panic!("Could not read configuration file {}: {}", toml_path.display(), why),
@@ -73,12 +69,15 @@ impl TomlConfig {
                 let mut attributes = sprites_table.iter()
                     .filter(|&(_, v)| v.type_str() == "table")
                     .map(|(k, v)| (k, v.as_table().unwrap()));
+                let mut sprites = HashMap::new();
                 for (name, values) in attributes {
                     // look for a local tile_width or tile_height
                     let tile_width = TomlConfig::defaults(values, "tile_width", tile_width);
                     let tile_height = TomlConfig::defaults(values, "tile_height", tile_height);
-                    TomlConfig::process_sprite(name, values, tile_width as u32, tile_height as u32);
+                    let sprite = TomlConfig::process_sprite(name, values, tile_width as u32, tile_height as u32);
+                    sprites.insert(name.clone(), sprite);
                 }
+                sprites
             }
         }
     }
@@ -103,25 +102,30 @@ impl TomlConfig {
     }
 
     // determine what kind of sprite we have.
-    fn process_sprite(name: &String, ids: &Table, w: u32, h: u32) -> Vec<Sprite> {
+    fn process_sprite(name: &String, ids: &Table, w: u32, h: u32) -> SpriteCategory {
         let info = TomlConfig::to_coords(ids);
         if info.len() == 0 {
             println!("Warning: `{}` has no valid sprite information.", name);
-            vec![]
+            SpriteCategory::Sequence(vec![])
         } else {
             let first = info.keys().next().unwrap();
             let seq: Option<u32> = FromStr::from_str(first.as_slice());
             match seq {
                 Some(_) => {
-                    info.iter().map(|(k, &(x, y))| {
-                        let id = FromStr::from_str(k.as_slice()).unwrap();
-                        Sprite { t: SpriteType::Sequence(name.clone(), id), x: x, y: y, w: w, h: h }
-                    }).collect()
+                    // TODO: order by id.
+                    let seq = info.iter().map(|(k, &(x, y))| {
+                        let id: u32 = FromStr::from_str(k.as_slice()).unwrap();
+                        let rect = SpriteRect { x: x, y: y, w: w, h: h };
+                        rect
+                        }).collect();
+                    SpriteCategory::Sequence(seq)
                 },
                 _ => {
-                    info.iter().map(|(&k, &(x, y))| {
-                        Sprite { t: SpriteType::Unique(name.clone(), k.clone()), x: x, y: y, w: w, h: h }
-                    }).collect()
+                    let map = info.iter().map(|(&k, &(x, y))| {
+                        let rect = SpriteRect { x: x, y: y, w: w, h: h };
+                        (k.clone(), rect)
+                    }).collect();
+                    SpriteCategory::Unique(map)
                 }
             }
         }
@@ -133,45 +137,31 @@ impl SpriteSheet {
     pub fn new(path: &str, tile_width: u32, tile_height: u32) -> SpriteSheet {
         let filepath = Path::new(path);
         let texture = Texture::from_path(&filepath).unwrap();
-
-        // obtain the mapping from the corresponding toml file.
         let toml_filepath = TomlConfig::location(&filepath).expect("No spritesheet configuration file.");
-        TomlConfig::process(&toml_filepath);
-        println!("passed parsing 1");
-
-        let mut toml_file = File::open(&toml_filepath);
-        let contents = String::from_utf8(toml_file.read_to_end().unwrap()).unwrap();
-        let value = Parser::new(contents.as_slice()).parse().expect("parsing");
-        let spritesheet = value.get("sprites").expect("No sprites entry?");
-        let mapping = spritesheet.as_table().expect("No table value?");
-        println!("passed parsing");
-
-        // TODO pre-process toml.
-
+        let sprites = TomlConfig::process(&toml_filepath);
         SpriteSheet {
             texture: texture,
-            tile_width: tile_width,
-            tile_height: tile_height,
-            sprites: vec![],
-            mapping: mapping.clone()
+            sprites: sprites
         }
     }
 
     pub fn get_sprite(&self, name: &str) -> Option<Image> {
-        match self.mapping.get(name) {
-            Some(&ref val) => {
-                let coords = &val.as_slice().expect("coords");
-                let ref x = coords[0].as_integer().expect("x") as i32;
-                let ref y = coords[1].as_integer().expect("y") as i32;
-                let w = self.tile_width as i32;
-                let h = self.tile_height as i32;
-                Some(Image {
-                    color: None,
-                    rectangle: None,
-                    source_rectangle: Some([x * w, y * h, w, h])
-                })
-            }
-            _ => None
-        }
+        None
+        // TODO: implement.
+        // match self.mapping.get(name) {
+        //     Some(&ref val) => {
+        //         let coords = &val.as_slice().expect("coords");
+        //         let ref x = coords[0].as_integer().expect("x") as i32;
+        //         let ref y = coords[1].as_integer().expect("y") as i32;
+        //         let w = self.tile_width as i32;
+        //         let h = self.tile_height as i32;
+        //         Some(Image {
+        //             color: None,
+        //             rectangle: None,
+        //             source_rectangle: Some([x * w, y * h, w, h])
+        //         })
+        //     }
+        //     _ => None
+        // }
     }
 }
