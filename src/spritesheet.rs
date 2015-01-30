@@ -1,7 +1,8 @@
 use std::io::{File};
 use std::io::fs::{PathExtensions};
-use std::collections::{HashMap};
+use std::collections::{HashMap, BTreeMap};
 use std::str::{FromStr};
+use std::slice::{SliceExt};
 use opengl_graphics::{Texture};
 use graphics::{Image};
 use toml::{Parser, Value, Table};
@@ -96,10 +97,10 @@ impl TomlConfig {
         }
     }
 
-    /// auxiliary function. given a TOML table, convert it to a
-    /// straight up HashMap of tile_name, coords.
-    fn to_coords(what: &Table) -> HashMap<&String, Coords> {
-        let mut result: HashMap<&String, Coords> = HashMap::new();
+    /// auxiliary function. flatten the table and convert appropriate
+    /// entries to coordinates.
+    fn to_coords(what: &Table) -> BTreeMap<String, Coords> {
+        let mut result: BTreeMap<String, Coords> = BTreeMap::new();
         let mut filtered = what
             .iter()
             .filter(|&(_, v)| v.type_str() == "array")
@@ -110,7 +111,7 @@ impl TomlConfig {
             }
             let x = v[0].as_integer().expect("`x` must be an integer") as i32;
             let y = v[1].as_integer().expect("`y` must be an integer") as i32;
-            result.insert(k, (x, y));
+            result.insert(k.clone(), (x, y));
         }
         result
     }
@@ -124,18 +125,17 @@ impl TomlConfig {
         } else {
             let first = info.keys().next().unwrap();
             let seq: Option<i32> = FromStr::from_str(first.as_slice());
-            match seq {
-                Some(_) => {
-                    // TODO: order by id.
-                    let seq = info.iter().map(|(k, &(x, y))| {
+            match seq.is_some() {
+                true => {
+                    let seq2 = info.iter().map(|(k, &(x, y))| {
                         let id: i32 = FromStr::from_str(k.as_slice()).unwrap();
                         let rect = SpriteRect { x: x, y: y, w: w, h: h };
                         rect
                         }).collect();
-                    SpriteCategory::Sequence(seq)
+                    SpriteCategory::Sequence(seq2)
                 },
                 _ => {
-                    let map = info.iter().map(|(&k, &(x, y))| {
+                    let map = info.iter().map(|(k, &(x, y))| {
                         let rect = SpriteRect { x: x, y: y, w: w, h: h };
                         (k.clone(), rect)
                     }).collect();
