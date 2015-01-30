@@ -1,0 +1,14 @@
+[main]
+width = 800
+height = 800
+spritesheet = "dungeon"
+
+[spritesheets]
+
+[spreadsheets.dungeon]
+main = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
+
+[spreadsheets.dungeon.cells]
+tiles = ["tiles"]
+occupants = ["various"]
+items = []
