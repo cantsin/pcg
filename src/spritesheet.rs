@@ -6,6 +6,8 @@ use config::{TomlConfig};
 use sprite::{SpriteCategory};
 
 pub struct SpriteSheet {
+    // pub sprites: HashMap<String, Sprite>
+
     pub texture: Texture,
     pub sprites: HashMap<String, SpriteCategory>
 }

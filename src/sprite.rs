@@ -1,5 +1,29 @@
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{HashMap};
+use opengl_graphics::{Gl, Texture};
 use graphics::{Image};
+
+struct Sprite<'a> {
+    texture: &'a Texture,
+    images: Vec<Image>,
+    height: i32,
+    width: i32,
+    index: usize
+}
+
+impl Sprite<'static> {
+
+    pub fn next(&mut self) {
+        self.index = (self.index + 1) % self.images.len();
+    }
+
+    pub fn draw(&self, mut gl: Gl, x: i32, y: i32) {
+        let viewport = [x, y, self.width, self.height];
+        let image = self.images[self.index];
+        gl.draw(viewport, |c, gl| {
+            image.draw(self.texture, &c, gl);
+        });
+    }
+}
 
 /// sprite categories are equivalent to TOML blocks.
 #[derive(Clone, Debug)]
