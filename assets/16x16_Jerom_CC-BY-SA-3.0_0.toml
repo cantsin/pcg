@@ -9,7 +9,7 @@ tile_height = 16
     exit = [4, 1]
     door = [1, 0]
 
-    [sprites.occupants]
+    [sprites.various]
     monster = [0, 22]
     treasure = [4, 8]
     trap = [8, 1]

@@ -3,12 +3,14 @@
 extern crate toml;
 extern crate shader_version;
 extern crate input;
-extern crate sprite;
+//extern crate sprite;
 extern crate event;
 extern crate graphics;
 extern crate sdl2_window;
 extern crate opengl_graphics;
 
+mod config;
+mod sprite;
 mod spritesheet;
 mod dungeon;
 mod cell;
@@ -24,7 +26,8 @@ use graphics::{clear};
 
 use cell::{CellTile, CellOccupant};
 use dungeon::{Dungeon};
-use spritesheet::{SpriteSheet, SpriteCategory};
+use spritesheet::{SpriteSheet};
+use sprite::{SpriteCategory};
 
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 800;
@@ -49,7 +52,7 @@ fn main() {
     let tile_sprites = spritesheet.sprites.get("tiles").expect("`tiles` table not found.").to_unique();
     let cell_tiles: Vec<CellTile> = tile_sprites.iter().map(|(k, v)| CellTile::Tile(k.clone())).collect();
 
-    let occupant_sprites = spritesheet.sprites.get("occupants").expect("`occupants` table not found.").to_unique();
+    let occupant_sprites = spritesheet.sprites.get("various").expect("`occupants` table not found.").to_unique();
     let cell_occupants: Vec<CellOccupant> = occupant_sprites.iter().map(|(k, v)| CellOccupant::Occupant(k.clone())).collect();
 
     let occupant_category = spritesheet.sprites.get("health").unwrap();
