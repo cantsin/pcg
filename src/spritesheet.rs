@@ -19,6 +19,22 @@ pub enum SpriteCategory {
     Sequence(Vec<SpriteRect>)
 }
 
+impl SpriteCategory {
+    pub fn to_unique(&self) -> HashMap<String, SpriteRect> {
+        match self {
+            &SpriteCategory::Unique(ref hm) => hm.clone(),
+            _ => panic!("not an unique sprite")
+        }
+    }
+
+    pub fn to_sequence(&self) -> Vec<SpriteRect> {
+        match self {
+            &SpriteCategory::Sequence(ref v) => v.clone(),
+            _ => panic!("not a sequenced sprite")
+        }
+    }
+}
+
 /// the sprite "area" on the texture.
 #[derive(Clone, Debug)]
 struct SpriteRect {

@@ -1,31 +1,17 @@
 use std::rand::{Rng, Rand};
 
-/// TOML
-enum CellType {
-    CellTile(String),
-    CellItem(String),
-    CellOccupant(String),
-    CellUnknown(String)
-}
-
-impl CellType {
-    // parse?
-}
-
-type CellTypes = Vec<CellType>;
-
 #[derive(Clone)]
-enum CellTile {
+pub enum CellTile {
     Tile(String)
 }
 
 #[derive(Clone)]
-enum CellItem {
+pub enum CellItem {
     Item(String)
 }
 
 #[derive(Clone)]
-enum CellOccupant {
+pub enum CellOccupant {
     Occupant(String)
 }
 
@@ -33,7 +19,7 @@ enum CellOccupant {
 pub struct Cell {
     x: u32,
     y: u32,
-    tile: Option<CellTile>,
+    pub tile: Option<CellTile>,
     occupants: Vec<CellOccupant>,
     items: Vec<CellItem>
 }
@@ -49,8 +35,8 @@ impl Cell {
         }
     }
 
-    pub fn add(&mut self, occupant: CellOccupant) -> () {
-        self.occupants.push(occupant)
+    pub fn add(&mut self, occupant: &CellOccupant) -> () {
+        self.occupants.push(occupant.clone())
     }
 }
 
