@@ -16,8 +16,8 @@ tile_height = 16
     teleporter = [4, 6]
 
     [sprites.icons]
-    death = [3, 26]
-    sleep = [4, 26]
+    death = [3, 24]
+    sleep = [4, 24]
 
     [sprites.health]
     5 = [0, 27]

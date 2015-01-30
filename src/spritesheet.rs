@@ -13,7 +13,7 @@ pub struct SpriteSheet {
 
 /// sprite categories are equivalent to TOML blocks.
 #[derive(Clone, Debug)]
-enum SpriteCategory {
+pub enum SpriteCategory {
     Unique(HashMap<String, SpriteRect>),
     Sequence(Vec<SpriteRect>)
 }
@@ -25,6 +25,19 @@ struct SpriteRect {
     w: i32,
     x: i32,
     y: i32
+}
+
+impl SpriteRect {
+    pub fn to_image(&self) -> Image {
+        Image {
+            color: None,
+            rectangle: None,
+            source_rectangle: Some([self.x * self.w,
+                                    self.y * self.h,
+                                    self.w,
+                                    self.h])
+        }
+    }
 }
 
 const default_tile_size: i64 = 16;
@@ -56,8 +69,9 @@ impl TomlConfig {
 
     /// given a TOML configuration file, extract the relevant
     /// spritesheet information. returns a hashmap of `Sprite`s.
-    fn process(toml_path: &Path) -> HashMap<String, SpriteCategory> {
-        let mut toml_file = File::open(toml_path);
+    fn process(filepath: &Path) -> HashMap<String, SpriteCategory> {
+        let toml_path = TomlConfig::location(filepath).expect("No spritesheet configuration file.");
+        let mut toml_file = File::open(&toml_path);
         match toml_file.read_to_string() {
             Err(why) => panic!("Could not read configuration file {}: {}", toml_path.display(), why),
             Ok(contents) => {
@@ -136,8 +150,7 @@ impl SpriteSheet {
 
     pub fn new(filepath: &Path) -> SpriteSheet {
         let texture = Texture::from_path(filepath).unwrap();
-        let toml_filepath = TomlConfig::location(filepath).expect("No spritesheet configuration file.");
-        let sprites = TomlConfig::process(&toml_filepath);
+        let sprites = TomlConfig::process(filepath);
         SpriteSheet {
             texture: texture,
             sprites: sprites
@@ -148,16 +161,7 @@ impl SpriteSheet {
         match self.sprites.get(category) {
             Some(&SpriteCategory::Unique(ref result)) => {
                 match result.get(name) {
-                    Some(&ref sprite) => {
-                        Some(Image {
-                            color: None,
-                            rectangle: None,
-                            source_rectangle: Some([sprite.x * sprite.w,
-                                                    sprite.y * sprite.h,
-                                                    sprite.w,
-                                                    sprite.h])
-                        })
-                    }
+                    Some(&ref sprite) => Some(sprite.to_image()),
                     _ => None
                 }
             }
@@ -170,14 +174,7 @@ impl SpriteSheet {
             Some(&SpriteCategory::Sequence(ref result)) => {
                 let n = id as usize % result.len();
                 let sprite = result.get(n).unwrap();
-                Some(Image {
-                    color: None,
-                    rectangle: None,
-                    source_rectangle: Some([sprite.x * sprite.w,
-                                            sprite.y * sprite.h,
-                                            sprite.w,
-                                            sprite.h])
-                })
+                Some(sprite.to_image())
             }
             _ => None
         }

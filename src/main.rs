@@ -17,14 +17,14 @@ use std::{rand};
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
 use sdl2_window::Sdl2Window;
-// use input::Button::Keyboard;
-// use input::keyboard::Key;
-use event::RenderEvent;
+use input::Button::Keyboard;
+use input::keyboard::Key;
+use event::*;
 use graphics::{clear};
 
 //use cell::{CellOccupant};
 use dungeon::{Dungeon};
-use spritesheet::{SpriteSheet};
+use spritesheet::{SpriteSheet, SpriteCategory};
 
 fn main() {
     let tiles_width = 50us;
@@ -47,9 +47,13 @@ fn main() {
                                  });
     let ref mut gl = Gl::new(opengl);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
-    // let treasure = spritesheet.get_sprite("treasure").unwrap();
-    // let monster = spritesheet.get_sprite("monster").unwrap();
-    let trap = spritesheet.get_unique_sprite("occupants", "trap").expect("trap");
+    let occupant_category = spritesheet.sprites.get("icons").unwrap();
+    let occupants = match occupant_category {
+        &SpriteCategory::Unique(ref cat) => cat,
+        _ => panic!("invalid")
+    };
+    let mut sprites = occupants.iter();
+    let mut sprite = sprites.next().unwrap().1;
 
     // randomly generate a map.
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);
@@ -64,8 +68,15 @@ fn main() {
         e.render(|args| {
             gl.draw([0, 0, args.width as i32, args.height as i32], |c, gl| {
                 clear([1.0; 4], gl);
-                trap.draw(&spritesheet.texture, &c, gl);
+                sprite.to_image().draw(&spritesheet.texture, &c, gl);
             });
         });
+
+        if let Some(Keyboard(key)) = e.press_args() {
+            if key == Key::J {
+                sprite = sprites.next().unwrap().1;
+            }
+            println!("Pressed keyboard key '{:?}'", key);
+        };
     }
 }
