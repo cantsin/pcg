@@ -1,19 +1,20 @@
 use std::collections::{HashMap};
 use opengl_graphics::{Gl, Texture};
 use graphics::{Image};
+use std::rc::Rc;
 
 /// sprites can have several images (they must be the same height/width).
-pub struct Sprite<'a> {
-    texture: &'a Texture,
+pub struct Sprite {
+    texture: Rc<Texture>,
     images: Vec<Image>,
     height: i32,
     width: i32,
     index: usize
 }
 
-impl Sprite<'static> {
+impl Sprite {
 
-    pub fn new(texture: &Texture, images: Vec<Image>, height: i32, width: i32) -> Sprite {
+    pub fn new(texture: Rc<Texture>, images: Vec<Image>, height: i32, width: i32) -> Sprite {
         Sprite {
             texture: texture,
             images: images,
@@ -31,7 +32,7 @@ impl Sprite<'static> {
         let viewport = [x, y, self.width, self.height];
         let image = self.images[self.index];
         gl.draw(viewport, |c, gl| {
-            image.draw(self.texture, &c, gl);
+            image.draw(&*self.texture, &c, gl);
         });
     }
 }

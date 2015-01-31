@@ -1,16 +1,17 @@
 use std::io::fs::{PathExtensions};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
+use std::rc::Rc;
 use opengl_graphics::{Texture};
 
 use config::{TomlConfig};
 use sprite::{Sprite};
 
-pub struct SpriteSheet<'a> {
-    pub sprites: HashMap<String, Sprite<'a>>
+pub struct SpriteSheet {
+    pub sprites: HashMap<String, Sprite>
 }
 
-impl SpriteSheet<'static> {
+impl SpriteSheet {
 
     /// the spritesheet configuration file must have the same base
     /// file name as the spritesheet itself.
@@ -25,7 +26,8 @@ impl SpriteSheet<'static> {
     }
 
     pub fn new(filepath: &Path) -> SpriteSheet {
-        let texture = Texture::from_path(filepath).unwrap();
+        let texture_data = Texture::from_path(filepath).unwrap();
+        let texture = Rc::new(texture_data);
         let toml_path = SpriteSheet::location(filepath).expect("No spritesheet configuration file.");
         let config = TomlConfig::process_spritesheet(&toml_path);
         // convert all the coordinates to sprites on this texture
@@ -33,7 +35,7 @@ impl SpriteSheet<'static> {
             let height = rects[0].get_height();
             let width = rects[0].get_width();
             let images = rects.iter().map(|&ref v| v.to_image()).collect();
-            let sprite = Sprite::new(&texture, images, height, width);
+            let sprite = Sprite::new(texture.clone(), images, height, width);
             (name.clone(), sprite)
         }).collect();
         SpriteSheet {
