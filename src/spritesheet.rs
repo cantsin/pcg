@@ -30,16 +30,10 @@ impl SpriteSheet<'static> {
         let config = TomlConfig::process_spritesheet(&toml_path);
         // convert all the coordinates to sprites on this texture
         let sprites = config.iter().map(|(name, &ref rects)| {
-            let height = rects[0].h;
-            let width = rects[0].w;
+            let height = rects[0].get_height();
+            let width = rects[0].get_width();
             let images = rects.iter().map(|&ref v| v.to_image()).collect();
-            let sprite = Sprite {
-                texture: &texture,
-                images: images,
-                height: height,
-                width: width,
-                index: 0
-            };
+            let sprite = Sprite::new(&texture, images, height, width);
             (name.clone(), sprite)
         }).collect();
         SpriteSheet {

@@ -27,7 +27,6 @@ use graphics::{clear};
 use cell::{CellTile, CellOccupant};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
-use sprite::{SpriteCategory};
 
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 800;
@@ -48,62 +47,49 @@ fn main() {
     let spritesheet_path = Path::new("./assets/16x16_Jerom_CC-BY-SA-3.0_0.png");
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
-    // construct the various cell types.
-    let tile_sprites = spritesheet.sprites.get("tiles").expect("`tiles` table not found.").to_unique();
-    let cell_tiles: Vec<CellTile> = tile_sprites.iter().map(|(k, v)| CellTile::Tile(k.clone())).collect();
+    // read in config.toml
+    // parse spreadsheet
+    // parse dungeon cells
+    // get cell.tiles, cell.occupants, cell.items as Vec<CellTile>, ...
 
-    let occupant_sprites = spritesheet.sprites.get("various").expect("`occupants` table not found.").to_unique();
-    let cell_occupants: Vec<CellOccupant> = occupant_sprites.iter().map(|(k, v)| CellOccupant::Occupant(k.clone())).collect();
+    // // randomly generate a map.
+    // let mut rng = thread_rng();
+    // let tiles_width = 50us;
+    // let tiles_height = 50us;
+    // let mut dungeon = Dungeon::new(tiles_width, tiles_height);
+    // for i in 0..tiles_width {
+    //     for j in 0..tiles_height {
+    //         let tile = sample(&mut rng, cell_tiles.iter(), 1);
+    //         let occupant = sample(&mut rng, cell_occupants.iter(), 1);
+    //         dungeon.cells[i][j].tile = Some(tile.into_iter().next().unwrap().clone());
+    //         dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
+    //     }
+    // }
 
-    let occupant_category = spritesheet.sprites.get("health").unwrap();
-    let occupants = match occupant_category {
-        &SpriteCategory::Sequence(ref cat) => cat,
-        _ => panic!("invalid")
-    };
-    let mut sprites = occupants.iter();
-    let mut sprite = sprites.next().unwrap();
-
-    // randomly generate a map.
-    let mut rng = thread_rng();
-    let tiles_width = 50us;
-    let tiles_height = 50us;
-    let mut dungeon = Dungeon::new(tiles_width, tiles_height);
-    for i in 0..tiles_width {
-        for j in 0..tiles_height {
-            let tile = sample(&mut rng, cell_tiles.iter(), 1);
-            let occupant = sample(&mut rng, cell_occupants.iter(), 1);
-            dungeon.cells[i][j].tile = Some(tile.into_iter().next().unwrap().clone());
-            dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
-        }
-    }
+    let sprite = spritesheet.sprites.get("floor").unwrap();
 
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|args| {
-            gl.draw([0, 0, args.width as i32, args.height as i32], |c, gl| {
-                clear([1.0; 4], gl);
-                //sprite.to_image().draw(&spritesheet.texture, &c, gl);
-            });
+            sprite.draw(gl, 0, 0);
 
-            for i in 0..tiles_width {
-                for j in 0..tiles_height {
-                    let ref tile = dungeon.cells[i][j].tile;
-                    let name = match *tile {
-                        Some(CellTile::Tile(ref name)) => name.as_slice(),
-                        None => "floor"
-                    };
-                    let sprite = spritesheet.get_unique_sprite("tiles", name).unwrap();
-                    gl.draw([i as i32 * 16, j as i32 * 16, 16, 16], |c, gl| {
-                        sprite.draw(&spritesheet.texture, &c, gl);
-                    });
-                }
-            }
-
+            // for i in 0..tiles_width {
+            //     for j in 0..tiles_height {
+            //         let ref tile = dungeon.cells[i][j].tile;
+            //         let name = match *tile {
+            //             Some(CellTile::Tile(ref name)) => name.as_slice(),
+            //             None => "floor"
+            //         };
+            //         let sprite = spritesheet.get_unique_sprite("tiles", name).unwrap();
+            //         gl.draw([i as i32 * 16, j as i32 * 16, 16, 16], |c, gl| {
+            //             sprite.draw(&spritesheet.texture, &c, gl);
+            //         });
+            //     }
+            // }
         });
 
         if let Some(Keyboard(key)) = e.press_args() {
             if key == Key::J {
-                sprite = sprites.next().unwrap();
             }
             println!("Pressed keyboard key '{:?}'", key);
         };

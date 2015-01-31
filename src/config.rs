@@ -32,7 +32,7 @@ impl TomlConfig {
     }
 
     fn get_coords(name: &String, table: &Table) -> Vec<Coords> {
-        let coords = vec![];
+        let mut coords = vec![];
         for (name, value) in table.iter() {
             match value.type_str() {
                 "array" => {
