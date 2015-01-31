@@ -40,7 +40,12 @@ impl TomlConfig {
                     let (x, y) = TomlConfig::get_coord(name, values);
                     coords.push((x, y));
                 }
-                _ => {} // ignore
+                _ => {
+                    match name.as_slice() {
+                        "tile_width" | "tile_height" => {} // ignore
+                        _ => panic!("unknown TOML type {:?}", name)
+                    }
+                }
             }
         }
         coords
@@ -78,7 +83,12 @@ impl TomlConfig {
                             }).collect();
                             sprites.insert(name.clone(), rects);
                         }
-                        _ => panic!("unknown TOML type {:?}", name)
+                        _ => {
+                            match name.as_slice() {
+                                "tile_width" | "tile_height" => {} // ignore
+                                _ => panic!("unknown TOML type {:?}", name)
+                            }
+                        }
                     }
                 }
                 sprites
