@@ -1,35 +1,29 @@
 [sprites]
 tile_width = 16
 tile_height = 16
+floor = [5, 2]
+wall = [2, 1]
+entrance = [3, 1]
+exit = [4, 1]
+door = [1, 0]
+monster = [0, 22]
+treasure = [4, 8]
+trap = [8, 1]
+teleporter = [4, 6]
+death_icon = [3, 24]
+sleep_icon = [4, 24]
 
-    [sprites.tiles]
-    floor = [5, 2]
-    wall = [2, 1]
-    entrance = [3, 1]
-    exit = [4, 1]
-    door = [1, 0]
+[sprites.health]
+5 = [0, 25]
+4 = [1, 25]
+3 = [2, 25]
+2 = [3, 25]
+1 = [4, 25]
 
-    [sprites.various]
-    monster = [0, 22]
-    treasure = [4, 8]
-    trap = [8, 1]
-    teleporter = [4, 6]
-
-    [sprites.icons]
-    death = [3, 24]
-    sleep = [4, 24]
-
-    [sprites.health]
-    5 = [0, 25]
-    4 = [1, 25]
-    3 = [2, 25]
-    2 = [3, 25]
-    1 = [4, 25]
-
-    [sprites.meter]
-    tile_width = 8
-    tile_height = 8
-    1 = [1, 53]
-    2 = [2, 53]
-    3 = [3, 53]
-    4 = [4, 53]
+[sprites.meter]
+tile_width = 8
+tile_height = 8
+1 = [1, 53]
+2 = [2, 53]
+3 = [3, 53]
+4 = [4, 53]

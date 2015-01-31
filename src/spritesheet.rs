@@ -1,48 +1,49 @@
+use std::io::fs::{PathExtensions};
+use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use opengl_graphics::{Texture};
-use graphics::{Image};
 
 use config::{TomlConfig};
-use sprite::{SpriteCategory};
+use sprite::{Sprite};
 
-pub struct SpriteSheet {
-    // pub sprites: HashMap<String, Sprite>
-
-    pub texture: Texture,
-    pub sprites: HashMap<String, SpriteCategory>
+pub struct SpriteSheet<'a> {
+    pub sprites: HashMap<String, Sprite<'a>>
 }
 
-impl SpriteSheet {
+impl SpriteSheet<'static> {
+
+    /// the spritesheet configuration file must have the same base
+    /// file name as the spritesheet itself.
+    fn location(path: &Path) -> Option<Path> {
+        let mut new_path = path.clone();
+        new_path.set_extension("toml");
+        if new_path.exists() && new_path.is_file() {
+            Some(new_path)
+        } else {
+            None
+        }
+    }
 
     pub fn new(filepath: &Path) -> SpriteSheet {
         let texture = Texture::from_path(filepath).unwrap();
-        let sprites = TomlConfig::process_spritesheet(filepath);
+        let toml_path = SpriteSheet::location(filepath).expect("No spritesheet configuration file.");
+        let config = TomlConfig::process_spritesheet(&toml_path);
+        // convert all the coordinates to sprites on this texture
+        let sprites = config.iter().map(|(name, &ref rects)| {
+            let height = rects[0].h;
+            let width = rects[0].w;
+            let images = rects.iter().map(|&ref v| v.to_image()).collect();
+            let sprite = Sprite {
+                texture: &texture,
+                images: images,
+                height: height,
+                width: width,
+                index: 0
+            };
+            (name.clone(), sprite)
+        }).collect();
         SpriteSheet {
-            texture: texture,
             sprites: sprites
-        }
-    }
-
-    pub fn get_unique_sprite(&self, category: &str, name: &str) -> Option<Image> {
-        match self.sprites.get(category) {
-            Some(&SpriteCategory::Unique(ref result)) => {
-                match result.get(name) {
-                    Some(&ref sprite) => Some(sprite.to_image()),
-                    _ => None
-                }
-            }
-            _ => None
-        }
-    }
-
-    pub fn get_sequenced_sprite(&self, category: &str, id: u32) -> Option<Image> {
-        match self.sprites.get(category) {
-            Some(&SpriteCategory::Sequence(ref result)) => {
-                let n = id as usize % result.len();
-                let sprite = result.get(n).unwrap();
-                Some(sprite.to_image())
-            }
-            _ => None
         }
     }
 }

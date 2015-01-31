@@ -2,12 +2,13 @@ use std::collections::{HashMap};
 use opengl_graphics::{Gl, Texture};
 use graphics::{Image};
 
-struct Sprite<'a> {
-    texture: &'a Texture,
-    images: Vec<Image>,
-    height: i32,
-    width: i32,
-    index: usize
+/// sprites can have several images (they must be the same height/width).
+pub struct Sprite<'a> {
+    pub texture: &'a Texture,
+    pub images: Vec<Image>,
+    pub height: i32,
+    pub width: i32,
+    pub index: usize
 }
 
 impl Sprite<'static> {
@@ -16,7 +17,7 @@ impl Sprite<'static> {
         self.index = (self.index + 1) % self.images.len();
     }
 
-    pub fn draw(&self, mut gl: Gl, x: i32, y: i32) {
+    pub fn draw(&self, gl: &mut Gl, x: i32, y: i32) {
         let viewport = [x, y, self.width, self.height];
         let image = self.images[self.index];
         gl.draw(viewport, |c, gl| {
@@ -25,34 +26,11 @@ impl Sprite<'static> {
     }
 }
 
-/// sprite categories are equivalent to TOML blocks.
-#[derive(Clone, Debug)]
-pub enum SpriteCategory {
-    Unique(HashMap<String, SpriteRect>),
-    Sequence(Vec<SpriteRect>)
-}
-
-impl SpriteCategory {
-    pub fn to_unique(&self) -> HashMap<String, SpriteRect> {
-        match self {
-            &SpriteCategory::Unique(ref hm) => hm.clone(),
-            _ => panic!("not an unique sprite")
-        }
-    }
-
-    pub fn to_sequence(&self) -> Vec<SpriteRect> {
-        match self {
-            &SpriteCategory::Sequence(ref v) => v.clone(),
-            _ => panic!("not a sequenced sprite")
-        }
-    }
-}
-
 /// the sprite "area" on the texture.
 #[derive(Clone, Debug)]
 pub struct SpriteRect {
-    h: i32,
-    w: i32,
+    pub h: i32,
+    pub w: i32,
     x: i32,
     y: i32
 }
