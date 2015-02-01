@@ -52,19 +52,24 @@ fn main() {
     // parse dungeon cells
     // get cell.tiles, cell.occupants, cell.items as Vec<CellTile>, ...
 
-    // // randomly generate a map.
-    // let mut rng = thread_rng();
-    // let tiles_width = 50us;
-    // let tiles_height = 50us;
-    // let mut dungeon = Dungeon::new(tiles_width, tiles_height);
-    // for i in 0..tiles_width {
-    //     for j in 0..tiles_height {
-    //         let tile = sample(&mut rng, cell_tiles.iter(), 1);
-    //         let occupant = sample(&mut rng, cell_occupants.iter(), 1);
-    //         dungeon.cells[i][j].tile = Some(tile.into_iter().next().unwrap().clone());
-    //         dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
-    //     }
-    // }
+    let tiles = ["floor", "wall", "entrance", "exit", "door"];
+    let occupants = ["monster", "treasure", "trap", "teleporter"];
+    let cell_tiles: Vec<CellTile> = tiles.iter().map(|&name| CellTile::Tile(String::from_str(name))).collect();
+    let cell_occupants: Vec<CellOccupant> = occupants.iter().map(|&name| CellOccupant::Occupant(String::from_str(name))).collect();
+
+    // randomly generate a map.
+    let mut rng = thread_rng();
+    let tiles_width = 50us;
+    let tiles_height = 50us;
+    let mut dungeon = Dungeon::new(tiles_width, tiles_height);
+    for i in 0..tiles_width {
+        for j in 0..tiles_height {
+            let tile = sample(&mut rng, cell_tiles.iter(), 1);
+            let occupant = sample(&mut rng, cell_occupants.iter(), 1);
+            dungeon.cells[i][j].tile = Some(tile.into_iter().next().unwrap().clone());
+            dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
+        }
+    }
 
     let sprite = spritesheet.sprites.get("floor").unwrap();
 
@@ -73,19 +78,17 @@ fn main() {
         e.render(|args| {
             sprite.draw(gl, 0, 0);
 
-            // for i in 0..tiles_width {
-            //     for j in 0..tiles_height {
-            //         let ref tile = dungeon.cells[i][j].tile;
-            //         let name = match *tile {
-            //             Some(CellTile::Tile(ref name)) => name.as_slice(),
-            //             None => "floor"
-            //         };
-            //         let sprite = spritesheet.get_unique_sprite("tiles", name).unwrap();
-            //         gl.draw([i as i32 * 16, j as i32 * 16, 16, 16], |c, gl| {
-            //             sprite.draw(&spritesheet.texture, &c, gl);
-            //         });
-            //     }
-            // }
+            for i in 0..tiles_width {
+                for j in 0..tiles_height {
+                    let ref tile = dungeon.cells[i][j].tile;
+                    let name = match *tile {
+                        Some(CellTile::Tile(ref name)) => name.as_slice(),
+                        None => "floor"
+                    };
+                    let sprite = spritesheet.sprites.get(name).unwrap();
+                    sprite.draw(gl, i as i32 * 16, j as i32 * 16);
+                }
+            }
         });
 
         if let Some(Keyboard(key)) = e.press_args() {

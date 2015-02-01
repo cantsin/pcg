@@ -1,7 +1,6 @@
 use std::io::{File};
-use std::str::{FromStr};
 use std::slice::{SliceExt};
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{HashMap};
 use toml::{Parser, Value, Table};
 
 use sprite::{SpriteRect};
@@ -31,7 +30,7 @@ impl TomlConfig {
         (x, y)
     }
 
-    fn get_coords(name: &String, table: &Table) -> Vec<Coords> {
+    fn get_coords(table: &Table) -> Vec<Coords> {
         let mut coords = vec![];
         for (name, value) in table.iter() {
             match value.type_str() {
@@ -77,7 +76,7 @@ impl TomlConfig {
                             // look for a local tile_width or tile_height
                             let tile_width = TomlConfig::defaults(table, "tile_width", tile_width);
                             let tile_height = TomlConfig::defaults(table, "tile_height", tile_height);
-                            let coords = TomlConfig::get_coords(name, table);
+                            let coords = TomlConfig::get_coords(table);
                             let rects = coords.iter().map(|&(x, y)| {
                                 SpriteRect::new(x, y, tile_width as i32, tile_height as i32)
                             }).collect();

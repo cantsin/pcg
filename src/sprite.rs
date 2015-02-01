@@ -1,4 +1,3 @@
-use std::collections::{HashMap};
 use opengl_graphics::{Gl, Texture};
 use graphics::{Image};
 use std::rc::Rc;
