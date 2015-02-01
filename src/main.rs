@@ -26,8 +26,7 @@ use input::keyboard::Key;
 use event::*;
 use graphics::{clear};
 
-// use cell::{CellTiles, CellTile, CellOccupant};
-use celloption::{CellOptions, CellOption, Tile};
+use celloption::{CellOptions, CellOption, Tile, Occupant};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
@@ -58,8 +57,8 @@ fn main() {
     let tiles = ["floor", "wall", "entrance", "exit", "door"];
     let cell_tiles: CellOptions<Tile> = CellOptions::new(&tiles);
 
-    // let occupants = ["monster", "treasure", "trap", "teleporter"];
-    // let cell_occupants: Vec<CellOccupant> = occupants.iter().map(|&name| CellOccupant::Occupant(String::from_str(name))).collect();
+    let occupants = ["monster", "treasure", "trap", "teleporter"];
+    let cell_occupants: CellOptions<Occupant> = CellOptions::new(&occupants);
 
     // randomly generate a map.
     let mut rng = thread_rng();
@@ -69,9 +68,9 @@ fn main() {
     for i in 0..tiles_width {
         for j in 0..tiles_height {
             let tile = cell_tiles.choose(&mut rng);
-            // let occupant = sample(&mut rng, cell_occupants.iter(), 1);
+            let occupant = cell_occupants.choose(&mut rng);
             dungeon.cells[i][j].tile = Some(tile.clone());
-            // dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
+            dungeon.cells[i][j].add(occupant);
         }
     }
 

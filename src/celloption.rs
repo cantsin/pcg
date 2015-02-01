@@ -6,11 +6,11 @@ pub trait CellOption {
 }
 
 #[derive(Clone)]
-pub struct Tile { data: String }
+struct CellData<A> { data: String }
 
-impl CellOption for Tile {
-    fn new(data: String) -> Tile {
-        Tile {
+impl<A> CellOption for CellData<A> {
+    fn new(data: String) -> CellData<A> {
+        CellData {
             data: data
         }
     }
@@ -19,12 +19,6 @@ impl CellOption for Tile {
         self.data.clone()
     }
 }
-
-#[derive(Clone)]
-pub enum Item { Data(String) }
-
-#[derive(Clone)]
-pub enum Occupant { Data(String) }
 
 pub struct CellOptions<T> {
     options: Vec<T>
@@ -42,3 +36,16 @@ impl<T: CellOption> CellOptions<T> {
         sample(rng, self.options.iter(), 1).into_iter().next().unwrap().clone()
     }
 }
+
+#[derive(Clone)]
+struct _Tile;
+
+#[derive(Clone)]
+struct _Item;
+
+#[derive(Clone)]
+struct _Occupant;
+
+pub type Tile = CellData<_Tile>;
+pub type Item = CellData<_Item>;
+pub type Occupant = CellData<_Occupant>;
