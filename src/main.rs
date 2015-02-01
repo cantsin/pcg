@@ -24,7 +24,7 @@ use input::keyboard::Key;
 use event::*;
 use graphics::{clear};
 
-use cell::{CellTile, CellOccupant};
+use cell::{CellTiles, CellTile, CellOccupant};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
@@ -48,13 +48,13 @@ fn main() {
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
     // read in config.toml
-    // parse spreadsheet
+    // parse spritesheets
     // parse dungeon cells
     // get cell.tiles, cell.occupants, cell.items as Vec<CellTile>, ...
 
     let tiles = ["floor", "wall", "entrance", "exit", "door"];
     let occupants = ["monster", "treasure", "trap", "teleporter"];
-    let cell_tiles: Vec<CellTile> = tiles.iter().map(|&name| CellTile::Tile(String::from_str(name))).collect();
+    let cell_tiles = CellTiles::new(&tiles);
     let cell_occupants: Vec<CellOccupant> = occupants.iter().map(|&name| CellOccupant::Occupant(String::from_str(name))).collect();
 
     // randomly generate a map.
@@ -64,9 +64,9 @@ fn main() {
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);
     for i in 0..tiles_width {
         for j in 0..tiles_height {
-            let tile = sample(&mut rng, cell_tiles.iter(), 1);
+            let tile = cell_tiles.random(&mut rng);
             let occupant = sample(&mut rng, cell_occupants.iter(), 1);
-            dungeon.cells[i][j].tile = Some(tile.into_iter().next().unwrap().clone());
+            dungeon.cells[i][j].tile = Some(tile);
             dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
         }
     }

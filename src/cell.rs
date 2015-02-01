@@ -1,4 +1,4 @@
-use std::rand::{Rng, Rand};
+use std::rand::{Rng, sample};
 
 #[derive(Clone)]
 pub enum CellTile {
@@ -24,6 +24,23 @@ pub struct Cell {
     items: Vec<CellItem>
 }
 
+pub struct CellTiles {
+    tiles: Vec<CellTile>
+}
+
+impl CellTiles {
+    pub fn new(names: &[&str]) -> CellTiles {
+        CellTiles {
+            tiles: names.iter().map(|&name| CellTile::Tile(String::from_str(name))).collect()
+        }
+    }
+
+    pub fn random<R: Rng>(&self, rng: &mut R) -> CellTile {
+        assert!(self.tiles.len() > 0, "Cannot retrieve random cell tile.");
+        sample(rng, self.tiles.iter(), 1).into_iter().next().unwrap().clone()
+    }
+}
+
 impl Cell {
     pub fn new(x: u32, y: u32, tile: Option<CellTile>) -> Cell {
         Cell {
@@ -43,17 +60,5 @@ impl Cell {
 impl PartialEq for Cell {
     fn eq(&self, other: &Cell) -> bool {
         self.x == other.x && self.y == other.y
-    }
-}
-
-impl Rand for Cell {
-    fn rand<R: Rng>(rng: &mut R) -> Cell {
-        Cell {
-            x: 0,
-            y: 0,
-            tile: None,
-            occupants: vec![],
-            items: vec![]
-        }
     }
 }
