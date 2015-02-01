@@ -1,48 +1,16 @@
-use std::rand::{Rng, sample};
-
-#[derive(Clone)]
-pub enum CellTile {
-    Tile(String)
-}
-
-#[derive(Clone)]
-pub enum CellItem {
-    Item(String)
-}
-
-#[derive(Clone)]
-pub enum CellOccupant {
-    Occupant(String)
-}
+use celloption::{Tile, Occupant, Item};
 
 #[derive(Clone)]
 pub struct Cell {
     x: u32,
     y: u32,
-    pub tile: Option<CellTile>,
-    occupants: Vec<CellOccupant>,
-    items: Vec<CellItem>
-}
-
-pub struct CellTiles {
-    tiles: Vec<CellTile>
-}
-
-impl CellTiles {
-    pub fn new(names: &[&str]) -> CellTiles {
-        CellTiles {
-            tiles: names.iter().map(|&name| CellTile::Tile(String::from_str(name))).collect()
-        }
-    }
-
-    pub fn random<R: Rng>(&self, rng: &mut R) -> CellTile {
-        assert!(self.tiles.len() > 0, "Cannot retrieve random cell tile.");
-        sample(rng, self.tiles.iter(), 1).into_iter().next().unwrap().clone()
-    }
+    pub tile: Option<Tile>,
+    occupants: Vec<Occupant>,
+    items: Vec<Item>
 }
 
 impl Cell {
-    pub fn new(x: u32, y: u32, tile: Option<CellTile>) -> Cell {
+    pub fn new(x: u32, y: u32, tile: Option<Tile>) -> Cell {
         Cell {
             x: x,
             y: y,
@@ -52,7 +20,7 @@ impl Cell {
         }
     }
 
-    pub fn add(&mut self, occupant: &CellOccupant) -> () {
+    pub fn add(&mut self, occupant: &Occupant) -> () {
         self.occupants.push(occupant.clone())
     }
 }

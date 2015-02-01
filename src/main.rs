@@ -1,4 +1,5 @@
 #![allow(unstable)]
+#![feature(box_syntax)]
 
 extern crate toml;
 extern crate shader_version;
@@ -14,6 +15,7 @@ mod sprite;
 mod spritesheet;
 mod dungeon;
 mod cell;
+mod celloption;
 
 use std::rand::{thread_rng, sample};
 use std::cell::RefCell;
@@ -24,7 +26,8 @@ use input::keyboard::Key;
 use event::*;
 use graphics::{clear};
 
-use cell::{CellTiles, CellTile, CellOccupant};
+// use cell::{CellTiles, CellTile, CellOccupant};
+use celloption::{CellOptions, CellOption, Tile};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
@@ -53,9 +56,10 @@ fn main() {
     // get cell.tiles, cell.occupants, cell.items as Vec<CellTile>, ...
 
     let tiles = ["floor", "wall", "entrance", "exit", "door"];
-    let occupants = ["monster", "treasure", "trap", "teleporter"];
-    let cell_tiles = CellTiles::new(&tiles);
-    let cell_occupants: Vec<CellOccupant> = occupants.iter().map(|&name| CellOccupant::Occupant(String::from_str(name))).collect();
+    let cell_tiles: CellOptions<Tile> = CellOptions::new(&tiles);
+
+    // let occupants = ["monster", "treasure", "trap", "teleporter"];
+    // let cell_occupants: Vec<CellOccupant> = occupants.iter().map(|&name| CellOccupant::Occupant(String::from_str(name))).collect();
 
     // randomly generate a map.
     let mut rng = thread_rng();
@@ -64,10 +68,10 @@ fn main() {
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);
     for i in 0..tiles_width {
         for j in 0..tiles_height {
-            let tile = cell_tiles.random(&mut rng);
-            let occupant = sample(&mut rng, cell_occupants.iter(), 1);
-            dungeon.cells[i][j].tile = Some(tile);
-            dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
+            let tile = cell_tiles.choose(&mut rng);
+            // let occupant = sample(&mut rng, cell_occupants.iter(), 1);
+            dungeon.cells[i][j].tile = Some(tile.clone());
+            // dungeon.cells[i][j].add(occupant.into_iter().next().unwrap());
         }
     }
 
@@ -80,12 +84,12 @@ fn main() {
 
             for i in 0..tiles_width {
                 for j in 0..tiles_height {
-                    let ref tile = dungeon.cells[i][j].tile;
-                    let name = match *tile {
-                        Some(CellTile::Tile(ref name)) => name.as_slice(),
-                        None => "floor"
+                    let tile = dungeon.cells[i][j].tile.clone();
+                    let name = match tile {
+                        Some(ref val) => val.name(),
+                        None => String::from_str("floor")
                     };
-                    let sprite = spritesheet.sprites.get(name).unwrap();
+                    let sprite = spritesheet.sprites.get(name.as_slice()).unwrap();
                     sprite.draw(gl, i as i32 * 16, j as i32 * 16);
                 }
             }
