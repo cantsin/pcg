@@ -32,8 +32,12 @@ impl<T: CellOption> CellOptions<T> {
     }
 
     pub fn choose<R: Rng>(&self, rng: &mut R) -> &T {
-        assert!(self.options.len() > 0, "Cannot retrieve random cell tile.");
+        assert!(self.options.len() > 0, "Cannot choose random cell option.");
         sample(rng, self.options.iter(), 1).into_iter().next().unwrap().clone()
+    }
+
+    pub fn sample<R: Rng>(&self, rng: &mut R, n: usize) -> Vec<&T> {
+        sample(rng, self.options.iter(), n)
     }
 }
 

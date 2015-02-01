@@ -17,14 +17,13 @@ mod dungeon;
 mod cell;
 mod celloption;
 
-use std::rand::{thread_rng, sample};
+use std::rand::{thread_rng};
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
 use sdl2_window::Sdl2Window;
 use input::Button::Keyboard;
 use input::keyboard::Key;
 use event::*;
-use graphics::{clear};
 
 use celloption::{CellOptions, CellOption, Tile, Occupant};
 use dungeon::{Dungeon};
