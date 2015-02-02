@@ -28,14 +28,10 @@ impl Config {
         }
     }
 
-    pub fn get_table(&self, name: &str) -> &Table {
-        let value = self.content.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_table().expect(format!("`{}` is not a TOML table.", name).as_slice())
-    }
-
-    pub fn get_subtable<'a>(&'a self, table: &'a Table, name: &str) -> &Table {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_table().expect(format!("`{}` is not a table.", name).as_slice())
+    pub fn get_table<'a>(&'a self, table: Option<&'a Table>, name: &str) -> &Table {
+        let lookup = table.unwrap_or(&self.content);
+        let value = lookup.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_table().expect(format!("`{}` is not a TOML.", name).as_slice())
     }
 
     pub fn get_string<'a>(&'a self, table: &'a Table, name: &str) -> &str {
@@ -43,7 +39,7 @@ impl Config {
         value.as_str().expect(format!("`{}` is not a string.", name).as_slice())
     }
 
-    pub fn get_array(&self, table: &Table, name: &str) -> Vec<String> {
+    pub fn get_array<T: Decodable>(&self, table: &Table, name: &str) -> Vec<T> {
         let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
         let arr = value.as_slice().expect(format!("`{}` is not an array.", name).as_slice());
         arr.iter().map(|v| decode(v.clone()).unwrap()).collect()

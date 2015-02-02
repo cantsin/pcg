@@ -37,7 +37,7 @@ fn main() {
 
     let config_path = Path::new(TOML_CONFIG);
     let config = Config::new(&config_path);
-    let vars = config.get_table("main");
+    let vars = config.get_table(None, "main");
     let window_width = config.get_default(vars, "window_width", 800);
     let window_height = config.get_default(vars, "window_height", 800);
 
@@ -53,11 +53,11 @@ fn main() {
     let ref mut gl = Gl::new(opengl);
 
     let spritesheet_name = config.get_string(vars, "spritesheet");
-    let spritesheets = config.get_table("spritesheets");
-    let spritesheet_config = config.get_subtable(spritesheets, spritesheet_name);
+    let spritesheets = config.get_table(None, "spritesheets");
+    let spritesheet_config = config.get_table(Some(spritesheets), spritesheet_name);
     let spritesheet_location = config.get_string(spritesheet_config, "path");
 
-    let cell_data = config.get_subtable(spritesheet_config, "cells");
+    let cell_data = config.get_table(Some(spritesheet_config), "cells");
     let tiles: Vec<String> = config.get_array(cell_data, "tiles");
     let occupants: Vec<String> = config.get_array(cell_data, "occupants");
     let cell_tiles: CellOptions<Tile> = CellOptions::new(tiles.as_slice());
