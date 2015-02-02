@@ -1,10 +1,10 @@
 use std::io::fs::{PathExtensions};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
-use std::rc::Rc;
+use std::rc::{Rc};
 use opengl_graphics::{Texture};
 
-use config::{TomlConfig};
+use config::{SpriteConfig};
 use sprite::{Sprite};
 
 pub struct SpriteSheet {
@@ -29,7 +29,7 @@ impl SpriteSheet {
         let texture_data = Texture::from_path(filepath).unwrap();
         let texture = Rc::new(texture_data);
         let toml_path = SpriteSheet::location(filepath).expect("No spritesheet configuration file.");
-        let config = TomlConfig::process_spritesheet(&toml_path);
+        let config = SpriteConfig::process_spritesheet(&toml_path);
         // convert all the coordinates to sprites on this texture
         let sprites = config.iter().map(|(name, &ref rects)| {
             let height = rects[0].get_height();

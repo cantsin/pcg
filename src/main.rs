@@ -1,6 +1,5 @@
 #![allow(unstable)]
 #![feature(box_syntax)]
-#![allow(dead_code)]
 
 extern crate toml;
 extern crate shader_version;
@@ -55,47 +54,49 @@ fn main() {
 
     let spritesheet_name = config.get_string(vars, "spritesheet");
     let spritesheets = config.get_table("spritesheets");
-    let spritesheet_location = config.get_string(spritesheets, format!("{}.main", spritesheet_name).as_slice());
+    let spritesheet_config = config.get_subtable(spritesheets, spritesheet_name);
+    let spritesheet_location = config.get_string(spritesheet_config, "path");
+
+    let cell_data = config.get_subtable(spritesheet_config, "cells");
+    let tiles: Vec<String> = config.get_array(cell_data, "tiles");
+    let occupants: Vec<String> = config.get_array(cell_data, "occupants");
+    let cell_tiles: CellOptions<Tile> = CellOptions::new(tiles.as_slice());
+    let cell_occupants: CellOptions<Occupant> = CellOptions::new(occupants.as_slice());
+
+    // randomly generate a map.
+    let mut rng = thread_rng();
+    let tiles_width = 50us;
+    let tiles_height = 50us;
+    let mut dungeon = Dungeon::new(tiles_width, tiles_height);
+    for i in 0..tiles_width {
+        for j in 0..tiles_height {
+            let tile = cell_tiles.choose(&mut rng).clone();
+            dungeon.cells[i][j].tile = Some(tile);
+            let occupants = cell_occupants.sample(&mut rng, 2);
+            for occupant in occupants.iter() {
+                dungeon.cells[i][j].add(*occupant);
+            }
+        }
+    }
+
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
-
-    // let cell_data = config.get_table(spritesheets, format!("{}.cells", spritesheet_name).as_slice());
-    // let tiles: &[&str] = config.get_array(cell_data, "tiles");
-    // let occupants: &[&str] = config.get_array(cell_data, "occupants");
-    // let cell_tiles: CellOptions<Tile> = CellOptions::new(&tiles);
-    // let cell_occupants: CellOptions<Occupant> = CellOptions::new(&occupants);
-
-    // // randomly generate a map.
-    // let mut rng = thread_rng();
-    // let tiles_width = 50us;
-    // let tiles_height = 50us;
-    // let mut dungeon = Dungeon::new(tiles_width, tiles_height);
-    // for i in 0..tiles_width {
-    //     for j in 0..tiles_height {
-    //         let tile = cell_tiles.choose(&mut rng).clone();
-    //         dungeon.cells[i][j].tile = Some(tile);
-    //         let occupants = cell_occupants.sample(&mut rng, 2);
-    //         for occupant in occupants.iter() {
-    //             dungeon.cells[i][j].add(*occupant);
-    //         }
-    //     }
-    // }
 
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|_| {
-            // for i in 0..tiles_width {
-            //     for j in 0..tiles_height {
-            //         let tile = dungeon.cells[i][j].tile.clone();
-            //         match tile {
-            //             Some(ref val) => {
-            //                 let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-            //                 sprite.draw(gl, i as i32 * 16, j as i32 * 16);
-            //             }
-            //             None => ()
-            //         };
-            //     }
-            // }
+            for i in 0..tiles_width {
+                for j in 0..tiles_height {
+                    let tile = dungeon.cells[i][j].tile.clone();
+                    match tile {
+                        Some(ref val) => {
+                            let sprite = spritesheet.sprites.get(&val.name()).unwrap();
+                            sprite.draw(gl, i as i32 * 16, j as i32 * 16);
+                        }
+                        None => ()
+                    };
+                }
+            }
         });
 
         if let Some(Keyboard(key)) = e.press_args() {

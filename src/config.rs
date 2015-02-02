@@ -33,14 +33,21 @@ impl Config {
         value.as_table().expect(format!("`{}` is not a TOML table.", name).as_slice())
     }
 
+    pub fn get_subtable<'a>(&'a self, table: &'a Table, name: &str) -> &Table {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_table().expect(format!("`{}` is not a table.", name).as_slice())
+    }
+
     pub fn get_string<'a>(&'a self, table: &'a Table, name: &str) -> &str {
         let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
         value.as_str().expect(format!("`{}` is not a string.", name).as_slice())
     }
 
-    // pub fn get_array<T: Decodable>(&self, table: &Table, name: &str) -> &[&T] {
-
-    // }
+    pub fn get_array(&self, table: &Table, name: &str) -> Vec<String> {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        let arr = value.as_slice().expect(format!("`{}` is not an array.", name).as_slice());
+        arr.iter().map(|v| decode(v.clone()).unwrap()).collect()
+    }
 
     pub fn get_default<T: Decodable>(&self, table: &Table, name: &str, val: T) -> T {
         match table.get(name) {
@@ -50,9 +57,9 @@ impl Config {
     }
 }
 
-pub struct TomlConfig;
+pub struct SpriteConfig;
 
-impl TomlConfig {
+impl SpriteConfig {
 
     /// override the default value if the given table location exists.
     fn defaults(what: &Table, attribute: &str, default: i64) -> i64 {
@@ -77,7 +84,7 @@ impl TomlConfig {
             match value.type_str() {
                 "array" => {
                     let values = value.as_slice().unwrap();
-                    let (x, y) = TomlConfig::get_coord(name, values);
+                    let (x, y) = SpriteConfig::get_coord(name, values);
                     coords.push((x, y));
                 }
                 _ => {
@@ -101,23 +108,23 @@ impl TomlConfig {
                 let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
                 let sprites = value.get("sprites").expect("Configuration file does not have `sprites` entry.");
                 let sprites_table = sprites.as_table().expect("`sprites` entry is not a TOML table.");
-                let tile_width = TomlConfig::defaults(sprites_table, "tile_width", DEFAULT_TILE_SIZE);
-                let tile_height = TomlConfig::defaults(sprites_table, "tile_height", DEFAULT_TILE_SIZE);
+                let tile_width = SpriteConfig::defaults(sprites_table, "tile_width", DEFAULT_TILE_SIZE);
+                let tile_height = SpriteConfig::defaults(sprites_table, "tile_height", DEFAULT_TILE_SIZE);
                 let mut sprites = HashMap::new();
                 for (name, value) in sprites_table.iter() {
                     match value.type_str() {
                         "array" => {
                             let values = value.as_slice().unwrap();
-                            let (x, y) = TomlConfig::get_coord(name, values);
+                            let (x, y) = SpriteConfig::get_coord(name, values);
                             let rect = SpriteRect::new(x, y, tile_width as i32, tile_height as i32);
                             sprites.insert(name.clone(), vec![rect]);
                         }
                         "table" => {
                             let table = value.as_table().unwrap();
                             // look for a local tile_width or tile_height
-                            let tile_width = TomlConfig::defaults(table, "tile_width", tile_width);
-                            let tile_height = TomlConfig::defaults(table, "tile_height", tile_height);
-                            let coords = TomlConfig::get_coords(table);
+                            let tile_width = SpriteConfig::defaults(table, "tile_width", tile_width);
+                            let tile_height = SpriteConfig::defaults(table, "tile_height", tile_height);
+                            let coords = SpriteConfig::get_coords(table);
                             let rects = coords.iter().map(|&(x, y)| {
                                 SpriteRect::new(x, y, tile_width as i32, tile_height as i32)
                             }).collect();

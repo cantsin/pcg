@@ -28,9 +28,10 @@ pub struct CellOptions<T> {
 }
 
 impl<T: CellOption> CellOptions<T> {
-    pub fn new(names: &[&str]) -> CellOptions<T> {
+    pub fn new(names: &[String]) -> CellOptions<T> {
+        let options = names.iter().map(|name| CellOption::new(name.clone())).collect();
         CellOptions {
-            options: names.iter().map(|&name| CellOption::new(String::from_str(name))).collect()
+            options: options
         }
     }
 

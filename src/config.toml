@@ -4,7 +4,7 @@ window_height = 800
 spritesheet = "dungeon"
 
 [spritesheets.dungeon]
-main = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
+path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
 
 [spritesheets.dungeon.cells]
 tiles = ["floor", "wall", "entrance", "exit", "door"]
