@@ -1,5 +1,8 @@
 use std::rand::{Rng, sample};
 
+/// cell options store data for a particular cell type.
+/// currently we only store the tile name for rendering.
+
 pub trait CellOption {
     fn new(String) -> Self;
     fn name(&self) -> String;
@@ -33,7 +36,7 @@ impl<T: CellOption> CellOptions<T> {
 
     pub fn choose<R: Rng>(&self, rng: &mut R) -> &T {
         assert!(self.options.len() > 0, "Cannot choose random cell option.");
-        sample(rng, self.options.iter(), 1).into_iter().next().unwrap().clone()
+        sample(rng, self.options.iter(), 1).into_iter().next().unwrap()
     }
 
     pub fn sample<R: Rng>(&self, rng: &mut R, n: usize) -> Vec<&T> {

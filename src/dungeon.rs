@@ -1,5 +1,5 @@
 use std::vec::{Vec};
-use std::iter::{repeat};
+use std::iter::{range};
 
 use cell::Cell;
 
@@ -12,11 +12,15 @@ pub struct Dungeon {
 
 impl Dungeon {
     pub fn new(width: usize, height: usize) -> Dungeon {
-        let default = Cell::new(0, 0, None);
+        let cells = range(0, width).map(|i| {
+            range(0, height).map(|j| {
+                Cell::new(i as u32, j as u32, None)
+            }).collect()
+        }).collect();
         Dungeon {
             width: width,
             height: height,
-            cells: repeat(repeat(default).take(width).collect()).take(height).collect()
+            cells: cells
         }
     }
 }

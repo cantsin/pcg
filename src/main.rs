@@ -1,5 +1,6 @@
 #![allow(unstable)]
 #![feature(box_syntax)]
+#![allow(dead_code)]
 
 extern crate toml;
 extern crate shader_version;
@@ -29,33 +30,33 @@ use celloption::{CellOptions, CellOption, Tile, Occupant};
 use dungeon::{Dungeon};
 use spritesheet::{SpriteSheet};
 
-const WINDOW_WIDTH: u32 = 800;
-const WINDOW_HEIGHT: u32 = 800;
+const TOML_CONFIG: &'static str = "config.toml";
 
 fn main() {
+
+    // read in config.toml
+    let window_width = 800;
+    let window_height = 800;
+    let spritesheet_name = "dungeon";
+    println!("Using spritesheet {}", spritesheet_name);
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
                                  event::WindowSettings {
                                      title: "PCG".to_string(),
-                                     size: [WINDOW_WIDTH, WINDOW_HEIGHT],
+                                     size: [window_width, window_height],
                                      fullscreen: false,
                                      exit_on_esc: true,
                                      samples: 0,
                                  });
     let ref mut gl = Gl::new(opengl);
 
+    // parse spritesheet
+    // get cell.tiles, cell.occupants, cell.items...
     let spritesheet_path = Path::new("./assets/16x16_Jerom_CC-BY-SA-3.0_0.png");
     let spritesheet = SpriteSheet::new(&spritesheet_path);
-
-    // read in config.toml
-    // parse spritesheets
-    // parse dungeon cells
-    // get cell.tiles, cell.occupants, cell.items as Vec<CellTile>, ...
-
     let tiles = ["floor", "wall", "entrance", "exit", "door"];
     let cell_tiles: CellOptions<Tile> = CellOptions::new(&tiles);
-
     let occupants = ["monster", "treasure", "trap", "teleporter"];
     let cell_occupants: CellOptions<Occupant> = CellOptions::new(&occupants);
 
@@ -67,19 +68,17 @@ fn main() {
     for i in 0..tiles_width {
         for j in 0..tiles_height {
             let tile = cell_tiles.choose(&mut rng);
-            let occupant = cell_occupants.choose(&mut rng);
             dungeon.cells[i][j].tile = Some(tile.clone());
-            dungeon.cells[i][j].add(occupant);
+            let occupants = cell_occupants.sample(&mut rng, 2);
+            for occupant in occupants.iter() {
+                dungeon.cells[i][j].add(*occupant);
+            }
         }
     }
 
-    let sprite = spritesheet.sprites.get("floor").unwrap();
-
     let window = RefCell::new(window);
     for e in event::events(&window) {
-        e.render(|args| {
-            sprite.draw(gl, 0, 0);
-
+        e.render(|_| {
             for i in 0..tiles_width {
                 for j in 0..tiles_height {
                     let tile = dungeon.cells[i][j].tile.clone();
@@ -87,7 +86,7 @@ fn main() {
                         Some(ref val) => val.name(),
                         None => String::from_str("floor")
                     };
-                    let sprite = spritesheet.sprites.get(name.as_slice()).unwrap();
+                    let sprite = spritesheet.sprites.get(&name).unwrap();
                     sprite.draw(gl, i as i32 * 16, j as i32 * 16);
                 }
             }
