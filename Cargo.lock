@@ -8,6 +8,7 @@ dependencies = [
  "pistoncore-event 0.0.5 (git+https://github.com/pistondevelopers/event)",
  "pistoncore-input 0.0.5 (git+https://github.com/pistondevelopers/input)",
  "pistoncore-sdl2_window 0.0.1 (git+https://github.com/pistondevelopers/sdl2_window)",
+ "rustc-serialize 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "shader_version 0.0.1 (git+https://github.com/pistondevelopers/shader_version)",
  "toml 0.1.15 (git+https://github.com/alexcrichton/toml-rs)",
 ]

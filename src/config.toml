@@ -1,14 +1,12 @@
 [main]
-width = 800
-height = 800
+window_width = 800
+window_height = 800
 spritesheet = "dungeon"
 
-[spritesheets]
-
-[spreadsheets.dungeon]
+[spritesheets.dungeon]
 main = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
 
-[spreadsheets.dungeon.cells]
+[spritesheets.dungeon.cells]
 tiles = ["floor", "wall", "entrance", "exit", "door"]
 occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []

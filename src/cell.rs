@@ -2,11 +2,11 @@ use celloption::{Tile, Occupant, Item};
 
 #[derive(Clone)]
 pub struct Cell {
-    x: u32,
-    y: u32,
+    pub x: u32,
+    pub y: u32,
     pub tile: Option<Tile>,
-    occupants: Vec<Occupant>,
-    items: Vec<Item>
+    pub occupants: Vec<Occupant>,
+    pub items: Vec<Item>
 }
 
 impl Cell {
@@ -20,8 +20,8 @@ impl Cell {
         }
     }
 
-    pub fn add(&mut self, occupant: &Occupant) -> () {
-        self.occupants.push(occupant.clone())
+    pub fn add(&mut self, occupant: &Occupant) {
+        self.occupants.push(occupant.clone());
     }
 }
 

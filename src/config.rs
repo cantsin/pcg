@@ -1,13 +1,54 @@
 use std::io::{File};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
-use toml::{Parser, Value, Table};
+use toml::{Parser, Value, Table, decode};
+use rustc_serialize::{Decodable};
 
 use sprite::{SpriteRect};
 
 const DEFAULT_TILE_SIZE: i64 = 16;
 
 type Coords = (i32, i32);
+
+pub struct Config {
+    content: Table
+}
+
+impl Config {
+    pub fn new(config_path: &Path) -> Config {
+        let mut config_file = File::open(config_path);
+        match config_file.read_to_string() {
+            Err(why) => panic!("Could not read configuration file {}: {}", config_path.display(), why),
+            Ok(contents) => {
+                let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
+                Config {
+                    content: value
+                }
+            }
+        }
+    }
+
+    pub fn get_table(&self, name: &str) -> &Table {
+        let value = self.content.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_table().expect(format!("`{}` is not a TOML table.", name).as_slice())
+    }
+
+    pub fn get_string<'a>(&'a self, table: &'a Table, name: &str) -> &str {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_str().expect(format!("`{}` is not a string.", name).as_slice())
+    }
+
+    // pub fn get_array<T: Decodable>(&self, table: &Table, name: &str) -> &[&T] {
+
+    // }
+
+    pub fn get_default<T: Decodable>(&self, table: &Table, name: &str, val: T) -> T {
+        match table.get(name) {
+            Some(value) => decode(value.clone()).unwrap_or(val),
+            None => val
+        }
+    }
+}
 
 pub struct TomlConfig;
 
