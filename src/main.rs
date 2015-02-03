@@ -18,6 +18,8 @@ mod spritesheet;
 mod dungeon;
 mod cell;
 mod celloption;
+mod genotype;
+mod mu_lambda;
 
 use std::rand::{thread_rng};
 use std::cell::RefCell;
@@ -31,6 +33,7 @@ use celloption::{CellOptions, CellOption, Tile, Occupant};
 use spritesheet::{SpriteSheet};
 use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
+use genotype::{GenoType};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
