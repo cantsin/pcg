@@ -6,10 +6,6 @@ use rustc_serialize::{Decodable};
 
 use sprite::{SpriteRect};
 
-const DEFAULT_TILE_SIZE: i64 = 16;
-
-type Coords = (i32, i32);
-
 pub struct Config {
     content: Table
 }
@@ -52,6 +48,10 @@ impl Config {
         }
     }
 }
+
+const DEFAULT_TILE_SIZE: i64 = 16;
+
+type Coords = (i32, i32);
 
 pub struct SpriteConfig;
 

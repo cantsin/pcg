@@ -28,7 +28,7 @@ use event::*;
 
 use celloption::{CellOptions, CellOption, Tile, Occupant};
 use spritesheet::{SpriteSheet};
-use dungeon::{Dungeon};
+use dungeon::{Dungeon, DungeonCells};
 use config::{Config};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
@@ -65,8 +65,8 @@ fn main() {
 
     // randomly generate a map.
     let mut rng = thread_rng();
-    let tiles_width = 50us;
-    let tiles_height = 50us;
+    let tiles_width = (window_width / 16) as usize;
+    let tiles_height = (window_height / 16) as usize;
     let mut dungeon = Dungeon::new(tiles_width, tiles_height);
     for i in 0..tiles_width {
         for j in 0..tiles_height {
@@ -78,6 +78,7 @@ fn main() {
             }
         }
     }
+    let mut dc = DungeonCells::new(&dungeon);
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
@@ -85,16 +86,13 @@ fn main() {
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|_| {
-            for i in 0..tiles_width {
-                for j in 0..tiles_height {
-                    let tile = dungeon.cells[i][j].tile.clone();
-                    match tile {
-                        Some(ref val) => {
-                            let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                            sprite.draw(gl, i as i32 * 16, j as i32 * 16);
-                        }
-                        None => ()
-                    };
+            for cell in dc {
+                match cell.tile {
+                    Some(ref val) => {
+                        let sprite = spritesheet.sprites.get(&val.name()).unwrap();
+                        sprite.draw(gl, cell.x as i32 * 16, cell.y as i32 * 16);
+                    }
+                    None => ()
                 }
             }
         });
