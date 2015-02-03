@@ -1,7 +1,8 @@
 use std::vec::{Vec};
 use std::iter::{Iterator, range};
 
-use cell::Cell;
+use cell::{Cell};
+use util::{Coords};
 
 #[derive(Clone)]
 pub struct Dungeon {
@@ -22,6 +23,10 @@ impl Dungeon {
             height: height,
             cells: cells
         }
+    }
+
+    pub fn in_bounds(&self, x: i32, y: i32) -> bool {
+        x >= 0 && x < self.width as i32 && y >= 0 && y < self.height as i32
     }
 }
 
@@ -60,6 +65,73 @@ impl Iterator for DungeonCells {
                 }
             }
             None => None
+        }
+    }
+}
+
+pub struct SurroundingCells {
+    dungeon: Dungeon,
+    coords: [Coords; 8],
+    index: usize
+}
+
+impl SurroundingCells {
+    pub fn new(dungeon: &Dungeon, cell: &Cell, is_cardinal: bool) -> SurroundingCells {
+        let x = cell.x as i32;
+        let y = cell.y as i32;
+        // clockwise, starting from the top
+        let coords = if is_cardinal {
+            let invalid = (-1, -1);
+            [(x  , y-1),
+             (x+1, y  ),
+             (x  , y+1),
+             (x-1, y  ),
+             invalid,
+             invalid,
+             invalid,
+             invalid]
+        } else {
+            [(x  , y-1),
+             (x+1, y-1),
+             (x+1, y  ),
+             (x+1, y+1),
+             (x  , y+1),
+             (x-1, y+1),
+             (x-1, y  ),
+             (x-1, y-1)]
+        };
+        SurroundingCells {
+            dungeon: dungeon.clone(),
+            coords: coords,
+            index: 0
+        }
+    }
+}
+
+impl Iterator for SurroundingCells {
+    type Item = Cell;
+
+    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
+        if self.index < self.coords.len() {
+            let mut coord = self.coords[self.index];
+            // look for the first valid coordinate.
+            while !self.dungeon.in_bounds(coord.0, coord.1) {
+                self.index += 1;
+                if self.index >= self.coords.len() {
+                    break;
+                }
+                coord = self.coords[self.index];
+            }
+            if self.index < self.coords.len() {
+                let cell = self.dungeon.cells[coord.0 as usize][coord.1 as usize].clone();
+                self.index += 1;
+                Some(cell)
+            } else {
+                None
+            }
+        }
+        else {
+            None
         }
     }
 }

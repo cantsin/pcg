@@ -11,6 +11,7 @@ extern crate sdl2_window;
 extern crate opengl_graphics;
 extern crate "rustc-serialize" as rustc_serialize;
 
+mod util;
 mod config;
 mod sprite;
 mod spritesheet;
@@ -28,7 +29,7 @@ use event::*;
 
 use celloption::{CellOptions, CellOption, Tile, Occupant};
 use spritesheet::{SpriteSheet};
-use dungeon::{Dungeon, DungeonCells};
+use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
@@ -79,6 +80,12 @@ fn main() {
         }
     }
     let mut dc = DungeonCells::new(&dungeon);
+
+    println!("cardinal cells");
+    let mut cc = SurroundingCells::new(&dungeon, &dungeon.cells[0][1], false);
+    for c in cc {
+        println!("x: {}, y: {}", c.x, c.y);
+    }
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);

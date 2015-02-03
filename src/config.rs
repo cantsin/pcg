@@ -5,6 +5,7 @@ use toml::{Parser, Value, Table, decode};
 use rustc_serialize::{Decodable};
 
 use sprite::{SpriteRect};
+use util::{Coords};
 
 pub struct Config {
     content: Table
@@ -50,8 +51,6 @@ impl Config {
 }
 
 const DEFAULT_TILE_SIZE: i64 = 16;
-
-type Coords = (i32, i32);
 
 pub struct SpriteConfig;
 
