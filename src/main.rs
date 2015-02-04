@@ -29,11 +29,11 @@ use input::Button::Keyboard;
 use input::keyboard::Key;
 use event::*;
 
-use celloption::{CellOptions, CellOption, Tile, Occupant};
+use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
 use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
-use genotype::{GenoType};
+use genotype::{GenoType, RandomSeed};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -63,32 +63,19 @@ fn main() {
 
     let cell_data = config.get_table(Some(spritesheet_config), "cells");
     let tiles: Vec<String> = config.get_array(cell_data, "tiles");
+    let items: Vec<String> = config.get_array(cell_data, "items");
     let occupants: Vec<String> = config.get_array(cell_data, "occupants");
     let cell_tiles: CellOptions<Tile> = CellOptions::new(tiles.as_slice());
+    let cell_items: CellOptions<Item> = CellOptions::new(items.as_slice());
     let cell_occupants: CellOptions<Occupant> = CellOptions::new(occupants.as_slice());
 
-    // randomly generate a map.
-    let mut rng = thread_rng();
     let tiles_width = (window_width / 16) as usize;
     let tiles_height = (window_height / 16) as usize;
-    let mut dungeon = Dungeon::new(tiles_width, tiles_height);
-    for i in 0..tiles_width {
-        for j in 0..tiles_height {
-            let tile = cell_tiles.choose(&mut rng).clone();
-            dungeon.cells[i][j].tile = Some(tile);
-            let occupants = cell_occupants.sample(&mut rng, 2);
-            for occupant in occupants.iter() {
-                dungeon.cells[i][j].add(*occupant);
-            }
-        }
-    }
-    let mut dc = DungeonCells::new(&dungeon);
 
-    println!("cardinal cells");
-    let mut cc = SurroundingCells::new(&dungeon, &dungeon.cells[0][1], false);
-    for c in cc {
-        println!("x: {}, y: {}", c.x, c.y);
-    }
+    let rs = RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
+    let dungeon = rs.generate();
+
+    let mut dc = DungeonCells::new(&dungeon);
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);

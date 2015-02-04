@@ -12,7 +12,7 @@ pub trait GenoType {
 
 use std::rand::{thread_rng};
 
-struct RandomSeed {
+pub struct RandomSeed {
     fitness: f64,
     width: usize,
     height: usize,
