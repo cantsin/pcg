@@ -1,6 +1,8 @@
 [main]
 window_width = 400
 window_height = 400
+tiles_width = 25
+tiles_height = 25
 spritesheet = "dungeon"
 
 [spritesheets.dungeon]
@@ -10,3 +12,9 @@ path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
 tiles = ["floor", "wall", "entrance", "exit", "door"]
 occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []
+
+[mu-lambda]
+iterations = 100
+keep = 20
+generate = 80
+strategy = "RandomSeed"

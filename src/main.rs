@@ -34,6 +34,7 @@ use spritesheet::{SpriteSheet};
 use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
 use genotype::{GenoType, RandomSeed};
+use mu_lambda::{MuLambda};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -44,6 +45,8 @@ fn main() {
     let vars = config.get_table(None, "main");
     let window_width = config.get_default(vars, "window_width", 800);
     let window_height = config.get_default(vars, "window_height", 800);
+    let tiles_width = config.get_default(vars, "tiles_width", 50);
+    let tiles_height = config.get_default(vars, "tiles_height", 50);
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
@@ -69,8 +72,11 @@ fn main() {
     let cell_items: CellOptions<Item> = CellOptions::new(items.as_slice());
     let cell_occupants: CellOptions<Occupant> = CellOptions::new(occupants.as_slice());
 
-    let tiles_width = (window_width / 16) as usize;
-    let tiles_height = (window_height / 16) as usize;
+    let mulambda_vars = config.get_table(None, "mu-lambda");
+    let mu = config.get_default(mulambda_vars, "mu", 100);
+    let lambda = config.get_default(mulambda_vars, "lambda", 100);
+    let iterations = config.get_default(mulambda_vars, "iterations", 100);
+    let mulambda = MuLambda::new(iterations, mu, lambda);
 
     let rs = RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
     let dungeon = rs.generate();
