@@ -21,7 +21,6 @@ mod celloption;
 mod genotype;
 mod mu_lambda;
 
-use std::rand::{thread_rng};
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
 use sdl2_window::Sdl2Window;
@@ -76,10 +75,17 @@ fn main() {
     let mu = config.get_default(mulambda_vars, "mu", 100);
     let lambda = config.get_default(mulambda_vars, "lambda", 100);
     let iterations = config.get_default(mulambda_vars, "iterations", 100);
-    let mulambda = MuLambda::new(iterations, mu, lambda);
+    let strategy = config.get_string(mulambda_vars, "strategy");
+    let genotype = match strategy {
+        "RandomSeed" => {
+            RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        }
+        _ => panic!(format!("Strategy {} could not be found.", strategy))
+    };
 
-    let rs = RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
-    let dungeon = rs.generate();
+    let mulambda = MuLambda::new(iterations, mu, lambda, genotype.clone());
+
+    let dungeon = genotype.generate();
 
     let mut dc = DungeonCells::new(&dungeon);
 

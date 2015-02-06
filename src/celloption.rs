@@ -23,6 +23,7 @@ impl<A> CellOption for CellData<A> {
     }
 }
 
+#[derive(Clone)]
 pub struct CellOptions<T> {
     options: Vec<T>
 }
