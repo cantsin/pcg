@@ -20,6 +20,7 @@ mod cell;
 mod celloption;
 mod genotype;
 mod mu_lambda;
+mod evaluation;
 
 use std::cell::RefCell;
 use opengl_graphics::{Gl};

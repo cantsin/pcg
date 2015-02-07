@@ -1,11 +1,12 @@
 use dungeon::{Dungeon};
+use evaluation::{EvaluationFn};
 use celloption::{CellOptions, Tile, Item, Occupant};
 
 pub trait GenoType {
     fn mutate(&mut self);
     fn generate(&self) -> Dungeon;
 
-    fn evaluate<F: Fn(&Dungeon) -> f64>(&self, dungeon: &Dungeon, strategies: &[F]) -> f64 {
+    fn evaluate(&self, dungeon: &Dungeon, strategies: &[EvaluationFn]) -> f64 {
         strategies.iter().fold(1.0, |accum, f| accum * f(dungeon))
     }
 }
