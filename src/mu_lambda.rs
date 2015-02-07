@@ -1,24 +1,27 @@
 use std::rand::{Rng, thread_rng};
 
+use evaluation::{EvaluationFn};
 use genotype::{GenoType};
 use util::{shuffle};
 
-pub struct MuLambda<G: GenoType> {
+pub struct MuLambda<'a, G: GenoType> {
     iterations: usize,
     current_iteration: usize,
     mu: usize,     // number to keep
     lambda: usize, // number to generate
-    genotype: G
+    genotype: G,
+    evaluations: &'a [EvaluationFn]
 }
 
-impl<G: GenoType + Clone> MuLambda<G> {
-    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G) -> MuLambda<G> {
+impl<'a, G: GenoType + Clone> MuLambda<'a, G> {
+    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: &'a [EvaluationFn]) -> MuLambda<'a, G> {
         MuLambda {
             iterations: iterations,
             current_iteration: 0,
             mu: mu,
             lambda: lambda,
-            genotype: genotype
+            genotype: genotype,
+            evaluations: funcs
         }
     }
 

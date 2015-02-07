@@ -18,3 +18,4 @@ iterations = 100
 keep = 20
 generate = 80
 strategy = "RandomSeed"
+evaluations = ["check_1x1_rooms", ]

@@ -35,6 +35,7 @@ use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
 use genotype::{GenoType, RandomSeed};
 use mu_lambda::{MuLambda};
+use evaluation::{EvaluationFn, check_1x1_rooms};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -77,6 +78,15 @@ fn main() {
     let lambda = config.get_default(mulambda_vars, "lambda", 100);
     let iterations = config.get_default(mulambda_vars, "iterations", 100);
     let strategy = config.get_string(mulambda_vars, "strategy");
+    let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
+    let evaluation_fns: [EvaluationFn; 1] = [box check_1x1_rooms];
+    // let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|k| {
+    //     match k.as_slice() {
+    //         "check_1x1_rooms" => box check_1x1_rooms,
+    //         _ => panic!(format!("Evaluation function {} could not be found.", k))
+    //     }
+    // }).collect();
+
     let genotype = match strategy {
         "RandomSeed" => {
             RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
@@ -84,7 +94,11 @@ fn main() {
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
 
-    let mulambda = MuLambda::new(iterations, mu, lambda, genotype.clone());
+    let mulambda = MuLambda::new(iterations,
+                                 mu,
+                                 lambda,
+                                 genotype.clone(),
+                                 evaluation_fns.as_slice());
 
     let dungeon = genotype.generate();
 

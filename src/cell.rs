@@ -20,6 +20,10 @@ impl Cell {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.tile.is_none()
+    }
+
     pub fn add(&mut self, occupant: &Occupant) {
         self.occupants.push(occupant.clone());
     }
