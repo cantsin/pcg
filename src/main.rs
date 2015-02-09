@@ -2,6 +2,7 @@
 #![feature(core)]
 #![feature(path)]
 #![feature(box_syntax)]
+#![feature(collections)]
 #![allow(dead_code)]
 #![allow(unused_variables)]
 #![allow(unused_imports)]
@@ -87,10 +88,12 @@ fn main() {
     let iterations = config.get_default(mulambda_vars, "iterations", 100);
     let strategy = config.get_string(mulambda_vars, "strategy");
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
-    let evaluation_fns: [EvaluationFn; 1] = [box check_1x1_rooms];
-
-    let mut evaluation_fns: Vec<EvaluationFn> = vec![];
-    evaluation_fns.push(box check_1x1_rooms);
+    let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|eval| {
+        match eval.as_slice() {
+            "check_1x1_rooms" => { (box check_1x1_rooms) as EvaluationFn }
+            _ => panic!(format!("Evaluation function {} could not be found.", eval))
+        }
+    }).collect();
 
     let genotype = match strategy {
         "RandomSeed" => {

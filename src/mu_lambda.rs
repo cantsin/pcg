@@ -31,22 +31,35 @@ impl<'a, G: GenoType + Clone> MuLambda<'a, G> {
         let mut rng = thread_rng();
 
         while self.current_iteration < self.iterations {
-            // TODO: implement fitness functions first
-            self.iterate(&mut rng, primer.as_mut_slice());
+            primer = self.iterate(&mut rng, primer.as_mut_slice());
             self.current_iteration += 1;
         }
 
     }
 
-    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G]) {
+    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G]) -> Vec<G> {
+        // shuffle the population
         shuffle(rng, primer);
-        for individual in primer.iter() {
+        // calculate the fitness for each individual
+        let mut colony: Vec<(&G, f64)> = primer.iter().map(|individual| {
             let dungeon = individual.generate();
-            // individual.evaluate(dungeon, fitness_tests)
-        }
-
+            let fitness = individual.evaluate(&dungeon, self.evaluations);
+            (individual, fitness)
+        }).collect();
         // sort by fitness
+        colony.sort_by(|&a, &b| {
+            let (_, f1) = a;
+            let (_, f2) = b;
+            match f1.partial_cmp(&f2) {
+                Some(ordering) => ordering,
+                None => panic!(format!("{:?} and {:?} could not be ordered.", f1, f2))
+            }
+        });
         // keep mu
+        let mut survivors: Vec<G> = colony.iter().map(|&(i, _)| i.clone()).take(self.mu).collect();
         // add the next generation
+        let next_generation: Vec<G> = range(0, self.lambda).map(|_| self.genotype.clone()).collect();
+        survivors.push_all(next_generation.as_slice());
+        survivors
     }
 }
