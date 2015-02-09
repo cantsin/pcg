@@ -11,7 +11,7 @@ pub trait GenoType {
     }
 }
 
-use std::rand::{thread_rng};
+use rand::{thread_rng};
 
 #[derive(Clone)]
 pub struct RandomSeed {

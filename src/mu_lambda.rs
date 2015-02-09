@@ -1,4 +1,4 @@
-use std::rand::{Rng, thread_rng};
+use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
 use genotype::{GenoType};

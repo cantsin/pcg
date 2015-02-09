@@ -1,4 +1,4 @@
-use std::io::{File};
+use std::old_io::{File};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use toml::{Parser, Value, Table, decode};

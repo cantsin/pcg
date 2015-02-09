@@ -1,6 +1,12 @@
-#![allow(unstable)]
+#![feature(io)]
+#![feature(core)]
+#![feature(path)]
 #![feature(box_syntax)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_imports)]
 
+extern crate rand;
 extern crate toml;
 extern crate shader_version;
 extern crate input;
@@ -9,6 +15,7 @@ extern crate event;
 extern crate graphics;
 extern crate sdl2_window;
 extern crate opengl_graphics;
+extern crate window;
 extern crate "rustc-serialize" as rustc_serialize;
 
 mod util;
@@ -24,7 +31,8 @@ mod evaluation;
 
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
-use sdl2_window::Sdl2Window;
+use window::{WindowSettings};
+use sdl2_window::{Sdl2Window};
 use input::Button::Keyboard;
 use input::keyboard::Key;
 use event::*;
@@ -51,7 +59,7 @@ fn main() {
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
-                                 event::WindowSettings {
+                                 WindowSettings {
                                      title: "PCG".to_string(),
                                      size: [window_width, window_height],
                                      fullscreen: false,
@@ -80,12 +88,9 @@ fn main() {
     let strategy = config.get_string(mulambda_vars, "strategy");
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
     let evaluation_fns: [EvaluationFn; 1] = [box check_1x1_rooms];
-    // let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|k| {
-    //     match k.as_slice() {
-    //         "check_1x1_rooms" => box check_1x1_rooms,
-    //         _ => panic!(format!("Evaluation function {} could not be found.", k))
-    //     }
-    // }).collect();
+
+    let mut evaluation_fns: Vec<EvaluationFn> = vec![];
+    evaluation_fns.push(box check_1x1_rooms);
 
     let genotype = match strategy {
         "RandomSeed" => {
@@ -102,14 +107,13 @@ fn main() {
 
     let dungeon = genotype.generate();
 
-    let mut dc = DungeonCells::new(&dungeon);
-
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
     let window = RefCell::new(window);
     for e in event::events(&window) {
         e.render(|_| {
+            let dc = DungeonCells::new(&dungeon);
             for cell in dc {
                 match cell.tile {
                     Some(ref val) => {

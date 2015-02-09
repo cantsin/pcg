@@ -1,6 +1,6 @@
 [main]
 window_width = 400
-window_height = 400
+window_height = 416
 tiles_width = 25
 tiles_height = 25
 spritesheet = "dungeon"

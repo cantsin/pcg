@@ -1,4 +1,4 @@
-use std::io::fs::{PathExtensions};
+use std::old_io::fs::{PathExtensions};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use std::rc::{Rc};

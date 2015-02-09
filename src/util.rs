@@ -1,4 +1,4 @@
-use std::rand::{Rng};
+use rand::{Rng};
 
 pub type Coords = (i32, i32);
 

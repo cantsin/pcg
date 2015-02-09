@@ -1,4 +1,4 @@
-use std::rand::{Rng, sample};
+use rand::{Rng, sample};
 
 /// cell options store data for a particular cell type.
 /// currently we only store the tile name for rendering.
