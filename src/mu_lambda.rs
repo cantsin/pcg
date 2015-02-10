@@ -1,20 +1,23 @@
 use rand::{Rng, thread_rng};
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
+use std::thread::Thread;
 
 use evaluation::{EvaluationFn};
 use genotype::{GenoType};
 use util::{shuffle};
 
-pub struct MuLambda<'a, G: GenoType> {
+pub struct MuLambda<G: GenoType> {
     iterations: usize,
     current_iteration: usize,
     mu: usize,     // number to keep
     lambda: usize, // number to generate
     genotype: G,
-    evaluations: &'a [EvaluationFn]
+    evaluations: Vec<EvaluationFn>
 }
 
-impl<'a, G: GenoType + Clone> MuLambda<'a, G> {
-    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: &'a [EvaluationFn]) -> MuLambda<'a, G> {
+impl<G: GenoType + Clone + Send> MuLambda<G> {
+    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<EvaluationFn>) -> MuLambda<G> {
         MuLambda {
             iterations: iterations,
             current_iteration: 0,
@@ -30,6 +33,7 @@ impl<'a, G: GenoType + Clone> MuLambda<'a, G> {
         let mut primer: Vec<G> = range(0, total).map(|_| self.genotype.clone()).collect();
         let mut rng = thread_rng();
         while self.current_iteration < self.iterations {
+            println!("current iteration: {}", self.current_iteration);
             primer = self.iterate(&mut rng, primer.as_mut_slice());
             self.current_iteration += 1;
         }
@@ -39,12 +43,18 @@ impl<'a, G: GenoType + Clone> MuLambda<'a, G> {
     fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G]) -> Vec<G> {
         // shuffle the population
         shuffle(rng, primer);
-        // calculate the fitness for each individual
-        let mut colony: Vec<(&G, f64)> = primer.iter().map(|individual| {
-            let dungeon = individual.generate();
-            let fitness = individual.evaluate(&dungeon, self.evaluations);
-            (individual, fitness)
-        }).collect();
+        // calculate the fitness for each individual (in a separate thread)
+        let (tx, rx): (Sender<(G, f64)>, Receiver<(G, f64)>) = mpsc::channel();
+        for adult in primer {
+            let individual = adult.clone();
+            let evals = self.evaluations.clone();
+            Thread::spawn(move || {
+                let dungeon = individual.generate();
+                let fitness = individual.evaluate(&dungeon, evals.as_slice());
+                tx.send((individual, fitness)).unwrap();
+            });
+        }
+        let mut colony: Vec<(G, f64)> = range(0, primer.len()).map(|_| rx.recv().unwrap()).collect();
         // sort by fitness
         colony.sort_by(|&a, &b| {
             let (_, f1) = a;

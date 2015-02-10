@@ -1,6 +1,6 @@
 use dungeon::{Dungeon, SurroundingCells};
 
-pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static>;
+pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send>;
 
 pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;

@@ -107,7 +107,7 @@ fn main() {
                                  mu,
                                  lambda,
                                  genotype.clone(),
-                                 evaluation_fns.as_slice());
+                                 evaluation_fns);
     let winners = mulambda.evaluate();
 
     let spritesheet_path = Path::new(spritesheet_location);
