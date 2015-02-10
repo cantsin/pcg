@@ -14,8 +14,8 @@ occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []
 
 [mu-lambda]
-iterations = 100
-keep = 20
-generate = 80
+iterations = 2
+mu = 20
+lambda = 80
 strategy = "RandomSeed"
 evaluations = ["check_1x1_rooms", ]

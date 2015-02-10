@@ -102,19 +102,21 @@ fn main() {
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
 
-    let mulambda = MuLambda::new(iterations,
+    // TODO: run on a different thread?
+    let mut mulambda = MuLambda::new(iterations,
                                  mu,
                                  lambda,
                                  genotype.clone(),
                                  evaluation_fns.as_slice());
-
-    let dungeon = genotype.generate();
+    let winners = mulambda.evaluate();
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
+    let mut choice = 0is;
     let window = RefCell::new(window);
     for e in event::events(&window) {
+        let dungeon = winners.get(choice as usize).unwrap().last();
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
@@ -129,9 +131,17 @@ fn main() {
         });
 
         if let Some(Keyboard(key)) = e.press_args() {
-            if key == Key::J {
+            if key == Key::Left {
+                choice -= 1;
+                if choice < 0 {
+                    choice = (winners.len() - 1) as isize;
+                }
             }
-            println!("Pressed keyboard key '{:?}'", key);
+            else if key == Key::Right {
+                choice += 1;
+                choice %= winners.len() as isize;
+            }
+            println!("Pressed keyboard key '{:?}'; {:?}", key, choice);
         };
     }
 }
