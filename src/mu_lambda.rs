@@ -44,28 +44,28 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         // shuffle the population
         shuffle(rng, primer);
         // calculate the fitness for each individual (in a separate thread)
+        let n = primer.len();
         let (tx, rx): (Sender<(G, f64)>, Receiver<(G, f64)>) = mpsc::channel();
         for adult in primer {
             let individual = adult.clone();
+            let sender = tx.clone();
             let evals = self.evaluations.clone();
             Thread::spawn(move || {
                 let dungeon = individual.generate();
                 let fitness = individual.evaluate(&dungeon, evals.as_slice());
-                tx.send((individual, fitness)).unwrap();
+                sender.send((individual, fitness)).unwrap();
             });
         }
-        let mut colony: Vec<(G, f64)> = range(0, primer.len()).map(|_| rx.recv().unwrap()).collect();
+        let mut colony: Vec<(G, f64)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
         // sort by fitness
-        colony.sort_by(|&a, &b| {
-            let (_, f1) = a;
-            let (_, f2) = b;
+        colony.sort_by(|&(_, f1), &(_, f2)| {
             match f1.partial_cmp(&f2) {
                 Some(ordering) => ordering,
                 None => panic!(format!("{:?} and {:?} could not be ordered.", f1, f2))
             }
         });
         // keep mu
-        let mut survivors: Vec<G> = colony.iter().map(|&(i, _)| i.clone()).take(self.mu).collect();
+        let mut survivors: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).take(self.mu).collect();
         // add the next generation
         let next_generation: Vec<G> = range(0, self.lambda).map(|_| {
             let mut baby = self.genotype.clone();

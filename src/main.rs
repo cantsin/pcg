@@ -1,6 +1,7 @@
 #![feature(io)]
 #![feature(core)]
 #![feature(path)]
+#![feature(std_misc)]
 #![feature(box_syntax)]
 #![feature(collections)]
 #![allow(dead_code)]
