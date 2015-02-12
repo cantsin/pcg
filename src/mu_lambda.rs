@@ -4,7 +4,7 @@ use std::sync::mpsc;
 use std::sync::Arc;
 use std::thread::Thread;
 
-use evaluation::{Evaluation};
+use evaluation::{EvaluationFn};
 use genotype::{GenoType};
 use util::{shuffle};
 
@@ -14,11 +14,11 @@ pub struct MuLambda<G: GenoType> {
     mu: usize,     // number to keep
     lambda: usize, // number to generate
     genotype: G,
-    evaluations: Arc<Vec<Evaluation>>
+    evaluations: Arc<Vec<EvaluationFn>>
 }
 
 impl<G: GenoType + Clone + Send> MuLambda<G> {
-    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<Evaluation>) -> MuLambda<G> {
+    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<EvaluationFn>) -> MuLambda<G> {
         MuLambda {
             iterations: iterations,
             current_iteration: 0,
