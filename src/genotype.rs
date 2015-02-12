@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use evaluation::{EvaluationFn};
+use evaluation::{Evaluation};
 use celloption::{CellOptions, Tile, Item, Occupant};
 
 pub trait GenoType {
@@ -7,8 +7,8 @@ pub trait GenoType {
     fn generate(&self) -> Dungeon;
     fn last(&self) -> Dungeon;
 
-    fn evaluate(&self, dungeon: &Dungeon, strategies: &[EvaluationFn]) -> f64 {
-        strategies.iter().fold(1.0, |accum, f| accum * f(dungeon))
+    fn evaluate(&self, dungeon: &Dungeon, strategies: &[Evaluation]) -> f64 {
+        strategies.iter().fold(1.0, |accum, f| accum * f.call(dungeon))
     }
 }
 

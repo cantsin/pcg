@@ -1,9 +1,10 @@
 use rand::{Rng, thread_rng};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
+use std::sync::Arc;
 use std::thread::Thread;
 
-use evaluation::{EvaluationFn};
+use evaluation::{Evaluation};
 use genotype::{GenoType};
 use util::{shuffle};
 
@@ -13,18 +14,18 @@ pub struct MuLambda<G: GenoType> {
     mu: usize,     // number to keep
     lambda: usize, // number to generate
     genotype: G,
-    evaluations: Vec<EvaluationFn>
+    evaluations: Arc<Vec<Evaluation>>
 }
 
 impl<G: GenoType + Clone + Send> MuLambda<G> {
-    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<EvaluationFn>) -> MuLambda<G> {
+    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<Evaluation>) -> MuLambda<G> {
         MuLambda {
             iterations: iterations,
             current_iteration: 0,
             mu: mu,
             lambda: lambda,
             genotype: genotype,
-            evaluations: funcs
+            evaluations: Arc::new(funcs)
         }
     }
 
@@ -49,10 +50,10 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         for adult in primer {
             let individual = adult.clone();
             let sender = tx.clone();
-            let evals = self.evaluations.clone();
+            let fns = self.evaluations.clone();
             Thread::spawn(move || {
                 let dungeon = individual.generate();
-                let fitness = individual.evaluate(&dungeon, evals.as_slice());
+                let fitness = individual.evaluate(&dungeon, fns.as_slice());
                 sender.send((individual, fitness)).unwrap();
             });
         }

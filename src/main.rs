@@ -45,7 +45,7 @@ use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
 use genotype::{GenoType, RandomSeed};
 use mu_lambda::{MuLambda};
-use evaluation::{EvaluationFn, check_1x1_rooms};
+use evaluation::{Evaluation, check_1x1_rooms};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -89,9 +89,9 @@ fn main() {
     let iterations = config.get_default(mulambda_vars, "iterations", 100);
     let strategy = config.get_string(mulambda_vars, "strategy");
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
-    let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|eval| {
+    let evaluation_fns: Vec<Evaluation> = evaluations.iter().map(|eval| {
         match eval.as_slice() {
-            "check_1x1_rooms" => { (box check_1x1_rooms) as EvaluationFn }
+            "check_1x1_rooms" => { Evaluation::new(box check_1x1_rooms) }
             _ => panic!(format!("Evaluation function {} could not be found.", eval))
         }
     }).collect();
