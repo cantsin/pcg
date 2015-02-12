@@ -8,7 +8,7 @@ pub trait CellOption {
     fn name(&self) -> String;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct CellData<A> { data: String }
 
 impl<A> CellOption for CellData<A> {
@@ -23,7 +23,7 @@ impl<A> CellOption for CellData<A> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CellOptions<T> {
     options: Vec<T>
 }
@@ -46,13 +46,13 @@ impl<T: CellOption> CellOptions<T> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct _Tile;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct _Item;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct _Occupant;
 
 pub type Tile = CellData<_Tile>;

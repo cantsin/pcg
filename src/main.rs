@@ -60,7 +60,7 @@ fn main() {
     let window_height = config.get_default(vars, "window_height", 800);
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
-    let threads = config.get_default(vars, "threads", num_cpus());
+    let threads = config.get_default(vars, "threads", num_cpus() * 2);
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
@@ -149,6 +149,6 @@ fn main() {
             println!("Pressed keyboard key '{:?}'; {:?}", key, choice);
         };
 
-        panic!("Done.");
+        //panic!("Done.");
     }
 }

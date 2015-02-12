@@ -14,7 +14,7 @@ pub trait GenoType {
 
 use rand::{thread_rng};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RandomSeed {
     fitness: f64,
     dungeon: Dungeon,

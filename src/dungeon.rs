@@ -4,7 +4,7 @@ use std::iter::{Iterator, range};
 use cell::{Cell};
 use util::{Coords};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Dungeon {
     pub width: usize,
     pub height: usize,

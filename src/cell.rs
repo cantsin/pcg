@@ -1,6 +1,6 @@
 use celloption::{Tile, Occupant, Item};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Cell {
     pub x: u32,
     pub y: u32,
