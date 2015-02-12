@@ -1,4 +1,5 @@
 #![feature(io)]
+#![feature(os)]
 #![feature(core)]
 #![feature(path)]
 #![feature(std_misc)]
@@ -38,6 +39,7 @@ use sdl2_window::{Sdl2Window};
 use input::Button::Keyboard;
 use input::keyboard::Key;
 use event::*;
+use std::os::{num_cpus};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
@@ -58,6 +60,7 @@ fn main() {
     let window_height = config.get_default(vars, "window_height", 800);
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
+    let threads = config.get_default(vars, "threads", num_cpus());
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
@@ -104,11 +107,12 @@ fn main() {
     };
 
     // TODO: run on a different thread?
-    let mut mulambda = MuLambda::new(iterations,
-                                 mu,
-                                 lambda,
-                                 genotype.clone(),
-                                 evaluation_fns);
+    let mut mulambda = MuLambda::new(threads,
+                                     iterations,
+                                     mu,
+                                     lambda,
+                                     genotype.clone(),
+                                     evaluation_fns);
     let winners = mulambda.evaluate();
 
     let spritesheet_path = Path::new(spritesheet_location);
@@ -144,5 +148,7 @@ fn main() {
             }
             println!("Pressed keyboard key '{:?}'; {:?}", key, choice);
         };
+
+        panic!("Done.");
     }
 }

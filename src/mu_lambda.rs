@@ -9,6 +9,7 @@ use genotype::{GenoType};
 use util::{shuffle};
 
 pub struct MuLambda<G: GenoType> {
+    threads: usize,
     iterations: usize,
     current_iteration: usize,
     mu: usize,     // number to keep
@@ -18,8 +19,14 @@ pub struct MuLambda<G: GenoType> {
 }
 
 impl<G: GenoType + Clone + Send> MuLambda<G> {
-    pub fn new(iterations: usize, mu: usize, lambda: usize, genotype: G, funcs: Vec<EvaluationFn>) -> MuLambda<G> {
+    pub fn new(threads: usize,
+               iterations: usize,
+               mu: usize,
+               lambda: usize,
+               genotype: G,
+               funcs: Vec<EvaluationFn>) -> MuLambda<G> {
         MuLambda {
+            threads: threads,
             iterations: iterations,
             current_iteration: 0,
             mu: mu,
