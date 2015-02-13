@@ -5,9 +5,9 @@
 #![feature(std_misc)]
 #![feature(box_syntax)]
 #![feature(collections)]
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
+// #![allow(dead_code)]
+// #![allow(unused_variables)]
+// #![allow(unused_imports)]
 
 extern crate rand;
 extern crate toml;
@@ -32,6 +32,7 @@ mod genotype;
 mod mu_lambda;
 mod evaluation;
 mod random_seed;
+mod grid_of_cells;
 
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
