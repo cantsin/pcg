@@ -106,7 +106,6 @@ fn main() {
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
 
-    // TODO: run on a different thread?
     let mut mulambda = MuLambda::new(threads,
                                      iterations,
                                      mu,

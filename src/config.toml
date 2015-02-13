@@ -4,7 +4,7 @@ window_height = 416
 tiles_width = 25
 tiles_height = 25
 spritesheet = "dungeon"
-threads = 24
+threads = 50
 
 [spritesheets.dungeon]
 path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"

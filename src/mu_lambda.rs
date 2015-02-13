@@ -1,8 +1,6 @@
 use rand::{Rng, thread_rng};
 use std::sync::mpsc::{Sender, Receiver};
-use std::sync::mpsc;
-use std::sync::Arc;
-use std::thread::Thread;
+use std::sync::{mpsc, Arc, TaskPool};
 
 use evaluation::{EvaluationFn};
 use genotype::{GenoType};
@@ -53,12 +51,13 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         shuffle(rng, primer);
         // calculate the fitness for each individual (in a separate thread)
         let n = primer.len();
+        let pool = TaskPool::new(self.threads);
         let (tx, rx): (Sender<(G, f64)>, Receiver<(G, f64)>) = mpsc::channel();
         for adult in primer {
             let individual = adult.clone();
             let sender = tx.clone();
             let fns = self.evaluations.clone();
-            Thread::spawn(move || {
+            pool.execute(move || {
                 let dungeon = individual.generate();
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
                 sender.send((individual, fitness)).unwrap();
