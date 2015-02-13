@@ -31,6 +31,7 @@ mod celloption;
 mod genotype;
 mod mu_lambda;
 mod evaluation;
+mod random_seed;
 
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
@@ -45,7 +46,8 @@ use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
 use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
-use genotype::{GenoType, RandomSeed};
+use genotype::{GenoType};
+use random_seed::{RandomSeed};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms};
 
