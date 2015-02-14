@@ -32,7 +32,7 @@ mod genotype;
 mod mu_lambda;
 mod evaluation;
 mod random_seed;
-mod grid_of_cells;
+mod list_of_walls;
 
 use std::cell::RefCell;
 use opengl_graphics::{Gl};
@@ -49,6 +49,7 @@ use dungeon::{Dungeon, DungeonCells, SurroundingCells};
 use config::{Config};
 use genotype::{GenoType};
 use random_seed::{RandomSeed};
+use list_of_walls::{ListOfWalls};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms};
 

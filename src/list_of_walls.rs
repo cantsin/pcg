@@ -62,9 +62,35 @@ impl ListOfWalls {
 
 impl GenoType for ListOfWalls {
     fn mutate(&mut self) {
+        // change 10% of walls.
+        let mut rng = thread_rng();
+        let length = self.walls.len();
+        let n = (length as f32 * 0.1) as usize;
+        for _ in range(0, n) {
+            let index = rng.gen_range(1, length);
+            self.walls[index] = ListOfWalls::random_wall(&mut rng, self.dungeon.width, self.dungeon.height);
+        }
     }
 
     fn generate(&self) -> Dungeon {
+        let w = self.dungeon.width as i32;
+        let h = self.dungeon.height as i32;
+        // initialize dungeon with floors?
+        for wall in self.walls.iter() {
+            let mut x = wall.x as i32;
+            let mut y = wall.y as i32;
+            for _ in range(0, wall.length) {
+                x += wall.xstep;
+                y += wall.ystep;
+                if x < 0 || x >= w || y < 0 || y >= h {
+                    break
+                }
+                // put in a wall
+                // small chance of a door?
+            }
+        }
+        // randomly place entrance
+        // randomly place exit
         self.dungeon.clone()
     }
 
