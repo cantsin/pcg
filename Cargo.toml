@@ -9,8 +9,8 @@ rustc-serialize = "0.2"
 [dependencies.pistoncore-event]
 git = "https://github.com/pistondevelopers/event"
 
-[dependencies.piston2d-sprite]
-git = "https://github.com/pistondevelopers/sprite"
+#[dependencies.piston2d-sprite]
+#git = "https://github.com/pistondevelopers/sprite"
 
 [dependencies.piston2d-graphics]
 git = "https://github.com/pistondevelopers/graphics"
