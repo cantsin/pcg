@@ -1,9 +1,9 @@
 use dungeon::{Dungeon};
 use evaluation::{EvaluationFn};
 
-pub trait GenoType {
+pub trait GenoType: Send + Clone {
     fn mutate(&mut self);
-    fn generate(&self) -> Dungeon;
+    fn generate(&mut self) -> Dungeon;
     fn last(&self) -> Dungeon;
 
     fn evaluate(&self, dungeon: &Dungeon, strategies: &[EvaluationFn]) -> f64 {

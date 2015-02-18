@@ -39,7 +39,7 @@ use std::os::{num_cpus};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
-use dungeon::{Dungeon, DungeonCells, SurroundingCells};
+use dungeon::{DungeonCells};
 use config::{Config};
 use genotype::{GenoType};
 use random_seed::{RandomSeed};
@@ -98,8 +98,11 @@ fn main() {
     }).collect();
 
     let genotype = match strategy {
-        "RandomSeed" => {
-            RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        // "RandomSeed" => {
+        //     box RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        // }
+        "ListOfWalls" => {
+            box ListOfWalls::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
         }
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
@@ -108,7 +111,7 @@ fn main() {
                                      iterations,
                                      mu,
                                      lambda,
-                                     genotype.clone(),
+                                     *genotype.clone(),
                                      evaluation_fns);
     let winners = mulambda.evaluate();
 

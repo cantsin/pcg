@@ -1,5 +1,4 @@
 use dungeon::{Dungeon};
-use evaluation::{EvaluationFn};
 use celloption::{CellOptions, Tile, Item, Occupant};
 use genotype::{GenoType};
 
@@ -48,7 +47,7 @@ impl GenoType for RandomSeed {
         }
     }
 
-    fn generate(&self) -> Dungeon {
+    fn generate(&mut self) -> Dungeon {
         self.dungeon.clone()
     }
 

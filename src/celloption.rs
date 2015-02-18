@@ -36,6 +36,16 @@ impl<T: CellOption> CellOptions<T> {
         }
     }
 
+    pub fn get(&self, name: &str) -> Option<&T> {
+        let options: Vec<&T> = self.options.iter().filter(|&opt| {
+            opt.name().as_slice() == name
+        }).collect();
+        match options.is_empty() {
+            true => None,
+            false => Some(options[0].clone())
+        }
+    }
+
     pub fn choose<R: Rng>(&self, rng: &mut R) -> &T {
         assert!(self.options.len() > 0, "Cannot choose random cell option.");
         sample(rng, self.options.iter(), 1).into_iter().next().unwrap()

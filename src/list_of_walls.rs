@@ -1,5 +1,4 @@
 use dungeon::{Dungeon};
-use evaluation::{EvaluationFn};
 use celloption::{CellOptions, Tile, Item, Occupant};
 use genotype::{GenoType};
 
@@ -72,10 +71,17 @@ impl GenoType for ListOfWalls {
         }
     }
 
-    fn generate(&self) -> Dungeon {
+    fn generate(&mut self) -> Dungeon {
+        let mut rng = thread_rng();
         let w = self.dungeon.width as i32;
         let h = self.dungeon.height as i32;
-        // initialize dungeon with floors?
+        let floor = self.tiles.get("floor").unwrap();
+        for i in 0..self.dungeon.width {
+            for j in 0..self.dungeon.height {
+                self.dungeon.cells[i][j].tile = Some(floor.clone());
+            }
+        }
+        let wall_tile = self.tiles.get("wall").unwrap();
         for wall in self.walls.iter() {
             let mut x = wall.x as i32;
             let mut y = wall.y as i32;
@@ -85,12 +91,22 @@ impl GenoType for ListOfWalls {
                 if x < 0 || x >= w || y < 0 || y >= h {
                     break
                 }
-                // put in a wall
+                self.dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
                 // small chance of a door?
             }
         }
         // randomly place entrance
+        let entrance = self.tiles.get("entrance").unwrap();
+        let entrance_x = rng.gen_range(1, self.dungeon.width);
+        let entrance_y = rng.gen_range(1, self.dungeon.height);
+        self.dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
+
         // randomly place exit
+        let exit = self.tiles.get("exit").unwrap();
+        let exit_x = rng.gen_range(1, self.dungeon.width);
+        let exit_y = rng.gen_range(1, self.dungeon.height);
+        self.dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
+
         self.dungeon.clone()
     }
 
