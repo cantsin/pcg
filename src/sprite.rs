@@ -1,5 +1,6 @@
 use opengl_graphics::{Gl, Texture};
-use graphics::{Image};
+use graphics::{Image, Line};
+use graphics::line::{Shape};
 use std::rc::Rc;
 
 /// sprites can have several images (they must be the same height/width).
@@ -32,6 +33,15 @@ impl Sprite {
         let image = self.images[self.index];
         gl.draw(viewport, |c, gl| {
             image.draw(&*self.texture, &c, gl);
+        });
+    }
+
+    /// draw a red 'X'.
+    pub fn missing(gl: &mut Gl, x: i32, y: i32, w: i32, h: i32) {
+        let line = Line::new([1.0, 0.0, 0.0, 1.0], 1.0);
+        gl.draw([x, y, w, h], |c, gl| {
+            line.draw([0.0, 0.0, w as f64, h as f64], &c, gl);
+            line.draw([w as f64, 0.0, 0.0, h as f64], &c, gl);
         });
     }
 }

@@ -39,6 +39,7 @@ use std::os::{num_cpus};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
+use sprite::{Sprite};
 use dungeon::{DungeonCells};
 use config::{Config};
 use genotype::{GenoType};
@@ -121,16 +122,22 @@ fn main() {
     let mut choice = 0is;
     let window = RefCell::new(window);
     for e in event::events(&window) {
-        let dungeon = winners.get(choice as usize).unwrap().last();
+        let dungeon = winners[choice as usize].last();
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
+                let w = 16;
+                let h = 16;
+                let x = cell.x as i32 * w;
+                let y = cell.y as i32 * h;
                 match cell.tile {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                        sprite.draw(gl, cell.x as i32 * 16, cell.y as i32 * 16);
+                        sprite.draw(gl, x, y);
                     }
-                    None => ()
+                    None => {
+                         Sprite::missing(gl, x, y, w, h);
+                    }
                 }
             }
         });
