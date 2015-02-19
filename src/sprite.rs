@@ -1,6 +1,5 @@
 use opengl_graphics::{Gl, Texture};
 use graphics::{Image, Line};
-use graphics::line::{Shape};
 use std::rc::Rc;
 
 /// sprites can have several images (they must be the same height/width).

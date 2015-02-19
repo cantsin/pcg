@@ -1,4 +1,4 @@
-use celloption::{Tile, Occupant, Item};
+use celloption::{CellOption, Tile, Occupant, Item};
 
 #[derive(Clone, Debug)]
 pub struct Cell {
@@ -21,7 +21,10 @@ impl Cell {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.tile.is_none()
+        match self.tile {
+            None => false,
+            Some(ref t) => t.name() != "floor"
+        }
     }
 
     pub fn add(&mut self, occupant: &Occupant) {
