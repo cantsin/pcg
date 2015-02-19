@@ -1,6 +1,6 @@
-use rand::{Rng, thread_rng};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{mpsc, Arc, TaskPool};
+use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
 use genotype::{GenoType};
@@ -58,7 +58,8 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
             let sender = tx.clone();
             let fns = self.evaluations.clone();
             pool.execute(move || {
-                let dungeon = individual.generate();
+                let mut new_rng = thread_rng();
+                let dungeon = individual.generate(&mut new_rng);
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
                 sender.send((individual, fitness)).unwrap();
             });
@@ -75,8 +76,10 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         let mut survivors: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).take(self.mu).collect();
         // add the next generation
         let next_generation: Vec<G> = range(0, self.lambda).map(|_| {
+            let mut new_rng = thread_rng();
             let mut baby = self.genotype.clone();
-            baby.mutate();
+            baby.mutate(&mut new_rng);
+            baby.generate(&mut new_rng);
             baby
         }).collect();
         survivors.push_all(next_generation.as_slice());

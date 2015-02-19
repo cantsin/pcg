@@ -2,7 +2,7 @@ use dungeon::{Dungeon};
 use celloption::{CellOptions, Tile, Item, Occupant};
 use genotype::{GenoType};
 
-use rand::{thread_rng};
+use rand::{ThreadRng};
 
 #[derive(Clone, Debug)]
 pub struct RandomSeed {
@@ -31,15 +31,14 @@ impl RandomSeed {
 }
 
 impl GenoType for RandomSeed {
-    fn mutate(&mut self) {
-        let mut rng = thread_rng();
+    fn mutate(&mut self, rng: &mut ThreadRng) {
         for i in 0..self.dungeon.width {
             for j in 0..self.dungeon.height {
-                let tile = self.tiles.choose(&mut rng).clone();
+                let tile = self.tiles.choose(rng).clone();
                 self.dungeon.cells[i][j].tile = Some(tile);
 
                 // TODO: add possibility (0.05% per occupant)
-                let occupants = self.occupants.sample(&mut rng, 2);
+                let occupants = self.occupants.sample(rng, 2);
                 for occupant in occupants.iter() {
                     self.dungeon.cells[i][j].add(*occupant);
                 }
@@ -47,7 +46,7 @@ impl GenoType for RandomSeed {
         }
     }
 
-    fn generate(&mut self) -> Dungeon {
+    fn generate(&mut self, _: &mut ThreadRng) -> Dungeon {
         self.dungeon.clone()
     }
 
