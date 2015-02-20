@@ -75,30 +75,38 @@ pub struct SurroundingCells {
     index: usize
 }
 
+pub enum Surrounding {
+    Cardinal,
+    AllDirections
+}
+
 impl SurroundingCells {
-    pub fn new(dungeon: &Dungeon, cell: &Cell, is_cardinal: bool) -> SurroundingCells {
+    pub fn new(dungeon: &Dungeon, cell: &Cell, around: Surrounding) -> SurroundingCells {
         let x = cell.x as i32;
         let y = cell.y as i32;
         // clockwise, starting from the top
-        let coords = if is_cardinal {
-            let invalid = (-1, -1);
-            [(x  , y-1),
-             (x+1, y  ),
-             (x  , y+1),
-             (x-1, y  ),
-             invalid,
-             invalid,
-             invalid,
-             invalid]
-        } else {
-            [(x  , y-1),
-             (x+1, y-1),
-             (x+1, y  ),
-             (x+1, y+1),
-             (x  , y+1),
-             (x-1, y+1),
-             (x-1, y  ),
-             (x-1, y-1)]
+        let coords = match around {
+            Surrounding::Cardinal => {
+                let invalid = (-1, -1);
+                [(x  , y-1),
+                 (x+1, y  ),
+                 (x  , y+1),
+                 (x-1, y  ),
+                 invalid,
+                 invalid,
+                 invalid,
+                 invalid]
+            }
+            Surrounding::AllDirections => {
+                [(x  , y-1),
+                 (x+1, y-1),
+                 (x+1, y  ),
+                 (x+1, y+1),
+                 (x  , y+1),
+                 (x-1, y+1),
+                 (x-1, y  ),
+                 (x-1, y-1)]
+            }
         };
         SurroundingCells {
             dungeon: dungeon.clone(),

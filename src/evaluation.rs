@@ -1,4 +1,4 @@
-use dungeon::{Dungeon, SurroundingCells};
+use dungeon::{Dungeon, SurroundingCells, Surrounding};
 
 pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
 
@@ -8,9 +8,9 @@ pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
         for j in 0..dungeon.height {
             let ref cell = dungeon.cells[i][j];
             if cell.is_empty() {
-                let sc = SurroundingCells::new(dungeon, cell, false);
+                let sc = SurroundingCells::new(dungeon, cell, Surrounding::Cardinal);
                 // check to see if all walls surround us.
-                let surrounded = sc.fold(true, |accum, c| accum && c.is_empty());
+                let surrounded = sc.fold(true, |accum, c| accum && !c.is_empty());
                 if surrounded {
                     hits += 1;
                 }

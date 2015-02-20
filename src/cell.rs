@@ -22,8 +22,8 @@ impl Cell {
 
     pub fn is_empty(&self) -> bool {
         match self.tile {
-            None => false,
-            Some(ref t) => t.name() != "floor"
+            None => true,
+            Some(ref t) => t.name() == "floor"
         }
     }
 
