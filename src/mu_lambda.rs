@@ -1,5 +1,6 @@
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{mpsc, Arc, TaskPool};
+use std::collections::{HashMap};
 use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
@@ -39,13 +40,13 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         let mut primer: Vec<G> = range(0, total).map(|_| self.genotype.clone()).collect();
         let mut rng = thread_rng();
         while self.current_iteration < self.iterations {
-            primer = self.iterate(&mut rng, primer.as_mut_slice());
+            primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
             self.current_iteration += 1;
         }
         primer.clone()
     }
 
-    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G]) -> Vec<G> {
+    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G], iteration: usize) -> Vec<G> {
         // shuffle the population
         shuffle(rng, primer);
         // calculate the fitness for each individual (in a separate thread)
@@ -60,6 +61,10 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
                 let mut new_rng = thread_rng();
                 let dungeon = individual.generate(&mut new_rng);
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
+                let mut stats: HashMap<String, f64> = HashMap::new();
+                stats.insert(String::from_str("iteration"), iteration as f64);
+                stats.insert(String::from_str("ranking"), fitness);
+                individual.statistics(&stats);
                 sender.send((individual, fitness)).unwrap();
             });
         }
@@ -79,6 +84,10 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
             let mut baby = self.genotype.clone();
             baby.mutate(&mut new_rng);
             baby.generate(&mut new_rng);
+            let mut stats: HashMap<String, f64> = HashMap::new();
+            stats.insert(String::from_str("iteration"), (iteration + 1) as f64);
+            stats.insert(String::from_str("ranking"), 0.0);
+            baby.statistics(&stats);
             baby
         }).collect();
         survivors.push_all(next_generation.as_slice());

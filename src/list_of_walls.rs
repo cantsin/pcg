@@ -2,6 +2,7 @@ use dungeon::{Dungeon};
 use celloption::{CellOptions, Tile, Item, Occupant};
 use genotype::{GenoType};
 
+use std::collections::{HashMap};
 use rand::{Rng, ThreadRng, thread_rng};
 
 #[derive(Clone, Debug)]
@@ -11,7 +12,10 @@ pub struct ListOfWalls {
     walls: Vec<Wall>,
     tiles: CellOptions<Tile>,
     items: CellOptions<Item>,
-    occupants: CellOptions<Occupant>
+    occupants: CellOptions<Occupant>,
+    // statistics
+    pub iteration: u32,
+    pub ranking: f64
 }
 
 #[derive(Clone, Debug)]
@@ -39,7 +43,9 @@ impl ListOfWalls {
             tiles: tiles,
             items: items,
             occupants: occupants,
-            walls: walls
+            walls: walls,
+            iteration: 0,
+            ranking: 0.0
         }
     }
 
@@ -106,6 +112,17 @@ impl GenoType for ListOfWalls {
         self.dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
 
         self.dungeon.clone()
+    }
+
+    fn statistics(&mut self, stats: &HashMap<String, f64>) {
+        match stats.get("iteration") {
+            None => (),
+            Some(&val) => self.iteration = val as u32
+        }
+        match stats.get("ranking") {
+            None => (),
+            Some(&val) => self.ranking = val
+        }
     }
 
     fn last(&self) -> Dungeon {

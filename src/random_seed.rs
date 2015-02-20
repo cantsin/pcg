@@ -2,6 +2,7 @@ use dungeon::{Dungeon};
 use celloption::{CellOptions, Tile, Item, Occupant};
 use genotype::{GenoType};
 
+use std::collections::{HashMap};
 use rand::{ThreadRng};
 
 #[derive(Clone, Debug)]
@@ -10,7 +11,10 @@ pub struct RandomSeed {
     dungeon: Dungeon,
     tiles: CellOptions<Tile>,
     items: CellOptions<Item>,
-    occupants: CellOptions<Occupant>
+    occupants: CellOptions<Occupant>,
+    // statistics
+    pub iteration: u32,
+    pub ranking: f64
 }
 
 impl RandomSeed {
@@ -25,7 +29,9 @@ impl RandomSeed {
             dungeon: dungeon,
             tiles: tiles,
             items: items,
-            occupants: occupants
+            occupants: occupants,
+            iteration: 0,
+            ranking: 0.0
         }
     }
 }
@@ -48,6 +54,17 @@ impl GenoType for RandomSeed {
 
     fn generate(&mut self, _: &mut ThreadRng) -> Dungeon {
         self.dungeon.clone()
+    }
+
+    fn statistics(&mut self, stats: &HashMap<String, f64>) {
+        match stats.get("iteration") {
+            None => (),
+            Some(&val) => self.iteration = val as u32
+        }
+        match stats.get("ranking") {
+            None => (),
+            Some(&val) => self.ranking = val
+        }
     }
 
     fn last(&self) -> Dungeon {

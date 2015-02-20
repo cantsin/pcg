@@ -135,7 +135,8 @@ fn main() {
     let window = RefCell::new(window);
     for e in event::events(&window) {
         graphics::clear(color::BLACK, gl);
-        let dungeon = winners[choice as usize].last();
+        let ref current = winners[choice as usize];
+        let dungeon = current.last();
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
@@ -153,7 +154,11 @@ fn main() {
                     }
                 }
             }
-            render_text(&mut face, gl, 10, 10, format!("Dungeon no. #{}", choice).as_slice());
+            let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
+                               choice,
+                               current.iteration,
+                               current.ranking);
+            render_text(&mut face, gl, 10, 10, info.as_slice());
         });
 
         if let Some(Keyboard(key)) = e.press_args() {
