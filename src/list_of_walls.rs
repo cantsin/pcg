@@ -45,7 +45,7 @@ impl ListOfWalls {
             occupants: occupants,
             walls: walls,
             iteration: 0,
-            ranking: 0.0
+            ranking: -1.0
         }
     }
 

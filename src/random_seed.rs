@@ -31,7 +31,7 @@ impl RandomSeed {
             items: items,
             occupants: occupants,
             iteration: 0,
-            ranking: 0.0
+            ranking: -1.0
         }
     }
 }
