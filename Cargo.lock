@@ -2,6 +2,7 @@
 name = "pcg"
 version = "0.0.1"
 dependencies = [
+ "freetype-rs 0.0.6 (git+https://github.com/PistonDevelopers/freetype-rs.git)",
  "piston2d-graphics 0.0.17 (git+https://github.com/pistondevelopers/graphics)",
  "piston2d-opengl_graphics 0.0.8 (git+https://github.com/pistondevelopers/opengl_graphics)",
  "pistoncore-event 0.0.8 (git+https://github.com/pistondevelopers/event)",

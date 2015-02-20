@@ -7,12 +7,12 @@ extern crate rand;
 extern crate toml;
 extern crate shader_version;
 extern crate input;
-//extern crate sprite;
 extern crate event;
 extern crate graphics;
 extern crate sdl2_window;
 extern crate opengl_graphics;
 extern crate window;
+extern crate freetype;
 extern crate "rustc-serialize" as rustc_serialize;
 
 mod util;
@@ -27,15 +27,19 @@ mod mu_lambda;
 mod evaluation;
 mod random_seed;
 mod list_of_walls;
+mod text;
 
-use std::cell::RefCell;
 use opengl_graphics::{Gl};
-use window::{WindowSettings};
+use graphics::{color};
 use sdl2_window::{Sdl2Window};
-use input::Button::Keyboard;
-use input::keyboard::Key;
+use window::{WindowSettings};
+use input::Button::{Keyboard};
+use input::keyboard::{Key};
+//use event::{RenderEvent, Event};
 use event::*;
+
 use std::os::{num_cpus};
+use std::cell::{RefCell};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
@@ -47,6 +51,7 @@ use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms};
+use text::{render_text};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -60,6 +65,8 @@ fn main() {
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
     let threads = config.get_default(vars, "threads", num_cpus() * 2);
+    let font_name = config.get_string(vars, "font");
+    let font_size = config.get_default(vars, "font_size", 14);
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
@@ -71,6 +78,11 @@ fn main() {
                                      samples: 0,
                                  });
     let ref mut gl = Gl::new(opengl);
+
+    let ft = freetype::Library::init().unwrap();
+    let font = Path::new(font_name);
+    let mut face = ft.new_face(&font, 0).unwrap();
+    face.set_pixel_sizes(0, font_size).unwrap();
 
     let spritesheet_name = config.get_string(vars, "spritesheet");
     let spritesheets = config.get_table(None, "spritesheets");
@@ -122,6 +134,7 @@ fn main() {
     let mut choice = 0is;
     let window = RefCell::new(window);
     for e in event::events(&window) {
+        graphics::clear(color::BLACK, gl);
         let dungeon = winners[choice as usize].last();
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
@@ -140,6 +153,7 @@ fn main() {
                     }
                 }
             }
+            render_text(&mut face, gl, 10, 10, format!("Dungeon no. #{}", choice).as_slice());
         });
 
         if let Some(Keyboard(key)) = e.press_args() {
@@ -153,9 +167,6 @@ fn main() {
                 choice += 1;
                 choice %= winners.len() as isize;
             }
-            println!("Pressed keyboard key '{:?}'; {:?}", key, choice);
         };
-
-        //panic!("Done.");
     }
 }

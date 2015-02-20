@@ -5,6 +5,8 @@ tiles_width = 25
 tiles_height = 25
 spritesheet = "dungeon"
 threads = 50
+font = "./assets/Inconsolata.otf"
+font_size = 14
 
 [spritesheets.dungeon]
 path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
