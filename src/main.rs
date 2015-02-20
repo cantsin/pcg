@@ -131,7 +131,7 @@ fn main() {
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
-    let mut choice = 0is;
+    let mut choice = 0;
     let window = RefCell::new(window);
     for e in event::events(&window) {
         graphics::clear(color::BLACK, gl);

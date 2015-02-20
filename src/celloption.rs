@@ -1,4 +1,5 @@
 use rand::{Rng, sample};
+use std::marker::{PhantomData};
 
 /// cell options store data for a particular cell type.
 /// currently we only store the tile name for rendering.
@@ -9,12 +10,16 @@ pub trait CellOption {
 }
 
 #[derive(Clone, Debug)]
-struct CellData<A> { data: String }
+struct CellData<A> {
+    data: String,
+    _marker: PhantomData<A>
+}
 
 impl<A> CellOption for CellData<A> {
     fn new(data: String) -> CellData<A> {
         CellData {
-            data: data
+            data: data,
+            _marker: PhantomData
         }
     }
 
