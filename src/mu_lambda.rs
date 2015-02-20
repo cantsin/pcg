@@ -79,16 +79,15 @@ impl<G: GenoType + Clone + Send> MuLambda<G> {
         // keep mu
         let mut survivors: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).take(self.mu).collect();
         // add the next generation
-        let laggards: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).skip(self.mu).collect();
-        let next_generation: Vec<G> = laggards.iter().map(|individual| {
+        let mut laggards: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).skip(self.mu).collect();
+        let next_generation: Vec<G> = laggards.drain().map(|mut individual| {
             let mut new_rng = thread_rng();
-            let mut baby = individual.clone();
-            baby.mutate(&mut new_rng);
-            baby.generate(&mut new_rng);
+            individual.mutate(&mut new_rng);
+            individual.generate(&mut new_rng);
             let mut stats: HashMap<String, f64> = HashMap::new();
             stats.insert(String::from_str("iteration"), (iteration + 1) as f64);
-            baby.statistics(&stats);
-            baby
+            individual.statistics(&stats);
+            individual
         }).collect();
         survivors.push_all(next_generation.as_slice());
         survivors
