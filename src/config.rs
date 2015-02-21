@@ -1,4 +1,6 @@
-use std::old_io::{File};
+use std::path::{Path, PathBuf};
+use std::io::{Read};
+use std::fs::{File};
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use toml::{Parser, Value, Table, decode};
@@ -13,15 +15,15 @@ pub struct Config {
 
 impl Config {
     pub fn new(config_path: &Path) -> Config {
-        let mut config_file = File::open(config_path);
-        match config_file.read_to_string() {
+        let mut config_file = File::open(config_path).unwrap();
+        let mut contents = String::new();
+        match config_file.read_to_string(&mut contents) {
             Err(why) => panic!("Could not read configuration file {}: {}", config_path.display(), why),
-            Ok(contents) => {
-                let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
-                Config {
-                    content: value
-                }
-            }
+            _ => ()
+        };
+        let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
+        Config {
+            content: value
         }
     }
 
@@ -95,46 +97,46 @@ impl SpriteConfig {
 
     /// given a TOML configuration file, extract the relevant
     /// spritesheet information. returns a hashmap of `Sprite`s.
-    pub fn process_spritesheet(toml_path: &Path) -> HashMap<String, Vec<SpriteRect>> {
-        let mut toml_file = File::open(toml_path);
-        match toml_file.read_to_string() {
+    pub fn process_spritesheet(toml_path: &PathBuf) -> HashMap<String, Vec<SpriteRect>> {
+        let mut toml_file = File::open(toml_path).unwrap();
+        let mut contents = String::new();
+        match toml_file.read_to_string(&mut contents) {
             Err(why) => panic!("Could not read configuration file {}: {}", toml_path.display(), why),
-            Ok(contents) => {
-                let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
-                let sprites = value.get("sprites").expect("Configuration file does not have `sprites` entry.");
-                let sprites_table = sprites.as_table().expect("`sprites` entry is not a TOML table.");
-                let tile_width = SpriteConfig::defaults(sprites_table, "tile_width", DEFAULT_TILE_SIZE);
-                let tile_height = SpriteConfig::defaults(sprites_table, "tile_height", DEFAULT_TILE_SIZE);
-                let mut sprites = HashMap::new();
-                for (name, value) in sprites_table.iter() {
-                    match value.type_str() {
-                        "array" => {
-                            let values = value.as_slice().unwrap();
-                            let (x, y) = SpriteConfig::get_coord(name, values);
-                            let rect = SpriteRect::new(x, y, tile_width as i32, tile_height as i32);
-                            sprites.insert(name.clone(), vec![rect]);
-                        }
-                        "table" => {
-                            let table = value.as_table().unwrap();
-                            // look for a local tile_width or tile_height
-                            let tile_width = SpriteConfig::defaults(table, "tile_width", tile_width);
-                            let tile_height = SpriteConfig::defaults(table, "tile_height", tile_height);
-                            let coords = SpriteConfig::get_coords(table);
-                            let rects = coords.iter().map(|&(x, y)| {
-                                SpriteRect::new(x, y, tile_width as i32, tile_height as i32)
-                            }).collect();
-                            sprites.insert(name.clone(), rects);
-                        }
-                        _ => {
-                            match name.as_slice() {
-                                "tile_width" | "tile_height" => {} // ignore
-                                _ => panic!("unknown TOML type {:?}", name)
-                            }
-                        }
+            _ => ()
+        };
+        let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
+        let sprites = value.get("sprites").expect("Configuration file does not have `sprites` entry.");
+        let sprites_table = sprites.as_table().expect("`sprites` entry is not a TOML table.");
+        let tile_width = SpriteConfig::defaults(sprites_table, "tile_width", DEFAULT_TILE_SIZE);
+        let tile_height = SpriteConfig::defaults(sprites_table, "tile_height", DEFAULT_TILE_SIZE);
+        let mut sprites = HashMap::new();
+        for (name, value) in sprites_table.iter() {
+            match value.type_str() {
+                "array" => {
+                    let values = value.as_slice().unwrap();
+                    let (x, y) = SpriteConfig::get_coord(name, values);
+                    let rect = SpriteRect::new(x, y, tile_width as i32, tile_height as i32);
+                    sprites.insert(name.clone(), vec![rect]);
+                }
+                "table" => {
+                    let table = value.as_table().unwrap();
+                    // look for a local tile_width or tile_height
+                    let tile_width = SpriteConfig::defaults(table, "tile_width", tile_width);
+                    let tile_height = SpriteConfig::defaults(table, "tile_height", tile_height);
+                    let coords = SpriteConfig::get_coords(table);
+                    let rects = coords.iter().map(|&(x, y)| {
+                        SpriteRect::new(x, y, tile_width as i32, tile_height as i32)
+                    }).collect();
+                    sprites.insert(name.clone(), rects);
+                }
+                _ => {
+                    match name.as_slice() {
+                        "tile_width" | "tile_height" => {} // ignore
+                        _ => panic!("unknown TOML type {:?}", name)
                     }
                 }
-                sprites
             }
         }
+        sprites
     }
 }

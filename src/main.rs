@@ -1,4 +1,4 @@
-#![feature(io, os, core, path, std_misc, box_syntax, collections)]
+#![feature(os, io, fs, path, core, std_misc, box_syntax, collections)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
@@ -40,6 +40,8 @@ use event::*;
 
 use std::os::{num_cpus};
 use std::cell::{RefCell};
+use std::path::{Path};
+use std::old_path::Path as OldPath;
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
@@ -58,7 +60,7 @@ const TOML_CONFIG: &'static str = "src/config.toml";
 fn main() {
 
     let config_path = Path::new(TOML_CONFIG);
-    let config = Config::new(&config_path);
+    let config = Config::new(config_path);
     let vars = config.get_table(None, "main");
     let window_width = config.get_default(vars, "window_width", 800);
     let window_height = config.get_default(vars, "window_height", 800);
@@ -80,7 +82,7 @@ fn main() {
     let ref mut gl = Gl::new(opengl);
 
     let ft = freetype::Library::init().unwrap();
-    let font = Path::new(font_name);
+    let font = OldPath::new(font_name);
     let mut face = ft.new_face(&font, 0).unwrap();
     face.set_pixel_sizes(0, font_size).unwrap();
 

@@ -1,4 +1,6 @@
-use std::old_io::fs::{PathExtensions};
+use std::fs::{PathExt};
+use std::path::{Path, PathBuf};
+use std::old_path::Path as OldPath;
 use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use std::rc::{Rc};
@@ -15,8 +17,8 @@ impl SpriteSheet {
 
     /// the spritesheet configuration file must have the same base
     /// file name as the spritesheet itself.
-    fn location(path: &Path) -> Option<Path> {
-        let mut new_path = path.clone();
+    fn location(path: &Path) -> Option<PathBuf> {
+        let mut new_path = PathBuf::new(path);
         new_path.set_extension("toml");
         if new_path.exists() && new_path.is_file() {
             Some(new_path)
@@ -26,7 +28,8 @@ impl SpriteSheet {
     }
 
     pub fn new(filepath: &Path) -> SpriteSheet {
-        let texture_data = Texture::from_path(filepath).unwrap();
+        let old_filepath = OldPath::new(format!("{}", filepath.display()));
+        let texture_data = Texture::from_path(&old_filepath).unwrap();
         let texture = Rc::new(texture_data);
         let toml_path = SpriteSheet::location(filepath).expect("No spritesheet configuration file.");
         let config = SpriteConfig::process_spritesheet(&toml_path);

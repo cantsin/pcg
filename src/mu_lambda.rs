@@ -17,7 +17,7 @@ pub struct MuLambda<G: GenoType> {
     evaluations: Arc<Vec<EvaluationFn>>
 }
 
-impl<G: GenoType + Clone + Send> MuLambda<G> {
+impl<G: GenoType + Clone + Send + 'static> MuLambda<G> {
     pub fn new(threads: usize,
                iterations: usize,
                mu: usize,
