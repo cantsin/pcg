@@ -37,8 +37,12 @@ impl<G: GenoType + Clone + Send + 'static> MuLambda<G> {
 
     pub fn evaluate(&mut self) -> Vec<G> {
         let total = self.mu + self.lambda;
-        let mut primer: Vec<G> = range(0, total).map(|_| self.genotype.clone()).collect();
         let mut rng = thread_rng();
+        let mut primer: Vec<G> = range(0, total).map(|_| {
+            let mut infant = self.genotype.clone();
+            infant.mutate(&mut rng);
+            infant
+        }).collect();
         while self.current_iteration < self.iterations {
             primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
             self.current_iteration += 1;
