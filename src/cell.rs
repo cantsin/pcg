@@ -20,6 +20,13 @@ impl Cell {
         }
     }
 
+    pub fn has_attribute(&self, attribute: &str) -> bool {
+        match self.tile {
+            None => true,
+            Some(ref t) => t.name() == attribute
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         match self.tile {
             None => true,

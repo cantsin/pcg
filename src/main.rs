@@ -52,7 +52,7 @@ use genotype::{GenoType};
 use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use mu_lambda::{MuLambda};
-use evaluation::{EvaluationFn, check_1x1_rooms};
+use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit};
 use text::{render_text};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
@@ -108,10 +108,12 @@ fn main() {
     let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|eval| {
         match eval.as_slice() {
             "check_1x1_rooms" => { box check_1x1_rooms as EvaluationFn }
+            "has_entrance_exit" => { box has_entrance_exit as EvaluationFn }
             _ => panic!(format!("Evaluation function {} could not be found.", eval))
         }
     }).collect();
 
+    // We cannot have trait objects that implement Clone. So this is commented out for now.
     let genotype = match strategy {
         // "RandomSeed" => {
         //     box RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
