@@ -86,6 +86,7 @@ impl GenoType for ListOfWalls {
             }
         }
         let wall_tile = self.tiles.get("wall").unwrap();
+        let door_tile = self.tiles.get("door").unwrap();
         for wall in self.walls.iter() {
             let mut x = wall.x as i32;
             let mut y = wall.y as i32;
@@ -95,8 +96,13 @@ impl GenoType for ListOfWalls {
                 if x < 0 || x >= w || y < 0 || y >= h {
                     break
                 }
-                self.dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
-                // small chance of a door?
+                // small chance for a door
+                if rng.gen_range(0, wall.length) == 0 {
+                    self.dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
+                }
+                else {
+                    self.dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
+                }
             }
         }
         // randomly place entrance
