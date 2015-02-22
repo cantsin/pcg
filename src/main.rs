@@ -1,4 +1,4 @@
-#![feature(os, io, fs, path, core, std_misc, box_syntax, collections)]
+#![feature(os, io, fs, path, old_path, core, std_misc, box_syntax, collections)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]

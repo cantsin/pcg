@@ -55,7 +55,7 @@ pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
                         count += 1;
                     }
                 }
-                if count == 2 {
+                if count != 2 {
                     hits += 1;
                 }
             }

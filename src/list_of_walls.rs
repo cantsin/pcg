@@ -97,7 +97,7 @@ impl GenoType for ListOfWalls {
                     break
                 }
                 // small chance for a door
-                if rng.gen_range(0, wall.length) == 0 {
+                if rng.gen_range(0, wall.length * 5) == 0 {
                     self.dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
                 }
                 else {
