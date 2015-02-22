@@ -35,9 +35,31 @@ pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
         }
     }
     match (has_entrance, has_exit) {
-       (true, true) => 2.0,
-       (false, true) => 1.0,
-       (true, false) => 1.0,
-       _ => 0.0,
+        (true, true) => 2.0,
+        (false, true) => 1.0,
+        (true, false) => 1.0,
+        _ => 0.0,
     }
+}
+
+pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
+    let mut hits = 0;
+    for i in 0..dungeon.width {
+        for j in 0..dungeon.height {
+            let ref cell = dungeon.cells[i][j];
+            // check to see if doors have exactly two walls abutting them
+            if cell.has_attribute("door") {
+                let mut count = 0;
+                for sc in SurroundingCells::new(dungeon, cell, Surrounding::Cardinal) {
+                    if sc.has_attribute("wall") {
+                        count += 1;
+                    }
+                }
+                if count == 2 {
+                    hits += 1;
+                }
+            }
+        }
+    }
+    hits as f64
 }

@@ -52,7 +52,7 @@ use genotype::{GenoType};
 use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use mu_lambda::{MuLambda};
-use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit};
+use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
 use text::{render_text};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
@@ -109,6 +109,7 @@ fn main() {
         match eval.as_slice() {
             "check_1x1_rooms" => { box check_1x1_rooms as EvaluationFn }
             "has_entrance_exit" => { box has_entrance_exit as EvaluationFn }
+            "doors_are_useful" => { box doors_are_useful as EvaluationFn }
             _ => panic!(format!("Evaluation function {} could not be found.", eval))
         }
     }).collect();

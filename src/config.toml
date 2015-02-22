@@ -22,4 +22,4 @@ mu = 20
 lambda = 80
 #strategy = "RandomSeed"
 strategy = "ListOfWalls"
-evaluations = ["check_1x1_rooms", "has_entrance_exit", ]
+evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", ]
