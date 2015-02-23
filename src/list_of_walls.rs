@@ -77,8 +77,8 @@ impl GenoType for ListOfWalls {
     }
 
     fn generate(&mut self, rng: &mut ThreadRng) -> Dungeon {
-        let w = self.dungeon.width as i32;
-        let h = self.dungeon.height as i32;
+        let w = self.dungeon.width;
+        let h = self.dungeon.height;
         let floor = self.tiles.get("floor").unwrap();
         for i in 0..self.dungeon.width {
             for j in 0..self.dungeon.height {
@@ -93,7 +93,7 @@ impl GenoType for ListOfWalls {
             for _ in range(0, wall.length) {
                 x += wall.xstep;
                 y += wall.ystep;
-                if x < 0 || x >= w || y < 0 || y >= h {
+                if x < 0 || x >= w as i32 || y < 0 || y >= h as i32 {
                     break
                 }
                 // small chance for a door
@@ -105,16 +105,27 @@ impl GenoType for ListOfWalls {
                 }
             }
         }
+        // TODO check for collisions
+
+        // occupants have 0.05% chance to generate
+        let n = w * h;
+        let occupants = self.occupants.sample(rng, (n as f64 * 0.5) as usize);
+        for occupant in occupants {
+            let x = rng.gen_range(1, w);
+            let y = rng.gen_range(1, h);
+            self.dungeon.cells[x][y].add(occupant);
+        }
+
         // randomly place entrance
         let entrance = self.tiles.get("entrance").unwrap();
-        let entrance_x = rng.gen_range(1, self.dungeon.width);
-        let entrance_y = rng.gen_range(1, self.dungeon.height);
+        let entrance_x = rng.gen_range(1, w);
+        let entrance_y = rng.gen_range(1, h);
         self.dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
 
         // randomly place exit
         let exit = self.tiles.get("exit").unwrap();
-        let exit_x = rng.gen_range(1, self.dungeon.width);
-        let exit_y = rng.gen_range(1, self.dungeon.height);
+        let exit_x = rng.gen_range(1, w);
+        let exit_y = rng.gen_range(1, h);
         self.dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
 
         self.dungeon.clone()

@@ -11,3 +11,7 @@ pub fn shuffle<'a, R: Rng, T: Clone>(rng: &mut R, array: &'a mut [T]) {
         array.swap(n, k);
     }
 }
+
+pub fn odds<R: Rng>(rng: &mut R, num: u64, den: u64) -> bool {
+    num < rng.gen_range(0, den)
+}

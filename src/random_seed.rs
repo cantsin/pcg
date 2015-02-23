@@ -4,6 +4,7 @@ use genotype::{GenoType};
 
 use std::collections::{HashMap};
 use rand::{ThreadRng};
+use util::{odds};
 
 #[derive(Clone, Debug)]
 pub struct RandomSeed {
@@ -42,11 +43,10 @@ impl GenoType for RandomSeed {
             for j in 0..self.dungeon.height {
                 let tile = self.tiles.choose(rng).clone();
                 self.dungeon.cells[i][j].tile = Some(tile);
-
-                // TODO: add possibility (0.05% per occupant)
-                let occupants = self.occupants.sample(rng, 2);
-                for occupant in occupants.iter() {
-                    self.dungeon.cells[i][j].add(*occupant);
+                // occupants have 0.05% chance to generate
+                if odds(rng, 5, 100) {
+                    let occupant = self.occupants.choose(rng);
+                    self.dungeon.cells[i][j].add(occupant);
                 }
             }
         }
