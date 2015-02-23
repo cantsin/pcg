@@ -20,6 +20,59 @@ items = []
 iterations = 2
 mu = 20
 lambda = 80
+lambda = 8
 #strategy = "RandomSeed"
-strategy = "ListOfWalls"
+#strategy = "ListOfWalls"
+strategy = "WallPatterns"
 evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", ]
+
+[wallpatterns.tiles]
+floor = "_"
+wall = "X"
+entrance = ">"
+exit = "<"
+door = "d"
+width = 5
+height = 5
+
+[wallpatterns.rooms]
+empty = ["_____",
+         "_____",
+         "_____",
+         "_____",
+         "_____"]
+altar = ["_____",
+         "__X__",
+         "_X X_",
+         "__X__",
+         "_____"]
+down_ = ["___X_",
+         "__X__",
+         "_X_XX",
+         "___>d",
+         "XX_XX"]
+up___ = ["____X",
+         "____X",
+         "__>__",
+         "X____",
+         "X____"]
+rand1 = ["_X___",
+         "_X__X",
+         "_X_X_",
+         "__X__",
+         "_____"]
+rand2 = ["____X",
+         "_X_ X",
+         "_X  X",
+         "_XXdX",
+         "_____"]
+rand3 = ["__X__",
+         "_X___",
+         "X___X",
+         "___d_",
+         "__XX_"]
+rand4 = ["__X__",
+         "__XdX",
+         "XXX__",
+         "__XX_",
+         "___X_"]

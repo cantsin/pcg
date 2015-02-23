@@ -27,6 +27,7 @@ mod mu_lambda;
 mod evaluation;
 mod random_seed;
 mod list_of_walls;
+mod wall_patterns;
 mod text;
 
 use opengl_graphics::{Gl};
@@ -51,6 +52,7 @@ use config::{Config};
 use genotype::{GenoType};
 use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
+use wall_patterns::{WallPatterns};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
 use text::{render_text};
@@ -119,8 +121,11 @@ fn main() {
         // "RandomSeed" => {
         //     box RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
         // }
-        "ListOfWalls" => {
-            box ListOfWalls::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        // "ListOfWalls" => {
+        //     box ListOfWalls::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        // }
+        "WallPatterns" => {
+            box WallPatterns::new(&config, tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
         }
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
