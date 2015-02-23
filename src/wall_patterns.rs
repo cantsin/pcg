@@ -99,7 +99,20 @@ impl GenoType for WallPatterns {
     fn generate(&mut self, rng: &mut ThreadRng) -> Dungeon {
         let w = self.dungeon.width as i32;
         let h = self.dungeon.height as i32;
-
+        let n = self.patterns.len();
+        // draw the patterns according to the indices we have.
+        for i in 0..self.dungeon.width {
+            let x: usize = i / self.pattern_width;
+            let inner_x = i % self.pattern_width;
+            for j in 0..self.dungeon.height {
+                let y: usize = j / self.pattern_height;
+                let index = self.indices[(y * self.pattern_width + x) % n];
+                let ref pattern = self.patterns[index];
+                // here, we have to invert due to a mismatch between how we draw the patterns and opengl coords
+                let inner_y = self.pattern_height - (j % self.pattern_height) - 1;
+                self.dungeon.cells[i][j].tile = pattern.pattern[inner_y * self.pattern_width + inner_x].clone();
+            }
+        }
         self.dungeon.clone()
     }
 
