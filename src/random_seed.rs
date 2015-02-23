@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, Tile, Item, Occupant};
+use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{GenoType};
 
 use std::collections::{HashMap};
@@ -42,12 +42,12 @@ impl GenoType for RandomSeed {
         for i in 0..self.dungeon.width {
             for j in 0..self.dungeon.height {
                 let tile = self.tiles.choose(rng).clone();
-                self.dungeon.cells[i][j].tile = Some(tile);
                 // occupants have 0.05% chance to generate
-                if odds(rng, 5, 100) {
+                if tile.name() == "floor" && odds(rng, 5, 100) {
                     let occupant = self.occupants.choose(rng);
-                    self.dungeon.cells[i][j].add(occupant);
+                    self.dungeon.cells[i][j].occupant = Some(occupant.clone());
                 }
+                self.dungeon.cells[i][j].tile = Some(tile);
             }
         }
     }

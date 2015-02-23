@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, Tile, Item, Occupant};
+use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{GenoType};
 
 use std::collections::{HashMap};
@@ -113,7 +113,13 @@ impl GenoType for ListOfWalls {
         for occupant in occupants {
             let x = rng.gen_range(1, w);
             let y = rng.gen_range(1, h);
-            self.dungeon.cells[x][y].add(occupant);
+            let tile = self.dungeon.cells[x][y].tile.clone();
+            match tile {
+                Some(ref t) if t.name() == "floor" => {
+                    self.dungeon.cells[x][y].occupant = Some(occupant.clone());
+                }
+                _ => ()
+            }
         }
 
         // randomly place entrance

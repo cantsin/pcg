@@ -5,7 +5,7 @@ pub struct Cell {
     pub x: u32,
     pub y: u32,
     pub tile: Option<Tile>,
-    pub occupants: Vec<Occupant>,
+    pub occupant: Option<Occupant>,
     pub items: Vec<Item>
 }
 
@@ -15,7 +15,7 @@ impl Cell {
             x: x,
             y: y,
             tile: tile,
-            occupants: vec![],
+            occupant: None,
             items: vec![],
         }
     }
@@ -32,10 +32,6 @@ impl Cell {
             None => true,
             Some(ref t) => t.name() == "floor"
         }
-    }
-
-    pub fn add(&mut self, occupant: &Occupant) {
-        self.occupants.push(occupant.clone());
     }
 }
 

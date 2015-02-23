@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, Tile, Item, Occupant};
+use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{GenoType};
 use config::{Config};
 
@@ -113,11 +113,11 @@ impl GenoType for WallPatterns {
                 self.dungeon.cells[i][j].tile = tile.clone();
                 // randomly add an occupant
                 match tile {
-                    None => {
+                    Some(ref t) if t.name() == "floor" => {
                         // occupants have 0.05% chance to generate
                         if odds(rng, 5, 100) {
                             let occupant = self.occupants.choose(rng);
-                            self.dungeon.cells[i][j].add(occupant);
+                            self.dungeon.cells[i][j].occupant = Some(occupant.clone());
                         }
                     }
                     _ => ()

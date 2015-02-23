@@ -163,6 +163,13 @@ fn main() {
                          Sprite::missing(gl, x, y, w, h);
                     }
                 }
+                match cell.occupant {
+                    Some(ref val) => {
+                        let sprite = spritesheet.sprites.get(&val.name()).unwrap();
+                        sprite.draw(gl, x, y);
+                    }
+                    None => ()
+                }
             }
             let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
                                choice,
