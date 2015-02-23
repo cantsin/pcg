@@ -33,6 +33,20 @@ impl Config {
         value.as_table().expect(format!("`{}` is not a TOML.", name).as_slice())
     }
 
+    pub fn get_integer<'a>(&'a self, table: &'a Table, name: &str) -> i64 {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_integer().expect(format!("`{}` is not an integer.", name).as_slice())
+    }
+
+    pub fn get_char<'a>(&'a self, table: &'a Table, name: &str) -> char {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        let contents = value.as_str().expect(format!("`{}` is not a char.", name).as_slice());
+        if contents.len() != 1 {
+            panic!("{} is a string, but expected a character.", name);
+        }
+        contents.chars().next().unwrap()
+    }
+
     pub fn get_string<'a>(&'a self, table: &'a Table, name: &str) -> &str {
         let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
         value.as_str().expect(format!("`{}` is not a string.", name).as_slice())

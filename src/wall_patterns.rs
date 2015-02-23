@@ -24,7 +24,7 @@ pub struct WallPatterns {
 
 #[derive(Clone, Debug)]
 struct WallPattern {
-    pattern: Vec<Vec<CellOptions<Tile>>>
+    pattern: Vec<Option<Tile>>
 }
 
 impl WallPatterns {
@@ -37,22 +37,22 @@ impl WallPatterns {
         // read in the configurations
         let wallpatterns = config.get_table(None, "wallpatterns");
         let tile_vars = config.get_table(Some(wallpatterns), "tiles");
-        let pattern_width = tile_vars.get("width");
-        let pattern_height = tile_vars.get("height");
+        let pattern_width = config.get_integer(tile_vars, "width") as usize;
+        let pattern_height = config.get_integer(tile_vars, "height") as usize;
         let mut mapping = HashMap::new();
         // TODO: function to iterate over toml section settings
-        mapping.insert(config.get_string(tile_vars, "floor"), tiles.get("floor").unwrap());
-        mapping.insert(config.get_string(tile_vars, "wall"), tiles.get("wall").unwrap());
-        mapping.insert(config.get_string(tile_vars, "entrance"), tiles.get("entrance").unwrap());
-        mapping.insert(config.get_string(tile_vars, "exit"), tiles.get("exit").unwrap());
-        mapping.insert(config.get_string(tile_vars, "door"), tiles.get("door").unwrap());
+        mapping.insert(config.get_char(tile_vars, "floor"), tiles.get("floor").unwrap());
+        mapping.insert(config.get_char(tile_vars, "wall"), tiles.get("wall").unwrap());
+        mapping.insert(config.get_char(tile_vars, "entrance"), tiles.get("entrance").unwrap());
+        mapping.insert(config.get_char(tile_vars, "exit"), tiles.get("exit").unwrap());
+        mapping.insert(config.get_char(tile_vars, "door"), tiles.get("door").unwrap());
         let room_vars = config.get_table(Some(wallpatterns), "rooms");
         let rooms = vec!["empty","altar","down_","up___","rand1","rand2","rand3","rand4"];
         let patterns: Vec<WallPattern> = rooms.iter().map(|&r| {
             let description = config.get_array(room_vars, r);
-            WallPatterns::construct(&mapping, description)
+            WallPatterns::construct(&mapping, description, pattern_width, pattern_height)
         }).collect();
-        let indices: Vec<usize> = repeat(patterns.len(), 0);
+        let indices: Vec<usize> = repeat(0).take(patterns.len()).collect();
         let dungeon = Dungeon::new(width, height);
         WallPatterns {
             fitness: 0.0,
@@ -68,8 +68,20 @@ impl WallPatterns {
         }
     }
 
-    fn construct(hashmap: &HashMap<&str, &Tile>, description: Vec<String>) -> WallPattern {
-
+    fn construct(mapping: &HashMap<char, &Tile>, description: Vec<String>, width: usize, height: usize) -> WallPattern {
+        let mut pattern = Vec::with_capacity(width * height);
+        for line in description {
+            for ch in line.chars() {
+                let tile = mapping.get(&(ch));
+                match tile {
+                    None => pattern.push(None),
+                    Some(&tile) => pattern.push(Some((*tile).clone()))
+                }
+            }
+        }
+        WallPattern {
+            pattern: pattern
+        }
     }
 }
 
