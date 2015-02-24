@@ -3,11 +3,11 @@ use std::sync::{mpsc, Arc, TaskPool};
 use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
-use genotype::{GenoType};
+use genotype::{Genotype};
 use statistics::{Statistics};
 use util::{shuffle};
 
-pub struct MuLambda<G: GenoType> {
+pub struct MuLambda<G: Genotype> {
     threads: usize,
     iterations: usize,
     current_iteration: usize,
@@ -17,7 +17,7 @@ pub struct MuLambda<G: GenoType> {
     evaluations: Arc<Vec<EvaluationFn>>
 }
 
-impl<G: GenoType + Statistics + Clone + Send + 'static> MuLambda<G> {
+impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
     pub fn new(threads: usize,
                iterations: usize,
                mu: usize,

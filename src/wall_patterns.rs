@@ -1,6 +1,6 @@
 use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
-use genotype::{GenoType};
+use genotype::{Genotype};
 use statistics::{Statistic, Statistics};
 use config::{Config};
 
@@ -84,7 +84,7 @@ impl WallPatterns {
     }
 }
 
-impl GenoType for WallPatterns {
+impl Genotype for WallPatterns {
     fn mutate(&mut self, rng: &mut ThreadRng) {
         // change up to 33% of indices.
         let length = self.patterns.len();

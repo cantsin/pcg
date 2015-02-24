@@ -3,7 +3,7 @@ use evaluation::{EvaluationFn};
 
 use rand::{ThreadRng};
 
-pub trait GenoType: Send + Clone {
+pub trait Genotype: Send + Clone {
     fn mutate(&mut self, rng: &mut ThreadRng);
     fn generate(&mut self, rng: &mut ThreadRng) -> Dungeon;
     fn last(&self) -> Dungeon;

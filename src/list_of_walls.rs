@@ -1,6 +1,6 @@
 use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
-use genotype::{GenoType};
+use genotype::{Genotype};
 use statistics::{Statistic, Statistics};
 
 use rand::{Rng, ThreadRng, thread_rng};
@@ -62,7 +62,7 @@ impl ListOfWalls {
     }
 }
 
-impl GenoType for ListOfWalls {
+impl Genotype for ListOfWalls {
     fn mutate(&mut self, rng: &mut ThreadRng) {
         // change 33% of walls.
         let length = self.walls.len();

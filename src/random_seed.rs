@@ -1,6 +1,6 @@
 use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
-use genotype::{GenoType};
+use genotype::{Genotype};
 use statistics::{Statistic, Statistics};
 
 use rand::{ThreadRng};
@@ -34,7 +34,7 @@ impl RandomSeed {
     }
 }
 
-impl GenoType for RandomSeed {
+impl Genotype for RandomSeed {
     fn mutate(&mut self, rng: &mut ThreadRng) {
         for i in 0..self.dungeon.width {
             for j in 0..self.dungeon.height {

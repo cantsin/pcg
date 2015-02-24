@@ -50,7 +50,7 @@ use spritesheet::{SpriteSheet};
 use sprite::{Sprite};
 use dungeon::{DungeonCells};
 use config::{Config};
-use genotype::{GenoType};
+use genotype::{Genotype};
 use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use wall_patterns::{WallPatterns};
