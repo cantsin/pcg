@@ -1,8 +1,8 @@
 use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{GenoType};
+use statistics::{Statistic, Statistics};
 
-use std::collections::{HashMap};
 use rand::{ThreadRng};
 use util::{odds};
 
@@ -13,9 +13,7 @@ pub struct RandomSeed {
     tiles: CellOptions<Tile>,
     items: CellOptions<Item>,
     occupants: CellOptions<Occupant>,
-    // statistics
-    pub iteration: u32,
-    pub ranking: f64
+    statistic: Statistic
 }
 
 impl RandomSeed {
@@ -31,8 +29,7 @@ impl RandomSeed {
             tiles: tiles,
             items: items,
             occupants: occupants,
-            iteration: 0,
-            ranking: -1.0
+            statistic: Statistic::new()
         }
     }
 }
@@ -56,18 +53,25 @@ impl GenoType for RandomSeed {
         self.dungeon.clone()
     }
 
-    fn statistics(&mut self, stats: &HashMap<String, f64>) {
-        match stats.get("iteration") {
-            None => (),
-            Some(&val) => self.iteration = val as u32
-        }
-        match stats.get("ranking") {
-            None => (),
-            Some(&val) => self.ranking = val
-        }
-    }
-
     fn last(&self) -> Dungeon {
         self.dungeon.clone()
+    }
+}
+
+impl Statistics for RandomSeed {
+    fn set_iteration(&mut self, v: u32) {
+        self.statistic.iteration = v;
+    }
+
+    fn get_iteration(&self) -> u32 {
+        self.statistic.iteration
+    }
+
+    fn set_ranking(&mut self, v: f64) {
+        self.statistic.ranking = v;
+    }
+
+    fn get_ranking(&self) -> f64 {
+        self.statistic.ranking
     }
 }

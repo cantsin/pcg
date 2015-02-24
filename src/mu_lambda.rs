@@ -1,10 +1,10 @@
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{mpsc, Arc, TaskPool};
-use std::collections::{HashMap};
 use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
 use genotype::{GenoType};
+use statistics::{Statistics};
 use util::{shuffle};
 
 pub struct MuLambda<G: GenoType> {
@@ -17,7 +17,7 @@ pub struct MuLambda<G: GenoType> {
     evaluations: Arc<Vec<EvaluationFn>>
 }
 
-impl<G: GenoType + Clone + Send + 'static> MuLambda<G> {
+impl<G: GenoType + Statistics + Clone + Send + 'static> MuLambda<G> {
     pub fn new(threads: usize,
                iterations: usize,
                mu: usize,
@@ -65,10 +65,8 @@ impl<G: GenoType + Clone + Send + 'static> MuLambda<G> {
                 let mut new_rng = thread_rng();
                 let dungeon = individual.generate(&mut new_rng);
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
-                let mut stats: HashMap<String, f64> = HashMap::new();
-                stats.insert(String::from_str("iteration"), iteration as f64);
-                stats.insert(String::from_str("ranking"), fitness);
-                individual.statistics(&stats);
+                individual.set_iteration(iteration as u32);
+                individual.set_ranking(fitness);
                 sender.send((individual, fitness)).unwrap();
             });
         }
@@ -88,9 +86,7 @@ impl<G: GenoType + Clone + Send + 'static> MuLambda<G> {
             let mut new_rng = thread_rng();
             individual.mutate(&mut new_rng);
             individual.generate(&mut new_rng);
-            let mut stats: HashMap<String, f64> = HashMap::new();
-            stats.insert(String::from_str("iteration"), (iteration + 1) as f64);
-            individual.statistics(&stats);
+            individual.set_iteration(iteration as u32);
             individual
         }).collect();
         survivors.push_all(next_generation.as_slice());

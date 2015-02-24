@@ -23,6 +23,7 @@ mod dungeon;
 mod cell;
 mod celloption;
 mod genotype;
+mod statistics;
 mod mu_lambda;
 mod evaluation;
 mod random_seed;
@@ -56,6 +57,7 @@ use wall_patterns::{WallPatterns};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
 use text::{render_text};
+use statistics::{Statistics};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -173,8 +175,8 @@ fn main() {
             }
             let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
                                choice,
-                               current.iteration,
-                               current.ranking);
+                               current.get_iteration(),
+                               current.get_ranking());
             render_text(&mut face, gl, 10, 10, info.as_slice());
         });
 
