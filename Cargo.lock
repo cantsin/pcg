@@ -3,7 +3,7 @@ name = "pcg"
 version = "0.0.1"
 dependencies = [
  "freetype-rs 0.0.6 (git+https://github.com/pistondevelopers/freetype-rs)",
- "piston2d-graphics 0.0.17 (git+https://github.com/pistondevelopers/graphics)",
+ "piston2d-graphics 0.0.18 (git+https://github.com/pistondevelopers/graphics)",
  "piston2d-opengl_graphics 0.0.8 (git+https://github.com/pistondevelopers/opengl_graphics)",
  "pistoncore-event 0.0.8 (git+https://github.com/pistondevelopers/event)",
  "pistoncore-input 0.0.5 (git+https://github.com/pistondevelopers/input)",
@@ -131,8 +131,8 @@ source = "git+https://github.com/pistondevelopers/texture#3cc4cddc3f8c51c36ea11d
 
 [[package]]
 name = "piston2d-graphics"
-version = "0.0.17"
-source = "git+https://github.com/pistondevelopers/graphics#e5c5219fbfe8aba7387c83f1eb748e73580d5b98"
+version = "0.0.18"
+source = "git+https://github.com/pistondevelopers/graphics#a103332515cc31314b3b08e32fc2881076b1e7e2"
 dependencies = [
  "interpolation 0.0.2 (git+https://github.com/PistonDevelopers/interpolation)",
  "piston-texture 0.0.1 (git+https://github.com/pistondevelopers/texture)",
@@ -152,7 +152,7 @@ dependencies = [
  "khronos_api 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston-texture 0.0.1 (git+https://github.com/pistondevelopers/texture)",
- "piston2d-graphics 0.0.17 (git+https://github.com/pistondevelopers/graphics)",
+ "piston2d-graphics 0.0.18 (git+https://github.com/pistondevelopers/graphics)",
  "shader_version 0.0.1 (git+https://github.com/pistondevelopers/shader_version)",
 ]
 
