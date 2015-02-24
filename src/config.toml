@@ -17,9 +17,8 @@ occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []
 
 [mu-lambda]
-iterations = 2
-mu = 20
-lambda = 80
+iterations = 1
+mu = 2
 lambda = 8
 #strategy = "RandomSeed"
 #strategy = "ListOfWalls"
