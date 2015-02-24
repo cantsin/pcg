@@ -1,6 +1,7 @@
 use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{Genotype};
+use phenotype::{Seed};
 use statistics::{Statistic, Statistics};
 use config::{Config};
 
@@ -13,12 +14,13 @@ use util::{odds};
 pub struct WallPatterns {
     fitness: f64,
     dungeon: Dungeon,
+
     patterns: Vec<WallPattern>,
     pattern_width: usize,
     pattern_height: usize,
     indices: Vec<usize>,
-    items: CellOptions<Item>,
-    occupants: CellOptions<Occupant>,
+
+    seed: Seed,
     statistic: Statistic
 }
 
@@ -28,12 +30,7 @@ struct WallPattern {
 }
 
 impl WallPatterns {
-    pub fn new(config: &Config,
-               width: usize,
-               height: usize,
-               tiles: CellOptions<Tile>,
-               items: CellOptions<Item>,
-               occupants: CellOptions<Occupant>) -> WallPatterns {
+    pub fn new(config: &Config, seed: &Seed) -> WallPatterns {
         // read in the configurations
         let wallpatterns = config.get_table(None, "wallpatterns");
         let tile_vars = config.get_table(Some(wallpatterns), "tiles");
@@ -41,11 +38,11 @@ impl WallPatterns {
         let pattern_height = config.get_integer(tile_vars, "height") as usize;
         let mut mapping = HashMap::new();
         // TODO: function to iterate over toml section settings
-        mapping.insert(config.get_char(tile_vars, "floor"), tiles.get("floor").unwrap());
-        mapping.insert(config.get_char(tile_vars, "wall"), tiles.get("wall").unwrap());
-        mapping.insert(config.get_char(tile_vars, "entrance"), tiles.get("entrance").unwrap());
-        mapping.insert(config.get_char(tile_vars, "exit"), tiles.get("exit").unwrap());
-        mapping.insert(config.get_char(tile_vars, "door"), tiles.get("door").unwrap());
+        mapping.insert(config.get_char(tile_vars, "floor"), seed.tiles.get("floor").unwrap());
+        mapping.insert(config.get_char(tile_vars, "wall"), seed.tiles.get("wall").unwrap());
+        mapping.insert(config.get_char(tile_vars, "entrance"), seed.tiles.get("entrance").unwrap());
+        mapping.insert(config.get_char(tile_vars, "exit"), seed.tiles.get("exit").unwrap());
+        mapping.insert(config.get_char(tile_vars, "door"), seed.tiles.get("door").unwrap());
         let room_vars = config.get_table(Some(wallpatterns), "rooms");
         let rooms = vec!["empty","altar","down_","up___","rand1","rand2","rand3","rand4"];
         let patterns: Vec<WallPattern> = rooms.iter().map(|&r| {
@@ -53,7 +50,7 @@ impl WallPatterns {
             WallPatterns::construct(&mapping, description, pattern_width, pattern_height)
         }).collect();
         let indices: Vec<usize> = repeat(0).take(patterns.len()).collect();
-        let dungeon = Dungeon::new(width, height);
+        let dungeon = Dungeon::new(seed.width, seed.height);
         WallPatterns {
             fitness: 0.0,
             dungeon: dungeon,
@@ -61,8 +58,7 @@ impl WallPatterns {
             pattern_width: pattern_width,
             pattern_height: pattern_height,
             indices: indices,
-            items: items,
-            occupants: occupants,
+            seed: seed.clone(),
             statistic: Statistic::new()
         }
     }
@@ -85,7 +81,11 @@ impl WallPatterns {
 }
 
 impl Genotype for WallPatterns {
-    fn mutate(&mut self, rng: &mut ThreadRng) {
+    fn initialize<T: Rng>(&mut self, rng: &mut T) {
+
+    }
+
+    fn mutate<T: Rng>(&mut self, rng: &mut T) {
         // change up to 33% of indices.
         let length = self.patterns.len();
         let n = (length as f32 * 0.33) as usize;
@@ -95,7 +95,7 @@ impl Genotype for WallPatterns {
         }
     }
 
-    fn generate(&mut self, rng: &mut ThreadRng) -> Dungeon {
+    fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
         // draw the patterns according to the indices we have.
         let n = self.patterns.len();
         for i in 0..self.dungeon.width {
@@ -114,7 +114,7 @@ impl Genotype for WallPatterns {
                     Some(ref t) if t.name() == "floor" => {
                         // occupants have 0.05% chance to generate
                         if odds(rng, 5, 100) {
-                            let occupant = self.occupants.choose(rng);
+                            let occupant = self.seed.occupants.choose(rng);
                             self.dungeon.cells[i][j].occupant = Some(occupant.clone());
                         }
                     }
@@ -122,10 +122,6 @@ impl Genotype for WallPatterns {
                 }
             }
         }
-        self.dungeon.clone()
-    }
-
-    fn last(&self) -> Dungeon {
         self.dungeon.clone()
     }
 }

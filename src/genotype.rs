@@ -1,12 +1,15 @@
 use dungeon::{Dungeon};
 use evaluation::{EvaluationFn};
 
-use rand::{ThreadRng};
+use rand::{Rng};
 
 pub trait Genotype: Send + Clone {
-    fn mutate(&mut self, rng: &mut ThreadRng);
-    fn generate(&mut self, rng: &mut ThreadRng) -> Dungeon;
-    fn last(&self) -> Dungeon;
+    /// initialize the genotype.
+    fn initialize<R: Rng>(&mut self, rng: &mut R);
+    /// mutate the genotype.
+    fn mutate<R: Rng>(&mut self, rng: &mut R);
+    /// generate a phenotype.
+    fn generate<R: Rng>(&self, rng: &mut R) -> Dungeon;
 
     fn evaluate(&self, dungeon: &Dungeon, strategies: &[EvaluationFn]) -> f64 {
         strategies.iter().fold(1.0, |accum, f| accum * f(dungeon))

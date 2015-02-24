@@ -3,7 +3,7 @@ use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{Genotype};
 use statistics::{Statistic, Statistics};
 
-use rand::{ThreadRng};
+use rand::{Rng};
 use util::{odds};
 
 #[derive(Clone, Debug)]
@@ -35,7 +35,11 @@ impl RandomSeed {
 }
 
 impl Genotype for RandomSeed {
-    fn mutate(&mut self, rng: &mut ThreadRng) {
+    fn initialize<T: Rng>(&mut self, rng: &mut T) {
+
+    }
+
+    fn mutate<T: Rng>(&mut self, rng: &mut T) {
         for i in 0..self.dungeon.width {
             for j in 0..self.dungeon.height {
                 let tile = self.tiles.choose(rng).clone();
@@ -49,11 +53,7 @@ impl Genotype for RandomSeed {
         }
     }
 
-    fn generate(&mut self, _: &mut ThreadRng) -> Dungeon {
-        self.dungeon.clone()
-    }
-
-    fn last(&self) -> Dungeon {
+    fn generate<T: Rng>(&self, _: &mut T) -> Dungeon {
         self.dungeon.clone()
     }
 }

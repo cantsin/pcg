@@ -30,6 +30,7 @@ mod random_seed;
 mod list_of_walls;
 mod wall_patterns;
 mod text;
+mod phenotype;
 
 use opengl_graphics::{Gl};
 use graphics::{color};
@@ -58,6 +59,7 @@ use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
 use text::{render_text};
 use statistics::{Statistics};
+use phenotype::{Seed};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -118,16 +120,17 @@ fn main() {
         }
     }).collect();
 
+    let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
     // We cannot have trait objects that implement Clone. So this is commented out for now.
     let genotype = match strategy {
         // "RandomSeed" => {
-        //     box RandomSeed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        //     box RandomSeed::new(&seed)
         // }
         // "ListOfWalls" => {
-        //     box ListOfWalls::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+        //     box ListOfWalls::new(&seed)
         // }
         "WallPatterns" => {
-            box WallPatterns::new(&config, tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants)
+            box WallPatterns::new(&config, &seed)
         }
         _ => panic!(format!("Strategy {} could not be found.", strategy))
     };
