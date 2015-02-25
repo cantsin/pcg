@@ -70,6 +70,8 @@ fn main() {
     let vars = config.get_table(None, "main");
     let window_width = config.get_default(vars, "window_width", 800);
     let window_height = config.get_default(vars, "window_height", 800);
+    let tile_width = config.get_integer(vars, "tile_width") as i32;
+    let tile_height = config.get_integer(vars, "tile_height") as i32;
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
     let threads = config.get_default(vars, "threads", num_cpus() * 2);
@@ -158,17 +160,15 @@ fn main() {
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
-                let w = 16;
-                let h = 16;
-                let x = cell.x as i32 * w;
-                let y = cell.y as i32 * h;
+                let x = cell.x as i32 * tile_width;
+                let y = cell.y as i32 * tile_height;
                 match cell.tile {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
                         sprite.draw(gl, x, y);
                     }
                     None => {
-                         Sprite::missing(gl, x, y, w, h);
+                         Sprite::missing(gl, x, y, tile_width, tile_height);
                     }
                 }
                 match cell.occupant {
