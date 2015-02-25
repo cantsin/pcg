@@ -63,8 +63,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
             let sender = tx.clone();
             let fns = self.evaluations.clone();
             pool.execute(move || {
-                let mut new_rng = thread_rng();
-                let dungeon = individual.generate(&mut new_rng);
+                let dungeon = individual.generate();
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
                 let statistic = Statistic::new(iteration as u32, fitness);
                 sender.send((individual, statistic)).unwrap();

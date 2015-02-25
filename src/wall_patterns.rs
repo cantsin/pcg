@@ -95,7 +95,7 @@ impl Genotype for WallPatterns {
         }
     }
 
-    fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
+    fn generate(&self) -> Dungeon {
         // draw the patterns according to the indices we have.
         let w = self.seed.width;
         let h = self.seed.height;

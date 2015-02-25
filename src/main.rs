@@ -152,8 +152,7 @@ fn main() {
         graphics::clear(color::BLACK, gl);
         let ref current = winners[choice as usize];
         let &(ref individual, ref statistic) = current;
-        let mut rng = thread_rng();
-        let dungeon = individual.generate(&mut rng);
+        let dungeon = individual.generate();
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {

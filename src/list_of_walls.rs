@@ -9,6 +9,8 @@ use rand::{Rng};
 pub struct ListOfWalls {
     seed: Seed,
     walls: Vec<Wall>,
+    entrance: (usize, usize),
+    exit: (usize, usize),
 }
 
 #[derive(Clone, Debug)]
@@ -42,6 +44,8 @@ impl ListOfWalls {
         ListOfWalls {
             seed: seed.clone(),
             walls: vec![],
+            entrance: (0, 0),
+            exit: (0, 0),
         }
     }
 }
@@ -55,6 +59,8 @@ impl Genotype for ListOfWalls {
         ListOfWalls {
             seed: self.seed.clone(),
             walls: walls,
+            entrance: (0, 0),
+            exit: (0, 0),
         }
     }
 
@@ -68,7 +74,7 @@ impl Genotype for ListOfWalls {
         }
     }
 
-    fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
+    fn generate(&self) -> Dungeon {
         let w = self.seed.width;
         let h = self.seed.height;
         let floor = self.seed.tiles.get("floor").unwrap();
@@ -85,27 +91,25 @@ impl Genotype for ListOfWalls {
                     break
                 }
                 // small chance for a door
-                if rng.gen_range(0, wall.length * 5) == 0 {
-                    dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
-                }
-                else {
+                // if rng.gen_range(0, wall.length * 5) == 0 {
+                //     dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
+                // }
+                // else {
                     dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
-                }
+                // }
             }
         }
         // TODO check for collisions
 
         // randomly place entrance
         let entrance = self.seed.tiles.get("entrance").unwrap();
-        let entrance_x = rng.gen_range(1, w);
-        let entrance_y = rng.gen_range(1, h);
-        dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
+        let (x, y) = self.entrance;
+        dungeon.cells[x][y].tile = Some(entrance.clone());
 
         // randomly place exit
         let exit = self.seed.tiles.get("exit").unwrap();
-        let exit_x = rng.gen_range(1, w);
-        let exit_y = rng.gen_range(1, h);
-        dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
+        let (x, y) = self.exit;
+        dungeon.cells[x][y].tile = Some(exit.clone());
 
         dungeon.clone()
     }

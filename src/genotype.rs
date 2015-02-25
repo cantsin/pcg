@@ -9,7 +9,7 @@ pub trait Genotype: Send + Clone {
     /// mutate the genotype.
     fn mutate<R: Rng>(&mut self, _: &mut R) { }
     /// generate a phenotype.
-    fn generate<R: Rng>(&self, rng: &mut R) -> Dungeon;
+    fn generate(&self) -> Dungeon;
 
     fn evaluate(&self, dungeon: &Dungeon, strategies: &[EvaluationFn]) -> f64 {
         strategies.iter().fold(1.0, |accum, f| accum * f(dungeon))

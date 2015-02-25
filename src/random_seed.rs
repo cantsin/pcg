@@ -3,7 +3,7 @@ use celloption::{CellOption};
 use genotype::{Genotype};
 use phenotype::{Seed};
 
-use rand::{Rng};
+use rand::{Rng, thread_rng};
 use util::{odds};
 
 #[derive(Clone, Debug)]
@@ -20,13 +20,14 @@ impl RandomSeed {
 }
 
 impl Genotype for RandomSeed {
-    fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
+    fn generate(&self) -> Dungeon {
+        let mut rng = thread_rng();
         let w = self.seed.width;
         let h = self.seed.height;
         let mut dungeon = Dungeon::new(w, h, None);
         for i in 0..w {
             for j in 0..h {
-                let tile = self.seed.tiles.choose(rng).clone();
+                let tile = self.seed.tiles.choose(&mut rng).clone();
                 dungeon.cells[i][j].tile = Some(tile);
             }
         }
