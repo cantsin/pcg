@@ -47,10 +47,13 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         let mut primer: Vec<(G, Statistic)> = range(0, total).map(|_| {
             (self.genotype.initialize(&mut rng), Statistic::empty())
         }).collect();
-        while self.current_iteration < self.iterations {
+        while self.current_iteration < self.iterations - 1 {
             primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
+            primer = self.prune(primer);
             self.current_iteration += 1;
         }
+        // one last iteration without the prune.
+        primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
         primer.clone()
     }
 
@@ -80,10 +83,14 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
                 None => panic!(format!("{:?} and {:?} could not be ordered.", f1.fitness, f2.fitness))
             }
         });
+        colony
+    }
+
+    fn prune(&self, generation: Vec<(G, Statistic)>) -> Vec<(G, Statistic)> {
         // keep mu
-        let mut survivors: Vec<(G, Statistic)> = colony.iter().map(|v| v.clone()).take(self.mu).collect();
+        let mut survivors: Vec<(G, Statistic)> = generation.iter().map(|v| v.clone()).take(self.mu).collect();
         // add the next generation
-        let next_generation: Vec<(G, Statistic)> = colony.into_iter().map(|(ref mut individual, _)| {
+        let next_generation: Vec<(G, Statistic)> = generation.into_iter().map(|(ref mut individual, _)| {
             let mut new_rng = thread_rng();
             let mut baby = individual.clone();
             baby.mutate(&mut new_rng, self.mutation);
