@@ -2,18 +2,13 @@ use dungeon::{Dungeon};
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use genotype::{Genotype};
 use phenotype::{Seed};
-use statistics::{Statistic, Statistics};
 
 use rand::{Rng, ThreadRng, thread_rng};
 
 #[derive(Clone, Debug)]
 pub struct ListOfWalls {
-    fitness: f64,
-    dungeon: Dungeon,
-    walls: Vec<Wall>,
-
     seed: Seed,
-    statistic: Statistic
+    walls: Vec<Wall>,
 }
 
 #[derive(Clone, Debug)]
@@ -25,25 +20,11 @@ struct Wall {
     ystep: i32
 }
 
-impl ListOfWalls {
-    pub fn new(seed: &Seed) -> ListOfWalls {
-        let dungeon = Dungeon::new(seed.width, seed.height);
-        let n = seed.width * seed.height / 10;
-        let mut rng = thread_rng();
-        let walls: Vec<Wall> = range(0, n).map(|_| ListOfWalls::random_wall(&mut rng, seed.width, seed.height)).collect();
-        ListOfWalls {
-            fitness: 0.0,
-            dungeon: dungeon,
-            seed: seed.clone(),
-            walls: walls,
-            statistic: Statistic::new()
-        }
-    }
-
-    pub fn random_wall<T: Rng>(rng: &mut T, width: usize, height: usize) -> Wall {
+impl Wall {
+    pub fn random<T: Rng>(rng: &mut T, width: usize, height: usize) -> Wall {
         let x: usize = rng.gen_range(1, width);
         let y: usize = rng.gen_range(1, height);
-        let length: usize = rng.gen_range(1, width);
+        let length: usize = rng.gen_range(1, width * height);
         let xstep: i32 = rng.gen_range(-1, 2);
         let ystep: i32 = rng.gen_range(-1, 2);
         Wall {
@@ -56,9 +37,21 @@ impl ListOfWalls {
     }
 }
 
-impl Genotype for ListOfWalls {
-    fn initialize<T: Rng>(&mut self, rng: &mut T) {
+impl ListOfWalls {
+    pub fn new(seed: &Seed) -> ListOfWalls {
+        ListOfWalls {
+            seed: seed.clone(),
+            walls: vec![],
+        }
+    }
+}
 
+impl Genotype for ListOfWalls {
+    fn initialize<T: Rng>(&self, rng: &mut T) -> ListOfWalls {
+        let n = self.seed.width * self.seed.height / 10;
+        self.walls = range(0, n).map(|_| {
+            Wall::random(rng, self.seed.width, self.seed.height)
+        }).collect();
     }
 
     fn mutate<T: Rng>(&mut self, rng: &mut T) {
@@ -67,17 +60,18 @@ impl Genotype for ListOfWalls {
         let n = (length as f32 * 0.33) as usize;
         for _ in range(0, n) {
             let index = rng.gen_range(1, length);
-            self.walls[index] = ListOfWalls::random_wall(rng, self.dungeon.width, self.dungeon.height);
+            self.walls[index] = Wall::random(rng, self.seed.width, self.seed.height);
         }
     }
 
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
-        let w = self.dungeon.width;
-        let h = self.dungeon.height;
+        let dungeon = Dungeon::new(self.seed.width, self.seed.height);
+        let w = dungeon.width;
+        let h = dungeon.height;
         let floor = self.seed.tiles.get("floor").unwrap();
-        for i in 0..self.dungeon.width {
-            for j in 0..self.dungeon.height {
-                self.dungeon.cells[i][j].tile = Some(floor.clone());
+        for i in 0..dungeon.width {
+            for j in 0..dungeon.height {
+                dungeon.cells[i][j].tile = Some(floor.clone());
             }
         }
         let wall_tile = self.seed.tiles.get("wall").unwrap();
@@ -93,10 +87,10 @@ impl Genotype for ListOfWalls {
                 }
                 // small chance for a door
                 if rng.gen_range(0, wall.length * 5) == 0 {
-                    self.dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
+                    dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
                 }
                 else {
-                    self.dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
+                    dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
                 }
             }
         }
@@ -108,10 +102,10 @@ impl Genotype for ListOfWalls {
         for occupant in occupants {
             let x = rng.gen_range(1, w);
             let y = rng.gen_range(1, h);
-            let tile = self.dungeon.cells[x][y].tile.clone();
+            let tile = dungeon.cells[x][y].tile.clone();
             match tile {
                 Some(ref t) if t.name() == "floor" => {
-                    self.dungeon.cells[x][y].occupant = Some(occupant.clone());
+                    dungeon.cells[x][y].occupant = Some(occupant.clone());
                 }
                 _ => ()
             }
@@ -121,32 +115,14 @@ impl Genotype for ListOfWalls {
         let entrance = self.seed.tiles.get("entrance").unwrap();
         let entrance_x = rng.gen_range(1, w);
         let entrance_y = rng.gen_range(1, h);
-        self.dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
+        dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
 
         // randomly place exit
         let exit = self.seed.tiles.get("exit").unwrap();
         let exit_x = rng.gen_range(1, w);
         let exit_y = rng.gen_range(1, h);
-        self.dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
+        dungeon.cells[exit_x][exit_y].tile = Some(exit.clone());
 
-        self.dungeon.clone()
-    }
-}
-
-impl Statistics for ListOfWalls {
-    fn set_iteration(&mut self, v: u32) {
-        self.statistic.iteration = v;
-    }
-
-    fn get_iteration(&self) -> u32 {
-        self.statistic.iteration
-    }
-
-    fn set_ranking(&mut self, v: f64) {
-        self.statistic.ranking = v;
-    }
-
-    fn get_ranking(&self) -> f64 {
-        self.statistic.ranking
+        dungeon.clone()
     }
 }

@@ -5,9 +5,9 @@ use rand::{Rng};
 
 pub trait Genotype: Send + Clone {
     /// initialize the genotype.
-    fn initialize<R: Rng>(&mut self, rng: &mut R);
+    fn initialize<R: Rng>(&self, rng: &mut R) -> Self { *self }
     /// mutate the genotype.
-    fn mutate<R: Rng>(&mut self, rng: &mut R);
+    fn mutate<R: Rng>(&mut self, rng: &mut R) { }
     /// generate a phenotype.
     fn generate<R: Rng>(&self, rng: &mut R) -> Dungeon;
 

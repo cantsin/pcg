@@ -4,8 +4,11 @@ use rand::{Rng, thread_rng};
 
 use evaluation::{EvaluationFn};
 use genotype::{Genotype};
-use statistics::{Statistics};
+use statistics::{Statistic};
 use util::{shuffle};
+
+// TODO?
+//type Result = (Genotype, Statistic);
 
 pub struct MuLambda<G: Genotype> {
     threads: usize,
@@ -17,7 +20,7 @@ pub struct MuLambda<G: Genotype> {
     evaluations: Arc<Vec<EvaluationFn>>
 }
 
-impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
+impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
     pub fn new(threads: usize,
                iterations: usize,
                mu: usize,
@@ -35,13 +38,11 @@ impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
         }
     }
 
-    pub fn evaluate(&mut self) -> Vec<G> {
+    pub fn evaluate(&mut self) -> Vec<(G, Statistic)> {
         let total = self.mu + self.lambda;
         let mut rng = thread_rng();
-        let mut primer: Vec<G> = range(0, total).map(|_| {
-            let mut infant = self.genotype.clone();
-            infant.mutate(&mut rng);
-            infant
+        let mut primer: Vec<(G, Statistic)> = range(0, total).map(|_| {
+            (self.genotype.initialize(&mut rng), Statistic::empty())
         }).collect();
         while self.current_iteration < self.iterations {
             primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
@@ -50,14 +51,14 @@ impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
         primer.clone()
     }
 
-    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [G], iteration: usize) -> Vec<G> {
+    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [(G, Statistic)], iteration: usize) -> Vec<(G, Statistic)> {
         // shuffle the population
         shuffle(rng, primer);
         // calculate the fitness for each individual (in a separate thread)
         let n = primer.len();
         let pool = TaskPool::new(self.threads);
-        let (tx, rx): (Sender<(G, f64)>, Receiver<(G, f64)>) = mpsc::channel();
-        for adult in primer {
+        let (tx, rx): (Sender<(G, Statistic)>, Receiver<(G, Statistic)>) = mpsc::channel();
+        for &(adult, _) in primer.iter() {
             let mut individual = adult.clone();
             let sender = tx.clone();
             let fns = self.evaluations.clone();
@@ -65,9 +66,8 @@ impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
                 let mut new_rng = thread_rng();
                 let dungeon = individual.generate(&mut new_rng);
                 let fitness = individual.evaluate(&dungeon, fns.as_slice());
-                individual.set_iteration(iteration as u32);
-                individual.set_ranking(fitness);
-                sender.send((individual, fitness)).unwrap();
+                let statistic = Statistic::new(iteration as u32, fitness);
+                sender.send((individual, statistic)).unwrap();
             });
         }
         let mut colony: Vec<(G, f64)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
@@ -86,8 +86,7 @@ impl<G: Genotype + Statistics + Clone + Send + 'static> MuLambda<G> {
             let mut new_rng = thread_rng();
             individual.mutate(&mut new_rng);
             individual.generate(&mut new_rng);
-            individual.set_iteration(iteration as u32);
-            individual
+            (individual, Statistic::empty())
         }).collect();
         survivors.push_all(next_generation.as_slice());
         survivors

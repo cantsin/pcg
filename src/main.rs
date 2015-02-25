@@ -58,7 +58,6 @@ use wall_patterns::{WallPatterns};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
 use text::{render_text};
-use statistics::{Statistics};
 use phenotype::{Seed};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
@@ -151,7 +150,7 @@ fn main() {
     for e in event::events(&window) {
         graphics::clear(color::BLACK, gl);
         let ref current = winners[choice as usize];
-        let dungeon = current.last();
+        let &(dungeon, statistic) = current;
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
@@ -178,8 +177,8 @@ fn main() {
             }
             let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
                                choice,
-                               current.get_iteration(),
-                               current.get_ranking());
+                               statistic.iteration,
+                               statistic.fitness);
             render_text(&mut face, gl, 10, 10, info.as_slice());
         });
 
