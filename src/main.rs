@@ -108,6 +108,7 @@ fn main() {
     let mulambda_vars = config.get_table(None, "mu-lambda");
     let mu = config.get_default(mulambda_vars, "mu", 100);
     let lambda = config.get_default(mulambda_vars, "lambda", 100);
+    let mutation = config.get_default(mulambda_vars, "mutation", 0.33);
     let iterations = config.get_default(mulambda_vars, "iterations", 100);
     let strategy = config.get_string(mulambda_vars, "strategy");
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
@@ -139,6 +140,7 @@ fn main() {
                                      iterations,
                                      mu,
                                      lambda,
+                                     mutation,
                                      *genotype.clone(),
                                      evaluation_fns);
     let winners = mulambda.evaluate();

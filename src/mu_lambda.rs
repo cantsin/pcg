@@ -16,6 +16,7 @@ pub struct MuLambda<G: Genotype> {
     current_iteration: usize,
     mu: usize,     // number to keep
     lambda: usize, // number to generate
+    mutation: f64, // mutation of genotype to mutate (between 0.0 and 1.0)
     genotype: G,
     evaluations: Arc<Vec<EvaluationFn>>
 }
@@ -25,6 +26,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
                iterations: usize,
                mu: usize,
                lambda: usize,
+               mutation: f64,
                genotype: G,
                funcs: Vec<EvaluationFn>) -> MuLambda<G> {
         MuLambda {
@@ -33,6 +35,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
             current_iteration: 0,
             mu: mu,
             lambda: lambda,
+            mutation: mutation,
             genotype: genotype,
             evaluations: Arc::new(funcs)
         }
@@ -83,7 +86,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         let mut laggards: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).skip(self.mu).collect();
         let next_generation: Vec<(G, Statistic)> = laggards.drain().map(|mut individual| {
             let mut new_rng = thread_rng();
-            individual.mutate(&mut new_rng);
+            individual.mutate(&mut new_rng, self.mutation);
             (individual, Statistic::empty())
         }).collect();
         survivors.push_all(next_generation.as_slice());

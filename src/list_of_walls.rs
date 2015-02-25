@@ -64,10 +64,9 @@ impl Genotype for ListOfWalls {
         }
     }
 
-    fn mutate<T: Rng>(&mut self, rng: &mut T) {
-        // change 33% of walls.
+    fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
         let length = self.walls.len();
-        let n = (length as f32 * 0.33) as usize;
+        let n = (length as f64 * percentage) as usize;
         for _ in range(0, n) {
             let index = rng.gen_range(1, length);
             self.walls[index] = Wall::random(rng, self.seed.width, self.seed.height);

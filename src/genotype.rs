@@ -7,7 +7,7 @@ pub trait Genotype: Send + Clone {
     /// initialize the genotype.
     fn initialize<R: Rng>(&self, _: &mut R) -> Self { self.clone() }
     /// mutate the genotype.
-    fn mutate<R: Rng>(&mut self, _: &mut R) { }
+    fn mutate<R: Rng>(&mut self, _: &mut R, _: f64) { }
     /// generate a phenotype.
     fn generate(&self) -> Dungeon;
 

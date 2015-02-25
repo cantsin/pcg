@@ -20,6 +20,7 @@ items = []
 iterations = 1
 mu = 2
 lambda = 8
+mutation = 0.33 # percentage points
 #strategy = "RandomSeed"
 #strategy = "ListOfWalls"
 strategy = "WallPatterns"
