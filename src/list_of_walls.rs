@@ -69,15 +69,10 @@ impl Genotype for ListOfWalls {
     }
 
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
-        let mut dungeon = Dungeon::new(self.seed.width, self.seed.height);
-        let w = dungeon.width;
-        let h = dungeon.height;
+        let w = self.seed.width;
+        let h = self.seed.height;
         let floor = self.seed.tiles.get("floor").unwrap();
-        for i in 0..dungeon.width {
-            for j in 0..dungeon.height {
-                dungeon.cells[i][j].tile = Some(floor.clone());
-            }
-        }
+        let mut dungeon = Dungeon::new(w, h, Some(floor.clone()));
         let wall_tile = self.seed.tiles.get("wall").unwrap();
         let door_tile = self.seed.tiles.get("door").unwrap();
         for wall in self.walls.iter() {
@@ -99,21 +94,6 @@ impl Genotype for ListOfWalls {
             }
         }
         // TODO check for collisions
-
-        // occupants have 0.05% chance to generate
-        let n = w * h;
-        let occupants = self.seed.occupants.sample(rng, (n as f64 * 0.5) as usize);
-        for occupant in occupants {
-            let x = rng.gen_range(1, w);
-            let y = rng.gen_range(1, h);
-            let tile = dungeon.cells[x][y].tile.clone();
-            match tile {
-                Some(ref t) if t.name() == "floor" => {
-                    dungeon.cells[x][y].occupant = Some(occupant.clone());
-                }
-                _ => ()
-            }
-        }
 
         // randomly place entrance
         let entrance = self.seed.tiles.get("entrance").unwrap();

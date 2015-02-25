@@ -97,12 +97,14 @@ impl Genotype for WallPatterns {
 
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
         // draw the patterns according to the indices we have.
-        let mut dungeon = Dungeon::new(self.seed.width, self.seed.height);
+        let w = self.seed.width;
+        let h = self.seed.height;
         let n = self.patterns.len();
-        for i in 0..dungeon.width {
+        let mut dungeon = Dungeon::new(w, h, None);
+        for i in 0..w {
             let x: usize = i / self.pattern_width;
             let inner_x = i % self.pattern_width;
-            for j in 0..dungeon.height {
+            for j in 0..h {
                 let y: usize = j / self.pattern_height;
                 let index = self.indices[(y * self.pattern_width + x) % n];
                 let ref pattern = self.patterns[index];
@@ -110,17 +112,6 @@ impl Genotype for WallPatterns {
                 let inner_y = self.pattern_height - (j % self.pattern_height) - 1;
                 let tile = pattern.pattern[inner_y * self.pattern_width + inner_x].clone();
                 dungeon.cells[i][j].tile = tile.clone();
-                // randomly add an occupant
-                match tile {
-                    Some(ref t) if t.name() == "floor" => {
-                        // occupants have 0.05% chance to generate
-                        if odds(rng, 5, 100) {
-                            let occupant = self.seed.occupants.choose(rng);
-                            dungeon.cells[i][j].occupant = Some(occupant.clone());
-                        }
-                    }
-                    _ => ()
-                }
             }
         }
         dungeon.clone()
