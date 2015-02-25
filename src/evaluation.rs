@@ -4,8 +4,8 @@ pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
 
 pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
+    for i in 0..dungeon.width as usize {
+        for j in 0..dungeon.height as usize {
             let ref cell = dungeon.cells[i][j];
             if cell.is_empty() {
                 let sc = SurroundingCells::new(dungeon, cell, Surrounding::Cardinal);
@@ -23,8 +23,8 @@ pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
 pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
     let mut has_entrance = false;
     let mut has_exit = false;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
+    for i in 0..dungeon.width as usize {
+        for j in 0..dungeon.height as usize {
             let ref cell = dungeon.cells[i][j];
             if cell.has_attribute("entrance") {
                 has_entrance = true;
@@ -44,8 +44,8 @@ pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
 
 pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
+    for i in 0..dungeon.width as usize {
+        for j in 0..dungeon.height as usize {
             let ref cell = dungeon.cells[i][j];
             // check to see if doors have exactly two walls abutting them
             if cell.has_attribute("door") {

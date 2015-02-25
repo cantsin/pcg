@@ -12,8 +12,8 @@ use util::{shuffle};
 
 pub struct MuLambda<G: Genotype> {
     threads: usize,
-    iterations: usize,
-    current_iteration: usize,
+    iterations: u32,
+    current_iteration: u32,
     mu: usize,     // number to keep
     lambda: usize, // number to generate
     mutation: f64, // mutation of genotype to mutate (between 0.0 and 1.0)
@@ -23,7 +23,7 @@ pub struct MuLambda<G: Genotype> {
 
 impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
     pub fn new(threads: usize,
-               iterations: usize,
+               iterations: u32,
                mu: usize,
                lambda: usize,
                mutation: f64,
@@ -41,23 +41,24 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         }
     }
 
-    pub fn evaluate(&mut self) -> Vec<(G, Statistic)> {
+    pub fn run(&mut self) -> Vec<(G, Statistic)> {
         let total = self.mu + self.lambda;
         let mut rng = thread_rng();
         let mut primer: Vec<(G, Statistic)> = range(0, total).map(|_| {
             (self.genotype.initialize(&mut rng), Statistic::empty())
         }).collect();
+        // for each iteration except the last, do a full generation life-cycle.
         while self.current_iteration < self.iterations - 1 {
             primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
             primer = self.prune(primer);
             self.current_iteration += 1;
         }
-        // one last iteration without the prune.
+        // one last iteration without the pruning.
         primer = self.iterate(&mut rng, primer.as_mut_slice(), self.current_iteration);
         primer.clone()
     }
 
-    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [(G, Statistic)], iteration: usize) -> Vec<(G, Statistic)> {
+    fn iterate<R: Rng>(&self, rng: &mut R, primer: &mut [(G, Statistic)], iteration: u32) -> Vec<(G, Statistic)> {
         // shuffle the population
         shuffle(rng, primer);
         // calculate the fitness for each individual (in a separate thread)
@@ -77,10 +78,10 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         }
         let mut colony: Vec<(G, Statistic)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
         // sort by fitness
-        colony.sort_by(|&(_, ref f1), &(_, ref f2)| {
-            match f1.fitness.partial_cmp(&f2.fitness) {
+        colony.sort_by(|&(_, ref i1), &(_, ref i2)| {
+            match i1.fitness.partial_cmp(&i2.fitness) {
                 Some(ordering) => ordering,
-                None => panic!(format!("{:?} and {:?} could not be ordered.", f1.fitness, f2.fitness))
+                None => panic!("{:?} and {:?} could not be ordered.", i1.fitness, i2.fitness)
             }
         });
         colony

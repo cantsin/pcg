@@ -1,5 +1,4 @@
 use dungeon::{Dungeon};
-use celloption::{CellOption};
 use genotype::{Genotype};
 use phenotype::{Seed};
 
@@ -25,8 +24,8 @@ impl Genotype for RandomSeed {
         let w = self.seed.width;
         let h = self.seed.height;
         let mut dungeon = Dungeon::new(w, h, None);
-        for i in 0..w {
-            for j in 0..h {
+        for i in 0..w as usize {
+            for j in 0..h as usize {
                 let tile = self.seed.tiles.choose(&mut rng).clone();
                 dungeon.cells[i][j].tile = Some(tile);
             }

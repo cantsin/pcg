@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{CellOption, Tile};
+use celloption::{Tile};
 use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
@@ -13,8 +13,8 @@ use util::{odds};
 pub struct WallPatterns {
     seed: Seed,
     patterns: Vec<Pattern>,
-    pattern_width: usize,
-    pattern_height: usize,
+    pattern_width: u32,
+    pattern_height: u32,
     indices: Vec<usize>
 }
 
@@ -24,8 +24,9 @@ struct Pattern {
 }
 
 impl Pattern {
-    fn from_config(mapping: &HashMap<char, &Tile>, description: Vec<String>, width: usize, height: usize) -> Pattern {
-        let mut pattern = Vec::with_capacity(width * height);
+    fn from_config(mapping: &HashMap<char, &Tile>, description: Vec<String>, width: u32, height: u32) -> Pattern {
+        let size = width as usize * height as usize;
+        let mut pattern = Vec::with_capacity(size);
         for line in description {
             for ch in line.chars() {
                 let tile = mapping.get(&(ch));
@@ -35,7 +36,7 @@ impl Pattern {
                 }
             }
         }
-        assert!(pattern.len() == width * height); // sanity check
+        assert!(pattern.len() == size); // sanity check
         Pattern {
             pattern: pattern
         }
@@ -47,8 +48,8 @@ impl WallPatterns {
         // read in the configurations
         let wallpatterns = config.get_table(None, "wallpatterns");
         let tile_vars = config.get_table(Some(wallpatterns), "tiles");
-        let pattern_width = config.get_integer(tile_vars, "width") as usize;
-        let pattern_height = config.get_integer(tile_vars, "height") as usize;
+        let pattern_width = config.get_integer(tile_vars, "width") as u32;
+        let pattern_height = config.get_integer(tile_vars, "height") as u32;
         let mut mapping = HashMap::new();
         // TODO: function to iterate over toml section settings
         mapping.insert(config.get_char(tile_vars, "floor"), seed.tiles.get("floor").unwrap());
@@ -87,7 +88,7 @@ impl Genotype for WallPatterns {
 
     fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
         let length = self.patterns.len();
-        let n = (length as f64 * percentage) as usize;
+        let n = (length as f64 * percentage) as u32;
         for _ in range(0, n) {
             let index = rng.gen_range(1, length);
             self.indices[index] = index;
@@ -101,16 +102,17 @@ impl Genotype for WallPatterns {
         let n = self.patterns.len();
         let mut dungeon = Dungeon::new(w, h, None);
         for i in 0..w {
-            let x: usize = i / self.pattern_width;
+            let x: u32 = i / self.pattern_width;
             let inner_x = i % self.pattern_width;
             for j in 0..h {
-                let y: usize = j / self.pattern_height;
-                let index = self.indices[(y * self.pattern_width + x) % n];
+                let y: u32 = j / self.pattern_height;
+                let index = self.indices[(y * self.pattern_width + x) as usize % n];
                 let ref pattern = self.patterns[index];
                 // here, we have to invert due to a mismatch between how we draw the patterns and opengl coords
                 let inner_y = self.pattern_height - (j % self.pattern_height) - 1;
-                let tile = pattern.pattern[inner_y * self.pattern_width + inner_x].clone();
-                dungeon.cells[i][j].tile = tile.clone();
+                let tile_index = inner_y * self.pattern_width + inner_x;
+                let tile = pattern.pattern[tile_index as usize].clone();
+                dungeon.cells[i as usize][j as usize].tile = tile.clone();
             }
         }
         dungeon.clone()

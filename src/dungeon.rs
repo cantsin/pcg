@@ -7,13 +7,13 @@ use util::{Coords};
 
 #[derive(Clone, Debug)]
 pub struct Dungeon {
-    pub width: usize,
-    pub height: usize,
+    pub width: u32,
+    pub height: u32,
     pub cells: Vec<Vec<Cell>>
 }
 
 impl Dungeon {
-    pub fn new(width: usize, height: usize, tile: Option<Tile>) -> Dungeon {
+    pub fn new(width: u32, height: u32, tile: Option<Tile>) -> Dungeon {
         let cells = range(0, width).map(|i| {
             range(0, height).map(|j| {
                 Cell::new(i as u32, j as u32, tile.clone())
@@ -31,10 +31,10 @@ impl Dungeon {
     }
 }
 
-// external iterator. is there a better way?
+// external iterator.
 pub struct DungeonCells {
     dungeon: Dungeon,
-    coords: (usize, usize)
+    coords: (u32, u32)
 }
 
 impl DungeonCells {
@@ -51,10 +51,10 @@ impl Iterator for DungeonCells {
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         let (x, y) = self.coords;
-        let column = self.dungeon.cells.get(x);
+        let column = self.dungeon.cells.get(x as usize);
         match column {
             Some(col) => {
-                let row = col.get(y);
+                let row = col.get(y as usize);
                 match row {
                     Some(cell) => {
                         let new_x = (x + 1) % self.dungeon.width;

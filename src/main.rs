@@ -45,7 +45,6 @@ use std::os::{num_cpus};
 use std::cell::{RefCell};
 use std::path::{Path};
 use std::old_path::Path as OldPath;
-use rand::{thread_rng};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
@@ -117,7 +116,7 @@ fn main() {
             "check_1x1_rooms" => { box check_1x1_rooms as EvaluationFn }
             "has_entrance_exit" => { box has_entrance_exit as EvaluationFn }
             "doors_are_useful" => { box doors_are_useful as EvaluationFn }
-            _ => panic!(format!("Evaluation function {} could not be found.", eval))
+            _ => panic!("Evaluation function {} could not be found.", eval)
         }
     }).collect();
 
@@ -133,7 +132,7 @@ fn main() {
         "WallPatterns" => {
             box WallPatterns::new(&config, &seed)
         }
-        _ => panic!(format!("Strategy {} could not be found.", strategy))
+        _ => panic!("Strategy {} could not be found.", strategy)
     };
 
     let mut mulambda = MuLambda::new(threads,
@@ -143,7 +142,7 @@ fn main() {
                                      mutation,
                                      *genotype.clone(),
                                      evaluation_fns);
-    let winners = mulambda.evaluate();
+    let winners = mulambda.run();
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
