@@ -24,8 +24,8 @@ impl Genotype for RandomSeed {
         let w = self.seed.width;
         let h = self.seed.height;
         let mut dungeon = Dungeon::new(w, h, None);
-        for i in 0..w as usize {
-            for j in 0..h as usize {
+        for i in 0..dungeon.width {
+            for j in 0..dungeon.height {
                 let tile = self.seed.tiles.choose(&mut rng).clone();
                 dungeon.cells[i][j].tile = Some(tile);
             }

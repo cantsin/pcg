@@ -71,6 +71,7 @@ impl Genotype for ListOfWalls {
             let index = rng.gen_range(1, length);
             self.walls[index] = Wall::random(rng, self.seed.width, self.seed.height);
         }
+// TODO
 //        let entrance_x = rng.gen_range(1, w);
 //        let entrance_y = rng.gen_range(1, h);
 //        dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
@@ -89,16 +90,16 @@ impl Genotype for ListOfWalls {
             for _ in range(0, wall.length) {
                 x += wall.xstep;
                 y += wall.ystep;
-                if x < 0 || x >= w as i32 || y < 0 || y >= h as i32 {
-                    break
-                }
-                // small chance for a door
-                // if rng.gen_range(0, wall.length * 5) == 0 {
-                //     dungeon.cells[x as u32][y as u32].tile = Some(door_tile.clone());
-                // }
-                // else {
+                if dungeon.in_bounds(x, y) {
+                    // TODO
+                    // small chance for a door
+                    // if rng.gen_range(0, wall.length * 5) == 0 {
+                    //     dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
+                    // }
+                    // else {
                     dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
-                // }
+                    // }
+                }
             }
         }
         // TODO check for collisions

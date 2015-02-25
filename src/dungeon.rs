@@ -7,8 +7,8 @@ use util::{Coords};
 
 #[derive(Clone, Debug)]
 pub struct Dungeon {
-    pub width: u32,
-    pub height: u32,
+    pub width: usize,
+    pub height: usize,
     pub cells: Vec<Vec<Cell>>
 }
 
@@ -16,12 +16,12 @@ impl Dungeon {
     pub fn new(width: u32, height: u32, tile: Option<Tile>) -> Dungeon {
         let cells = range(0, width).map(|i| {
             range(0, height).map(|j| {
-                Cell::new(i as u32, j as u32, tile.clone())
+                Cell::new(i, j, tile.clone())
             }).collect()
         }).collect();
         Dungeon {
-            width: width,
-            height: height,
+            width: width as usize,
+            height: height as usize,
             cells: cells
         }
     }
@@ -57,7 +57,7 @@ impl Iterator for DungeonCells {
                 let row = col.get(y as usize);
                 match row {
                     Some(cell) => {
-                        let new_x = (x + 1) % self.dungeon.width;
+                        let new_x = (x + 1) % self.dungeon.width as u32;
                         let new_y = if new_x == 0 { y + 1 } else { y };
                         self.coords = (new_x, new_y);
                         Some(cell.clone())

@@ -1,4 +1,5 @@
 #![feature(os, io, fs, path, old_path, core, std_misc, box_syntax, collections)]
+#![forbid(unused_typecasts)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
