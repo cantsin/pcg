@@ -75,8 +75,8 @@ impl WallPatterns {
 }
 
 impl Genotype for WallPatterns {
-    fn initialize<T: Rng>(&self, _: &mut T) -> WallPatterns {
-        let indices = repeat(0).take(self.patterns.len()).collect(); // TODO fix
+    fn initialize<T: Rng>(&self, rng: &mut T) -> WallPatterns {
+        let indices = rng.gen_iter::<usize>().take(self.patterns.len()).map(|v| v % self.patterns.len()).collect();
         WallPatterns {
             seed: self.seed.clone(),
             patterns: self.patterns.clone(),
