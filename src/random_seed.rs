@@ -21,7 +21,7 @@ impl RandomSeed {
 
 impl Genotype for RandomSeed {
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
-        let dungeon = Dungeon::new(self.seed.width, self.seed.height);
+        let mut dungeon = Dungeon::new(self.seed.width, self.seed.height);
         for i in 0..dungeon.width {
             for j in 0..dungeon.height {
                 let tile = self.seed.tiles.choose(rng).clone();

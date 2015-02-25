@@ -49,9 +49,13 @@ impl ListOfWalls {
 impl Genotype for ListOfWalls {
     fn initialize<T: Rng>(&self, rng: &mut T) -> ListOfWalls {
         let n = self.seed.width * self.seed.height / 10;
-        self.walls = range(0, n).map(|_| {
+        let walls = range(0, n).map(|_| {
             Wall::random(rng, self.seed.width, self.seed.height)
         }).collect();
+        ListOfWalls {
+            seed: self.seed.clone(),
+            walls: walls,
+        }
     }
 
     fn mutate<T: Rng>(&mut self, rng: &mut T) {
@@ -65,7 +69,7 @@ impl Genotype for ListOfWalls {
     }
 
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
-        let dungeon = Dungeon::new(self.seed.width, self.seed.height);
+        let mut dungeon = Dungeon::new(self.seed.width, self.seed.height);
         let w = dungeon.width;
         let h = dungeon.height;
         let floor = self.seed.tiles.get("floor").unwrap();

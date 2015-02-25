@@ -45,6 +45,7 @@ use std::os::{num_cpus};
 use std::cell::{RefCell};
 use std::path::{Path};
 use std::old_path::Path as OldPath;
+use rand::{Rng, thread_rng};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
@@ -150,7 +151,9 @@ fn main() {
     for e in event::events(&window) {
         graphics::clear(color::BLACK, gl);
         let ref current = winners[choice as usize];
-        let &(dungeon, statistic) = current;
+        let &(ref individual, ref statistic) = current;
+        let mut rng = thread_rng();
+        let dungeon = individual.generate(&mut rng);
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {

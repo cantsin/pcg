@@ -58,7 +58,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         let n = primer.len();
         let pool = TaskPool::new(self.threads);
         let (tx, rx): (Sender<(G, Statistic)>, Receiver<(G, Statistic)>) = mpsc::channel();
-        for &(adult, _) in primer.iter() {
+        for &(ref adult, _) in primer.iter() {
             let mut individual = adult.clone();
             let sender = tx.clone();
             let fns = self.evaluations.clone();
@@ -70,22 +70,21 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
                 sender.send((individual, statistic)).unwrap();
             });
         }
-        let mut colony: Vec<(G, f64)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
+        let mut colony: Vec<(G, Statistic)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
         // sort by fitness
-        colony.sort_by(|&(_, f1), &(_, f2)| {
-            match f1.partial_cmp(&f2) {
+        colony.sort_by(|&(_, ref f1), &(_, ref f2)| {
+            match f1.fitness.partial_cmp(&f2.fitness) {
                 Some(ordering) => ordering,
-                None => panic!(format!("{:?} and {:?} could not be ordered.", f1, f2))
+                None => panic!(format!("{:?} and {:?} could not be ordered.", f1.fitness, f2.fitness))
             }
         });
         // keep mu
-        let mut survivors: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).take(self.mu).collect();
+        let mut survivors: Vec<(G, Statistic)> = colony.iter().map(|v| v.clone()).take(self.mu).collect();
         // add the next generation
         let mut laggards: Vec<G> = colony.iter().map(|&(ref i, _)| i.clone()).skip(self.mu).collect();
-        let next_generation: Vec<G> = laggards.drain().map(|mut individual| {
+        let next_generation: Vec<(G, Statistic)> = laggards.drain().map(|mut individual| {
             let mut new_rng = thread_rng();
             individual.mutate(&mut new_rng);
-            individual.generate(&mut new_rng);
             (individual, Statistic::empty())
         }).collect();
         survivors.push_all(next_generation.as_slice());

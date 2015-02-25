@@ -74,9 +74,15 @@ impl WallPatterns {
 }
 
 impl Genotype for WallPatterns {
-    fn initialize<T: Rng>(&mut self, rng: &mut T) {
-        // TODO: Fix
-        self.indices = repeat(0).take(self.patterns.len()).collect();
+    fn initialize<T: Rng>(&self, rng: &mut T) -> WallPatterns {
+        let indices = repeat(0).take(self.patterns.len()).collect(); // TODO fix
+        WallPatterns {
+            seed: self.seed.clone(),
+            patterns: self.patterns.clone(),
+            pattern_width: self.pattern_width,
+            pattern_height: self.pattern_height,
+            indices: indices,
+        }
     }
 
     fn mutate<T: Rng>(&mut self, rng: &mut T) {
@@ -91,7 +97,7 @@ impl Genotype for WallPatterns {
 
     fn generate<T: Rng>(&self, rng: &mut T) -> Dungeon {
         // draw the patterns according to the indices we have.
-        let dungeon = Dungeon::new(self.seed.width, self.seed.height);
+        let mut dungeon = Dungeon::new(self.seed.width, self.seed.height);
         let n = self.patterns.len();
         for i in 0..dungeon.width {
             let x: usize = i / self.pattern_width;

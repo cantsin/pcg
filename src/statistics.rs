@@ -16,7 +16,7 @@ impl Statistic {
     pub fn empty() -> Statistic {
         Statistic {
             iteration: 0,
-            fitness: -1.0
+            fitness: -1.0,
         }
     }
 }
