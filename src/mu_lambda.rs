@@ -59,7 +59,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
         let pool = TaskPool::new(self.threads);
         let (tx, rx): (Sender<(G, Statistic)>, Receiver<(G, Statistic)>) = mpsc::channel();
         for &(ref adult, _) in primer.iter() {
-            let mut individual = adult.clone();
+            let individual = adult.clone();
             let sender = tx.clone();
             let fns = self.evaluations.clone();
             pool.execute(move || {

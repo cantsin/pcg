@@ -1,9 +1,9 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
+use celloption::{CellOption};
 use genotype::{Genotype};
 use phenotype::{Seed};
 
-use rand::{Rng, ThreadRng, thread_rng};
+use rand::{Rng};
 
 #[derive(Clone, Debug)]
 pub struct ListOfWalls {

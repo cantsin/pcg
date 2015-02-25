@@ -1,12 +1,12 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
+use celloption::{CellOption, Tile};
 use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
 
 use std::iter::{repeat};
 use std::collections::{HashMap};
-use rand::{Rng, ThreadRng};
+use rand::{Rng};
 use util::{odds};
 
 #[derive(Clone, Debug)]
@@ -74,7 +74,7 @@ impl WallPatterns {
 }
 
 impl Genotype for WallPatterns {
-    fn initialize<T: Rng>(&self, rng: &mut T) -> WallPatterns {
+    fn initialize<T: Rng>(&self, _: &mut T) -> WallPatterns {
         let indices = repeat(0).take(self.patterns.len()).collect(); // TODO fix
         WallPatterns {
             seed: self.seed.clone(),

@@ -45,7 +45,7 @@ use std::os::{num_cpus};
 use std::cell::{RefCell};
 use std::path::{Path};
 use std::old_path::Path as OldPath;
-use rand::{Rng, thread_rng};
+use rand::{thread_rng};
 
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};

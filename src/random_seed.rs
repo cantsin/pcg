@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
+use celloption::{CellOption};
 use genotype::{Genotype};
 use phenotype::{Seed};
 
