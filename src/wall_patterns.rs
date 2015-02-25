@@ -51,15 +51,15 @@ impl WallPatterns {
         let pattern_width = config.get_integer(tile_vars, "width") as u32;
         let pattern_height = config.get_integer(tile_vars, "height") as u32;
         let mut mapping = HashMap::new();
-        // TODO: function to iterate over toml section settings
-        mapping.insert(config.get_char(tile_vars, "floor"), seed.tiles.get("floor").unwrap());
-        mapping.insert(config.get_char(tile_vars, "wall"), seed.tiles.get("wall").unwrap());
-        mapping.insert(config.get_char(tile_vars, "entrance"), seed.tiles.get("entrance").unwrap());
-        mapping.insert(config.get_char(tile_vars, "exit"), seed.tiles.get("exit").unwrap());
-        mapping.insert(config.get_char(tile_vars, "door"), seed.tiles.get("door").unwrap());
+        let tiles = config.get_listing(tile_vars, vec!["width, height"]);
+        for tile in tiles {
+            let name = tile.as_slice();
+            let graphical_tile = seed.tiles.get(name).unwrap();
+            mapping.insert(config.get_char(tile_vars, name), graphical_tile);
+        }
         let room_vars = config.get_table(Some(wallpatterns), "rooms");
-        let rooms = vec!["empty","altar","down_","up___","rand1","rand2","rand3","rand4"];
-        let patterns: Vec<Pattern> = rooms.iter().map(|&r| {
+        let rooms = config.get_listing(room_vars, vec![]);
+        let patterns: Vec<Pattern> = rooms.iter().map(|r| {
             let description = config.get_array(room_vars, r);
             Pattern::from_config(&mapping, description, pattern_width, pattern_height)
         }).collect();
@@ -76,6 +76,7 @@ impl WallPatterns {
 
 impl Genotype for WallPatterns {
     fn initialize<T: Rng>(&self, rng: &mut T) -> WallPatterns {
+        assert!(self.patterns.len() != 0);
         let indices = rng.gen_iter::<usize>().take(self.patterns.len()).map(|v| v % self.patterns.len()).collect();
         WallPatterns {
             seed: self.seed.clone(),

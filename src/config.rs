@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 use std::io::{Read};
 use std::fs::{File};
 use std::slice::{SliceExt};
-use std::collections::{HashMap};
+use std::collections::{HashMap, HashSet};
 use toml::{Parser, Value, Table, decode};
 use rustc_serialize::{Decodable};
 
@@ -31,6 +31,11 @@ impl Config {
         let lookup = table.unwrap_or(&self.content);
         let value = lookup.get(name).expect(format!("`{}` was not found.", name).as_slice());
         value.as_table().expect(format!("`{}` is not a TOML.", name).as_slice())
+    }
+
+    pub fn get_listing(&self, table: &Table, excluded: Vec<&str>) -> Vec<String> {
+        let invalid: HashSet<&str> = excluded.into_iter().collect();
+        table.keys().cloned().filter(|k| !invalid.contains(k.as_slice())).collect()
     }
 
     pub fn get_integer<'a>(&'a self, table: &'a Table, name: &str) -> i64 {
