@@ -51,7 +51,7 @@ impl WallPatterns {
         let pattern_width = config.get_integer(tile_vars, "width") as u32;
         let pattern_height = config.get_integer(tile_vars, "height") as u32;
         let mut mapping = HashMap::new();
-        let tiles = config.get_listing(tile_vars, vec!["width, height"]);
+        let tiles = config.get_listing(tile_vars, vec!["width", "height"]);
         for tile in tiles {
             let name = tile.as_slice();
             let graphical_tile = seed.tiles.get(name).unwrap();
