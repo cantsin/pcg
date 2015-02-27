@@ -1,7 +1,5 @@
 use rand::{Rng};
 
-pub type Coords = (i32, i32);
-
 // Fisher-Yates algorithm
 pub fn shuffle<'a, R: Rng, T: Clone>(rng: &mut R, array: &'a mut [T]) {
     let mut n = array.len();

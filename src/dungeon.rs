@@ -3,7 +3,6 @@ use std::iter::{Iterator, range};
 
 use cell::{Cell};
 use celloption::{Tile};
-use util::{Coords};
 
 #[derive(Clone, Debug)]
 pub struct Dungeon {
@@ -72,7 +71,7 @@ impl Iterator for DungeonCells {
 
 pub struct SurroundingCells {
     dungeon: Dungeon,
-    coords: [Coords; 8],
+    coords: [(i32, i32); 8],
     index: usize
 }
 

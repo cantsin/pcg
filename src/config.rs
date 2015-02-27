@@ -7,7 +7,6 @@ use toml::{Parser, Value, Table, decode};
 use rustc_serialize::{Decodable};
 
 use sprite::{SpriteRect};
-use util::{Coords};
 
 pub struct Config {
     content: Table
@@ -90,7 +89,7 @@ impl SpriteConfig {
     }
 
     /// helper function to obtain sprite coordinates
-    fn get_coord(name: &String, values: &[Value]) -> Coords {
+    fn get_coord(name: &String, values: &[Value]) -> (i32, i32) {
         if values.len() != 2 {
             panic!("attribute {:?} has too many values.", name);
         }
@@ -99,7 +98,7 @@ impl SpriteConfig {
         (x, y)
     }
 
-    fn get_coords(table: &Table) -> Vec<Coords> {
+    fn get_coords(table: &Table) -> Vec<(i32, i32)> {
         let mut coords = vec![];
         for (name, value) in table.iter() {
             match value.type_str() {
