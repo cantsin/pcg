@@ -4,6 +4,7 @@ use phenotype::{Seed};
 use config::{Config};
 use util::{odds};
 
+use std::num::{Float};
 use rand::{Rng};
 
 #[derive(Clone, Debug)]
@@ -23,23 +24,23 @@ struct Wall {
     length: usize,
     xstep: i32,
     ystep: i32,
-    door: Option<(u32, u32)>
+    door: Option<(i32, i32)> // can be out of bounds
 }
 
 impl Wall {
     pub fn random<T: Rng>(rng: &mut T, width: u32, height: u32, door_chance: u64) -> Wall {
         let x: u32 = rng.gen_range(1, width);
         let y: u32 = rng.gen_range(1, height);
-        let n = width * height;
+        let n = ((width * width + height * height) as f64).sqrt();
         let length: usize = rng.gen_range(2, n as usize);
         let xstep: i32 = rng.gen_range(-1, 2);
         let ystep: i32 = rng.gen_range(-1, 2);
         // randomly assign a door.
         let has_door = odds(rng, door_chance, 100);
         let door = if has_door {
-            let distance: u32 = rng.gen_range(1, length as u32);
-            let door_x = x + xstep as u32 * distance;
-            let door_y = y + ystep as u32 * distance;
+            let distance: i32 = rng.gen_range(1, length as i32);
+            let door_x = (x as i32 + (xstep * distance));
+            let door_y = (y as i32 + (ystep * distance));
             Some((door_x, door_y))
         } else {
             None
@@ -76,7 +77,7 @@ impl Genotype for ListOfWalls {
         let w = self.seed.width;
         let h = self.seed.height;
         let door_chance = (self.door_chance * 100.0) as u64;
-        let percentage = (self.coverage * 100.0) as u32;
+        let percentage = (100.0 - self.coverage * 100.0) as u32;
         let n = w * h / percentage;
         let walls = range(0, n).map(|_| {
             Wall::random(rng, w, h, door_chance)
@@ -122,7 +123,7 @@ impl Genotype for ListOfWalls {
                 y += wall.ystep;
                 if dungeon.in_bounds(x, y) {
                     match wall.door {
-                        Some((dx, dy)) if dx == x as u32 && dy == y as u32 =>
+                        Some((dx, dy)) if dx == x && dy == y =>
                             dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone()),
                         _ =>
                             dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone())

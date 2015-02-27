@@ -19,7 +19,7 @@ occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []
 
 [mu-lambda]
-iterations = 1
+iterations = 2
 mu = 2
 lambda = 8
 mutation = 0.33 # percentage points
