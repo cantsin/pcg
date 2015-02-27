@@ -39,8 +39,8 @@ impl Wall {
         let has_door = odds(rng, door_chance, 100);
         let door = if has_door {
             let distance: i32 = rng.gen_range(1, length as i32);
-            let door_x = (x as i32 + (xstep * distance));
-            let door_y = (y as i32 + (ystep * distance));
+            let door_x = x as i32 + (xstep * distance);
+            let door_y = y as i32 + (ystep * distance);
             Some((door_x, door_y))
         } else {
             None

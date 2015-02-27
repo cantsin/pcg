@@ -4,7 +4,6 @@ use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
 
-use std::iter::{repeat};
 use std::collections::{HashMap};
 use rand::{Rng};
 

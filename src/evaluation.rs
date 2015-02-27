@@ -38,7 +38,7 @@ pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
         }
     }
     match (has_entrance, has_exit) {
-        (true, true) => 2.0,
+        (false, false) => 2.0,
         (false, true) => 1.0,
         (true, false) => 1.0,
         _ => 0.0,
