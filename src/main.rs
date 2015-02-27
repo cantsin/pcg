@@ -130,12 +130,12 @@ fn main() {
         // "RandomSeed" => {
         //     box RandomSeed::new(&seed)
         // }
-        // "ListOfWalls" => {
-        //     box ListOfWalls::new(&seed)
-        // }
-        "WallPatterns" => {
-            box WallPatterns::new(&config, &seed)
+        "ListOfWalls" => {
+            box ListOfWalls::new(&seed)
         }
+        // "WallPatterns" => {
+        //     box WallPatterns::new(&config, &seed)
+        // }
         _ => panic!("Strategy {} could not be found.", strategy)
     };
 

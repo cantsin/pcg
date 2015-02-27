@@ -1,6 +1,7 @@
 use dungeon::{Dungeon};
 use genotype::{Genotype};
 use phenotype::{Seed};
+use util::{odds};
 
 use rand::{Rng};
 
@@ -8,6 +9,8 @@ use rand::{Rng};
 pub struct ListOfWalls {
     seed: Seed,
     walls: Vec<Wall>,
+    coverage: f64,
+    door_chance: f64,
     entrance: (u32, u32),
     exit: (u32, u32),
 }
@@ -18,7 +21,8 @@ struct Wall {
     y: u32,
     length: usize,
     xstep: i32,
-    ystep: i32
+    ystep: i32,
+    door: Option<(i32, i32)>
 }
 
 impl Wall {
@@ -34,15 +38,18 @@ impl Wall {
             y: y,
             length: length,
             xstep: xstep,
-            ystep: ystep
+            ystep: ystep,
+            door: None
         }
     }
 }
 
 impl ListOfWalls {
-    pub fn new(seed: &Seed) -> ListOfWalls {
+    pub fn new(seed: &Seed, door_chance: f64, coverage: f64) -> ListOfWalls {
         ListOfWalls {
             seed: seed.clone(),
+            door_chance: door_chance,
+            coverage: coverage,
             walls: vec![],
             entrance: (0, 0),
             exit: (0, 0),
@@ -52,29 +59,53 @@ impl ListOfWalls {
 
 impl Genotype for ListOfWalls {
     fn initialize<T: Rng>(&self, rng: &mut T) -> ListOfWalls {
-        let n = self.seed.width * self.seed.height / 10;
+        let w = self.seed.width;
+        let h = self.seed.height;
+        let percentage = (self.coverage * 100.0) as u32;
+        let n = w * h / percentage;
         let walls = range(0, n).map(|_| {
-            Wall::random(rng, self.seed.width, self.seed.height)
+            Wall::random(rng, w, h)
         }).collect();
+        // don't worry about collisions, just plop them down somewhere.
+        let entrance = (rng.gen_range(1, w), rng.gen_range(1, h));
+        let exit = (rng.gen_range(1, w), rng.gen_range(1, h));
         ListOfWalls {
             seed: self.seed.clone(),
+            door_chance: self.door_chance,
+            coverage: self.coverage,
             walls: walls,
-            entrance: (0, 0),
-            exit: (0, 0),
+            entrance: entrance,
+            exit: exit,
         }
     }
 
     fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
+        let w = self.seed.width;
+        let h = self.seed.height;
         let length = self.walls.len();
         let n = (length as f64 * percentage) as u32;
         for _ in range(0, n) {
             let index = rng.gen_range(1, length);
-            self.walls[index] = Wall::random(rng, self.seed.width, self.seed.height);
+            let mut wall = Wall::random(rng, w, h);
+            // randomly assign a door.
+            let percentage = (self.door_chance * 100.0) as u64;
+            if odds(rng, percentage, 100) {
+                let distance: usize = rng.gen_range(1, length);
+
+                    // TODO
+                    // small chance for a door
+                    // if rng.gen_range(0, wall.length * 5) == 0 {
+                    //     dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
+                    // }
+                    // else {
+                    // }
+
+            }
+            self.walls[index] = wall;
         }
-// TODO
-//        let entrance_x = rng.gen_range(1, w);
-//        let entrance_y = rng.gen_range(1, h);
-//        dungeon.cells[entrance_x][entrance_y].tile = Some(entrance.clone());
+        // don't worry about collisions, just plop them down somewhere.
+        self.entrance = (rng.gen_range(1, w), rng.gen_range(1, h));
+        self.exit = (rng.gen_range(1, w), rng.gen_range(1, h));
     }
 
     fn generate(&self) -> Dungeon {
@@ -91,29 +122,21 @@ impl Genotype for ListOfWalls {
                 x += wall.xstep;
                 y += wall.ystep;
                 if dungeon.in_bounds(x, y) {
-                    // TODO
-                    // small chance for a door
-                    // if rng.gen_range(0, wall.length * 5) == 0 {
-                    //     dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone());
-                    // }
-                    // else {
-                    dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone());
-                    // }
+                    match wall.door {
+                        Some((dx, dy)) if dx == x && dy == y =>
+                            dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone()),
+                        _ =>
+                            dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone())
+                    }
                 }
             }
         }
-        // TODO check for collisions
-
-        // randomly place entrance
         let entrance = self.seed.tiles.get("entrance").unwrap();
         let (x, y) = self.entrance;
         dungeon.cells[x as usize][y as usize].tile = Some(entrance.clone());
-
-        // randomly place exit
         let exit = self.seed.tiles.get("exit").unwrap();
         let (x, y) = self.exit;
         dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
-
         dungeon.clone()
     }
 }
