@@ -106,6 +106,7 @@ fn main() {
     let cell_tiles: CellOptions<Tile> = CellOptions::new(tiles.as_slice());
     let cell_items: CellOptions<Item> = CellOptions::new(items.as_slice());
     let cell_occupants: CellOptions<Occupant> = CellOptions::new(occupants.as_slice());
+    let occupant_chance = config.get_float(spritesheet_config, "occupant_chance");
 
     let mulambda_vars = config.get_table(None, "mu-lambda");
     let mu = config.get_default(mulambda_vars, "mu", 100);
@@ -125,7 +126,7 @@ fn main() {
     }).collect();
     let evaluation_weights: Vec<f64> = config.get_array(mulambda_vars, "evaluation_weights");
 
-    let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
+    let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants, occupant_chance);
     // We cannot have trait objects that implement Clone. So this is commented out for now.
     let genotype = match strategy {
         // "RandomSeed" => {

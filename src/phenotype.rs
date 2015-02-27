@@ -10,6 +10,7 @@ pub struct Seed {
     pub tiles: CellOptions<Tile>,
     pub items: CellOptions<Item>,
     pub occupants: CellOptions<Occupant>,
+    pub occupant_chance: f64,
 }
 
 impl Seed {
@@ -17,13 +18,15 @@ impl Seed {
                height: u32,
                tiles: CellOptions<Tile>,
                items: CellOptions<Item>,
-               occupants: CellOptions<Occupant>) -> Seed {
+               occupants: CellOptions<Occupant>,
+               occupant_chance: f64) -> Seed {
         Seed {
             width: width,
             height: height,
             tiles: tiles,
             items: items,
             occupants: occupants,
+            occupant_chance: occupant_chance
         }
     }
 }

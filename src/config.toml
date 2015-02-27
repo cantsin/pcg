@@ -12,6 +12,7 @@ font_size = 14
 
 [spritesheets.dungeon]
 path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
+occupant_chance = 0.05 # purely for cosmetic flavor
 
 [spritesheets.dungeon.cells]
 tiles = ["floor", "wall", "entrance", "exit", "door"]
@@ -27,7 +28,7 @@ mutation = 0.33 # percentage points
 strategy = "ListOfWalls"
 #strategy = "WallPatterns"
 evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", "rooms_are_accessible", ]
-evaluation_weights = [5.0, 4.0, 3.0, 10.0]
+evaluation_weights = [5.0, 20.0, 3.0, 10.0]
 
 [list-of-walls]
 door_chance = 0.25 # percentage points

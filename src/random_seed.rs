@@ -1,6 +1,7 @@
 use dungeon::{Dungeon};
 use genotype::{Genotype};
 use phenotype::{Seed};
+use util::{random_occupant};
 
 use rand::{Rng, thread_rng};
 
@@ -26,6 +27,8 @@ impl Genotype for RandomSeed {
         for i in 0..dungeon.width {
             for j in 0..dungeon.height {
                 let tile = self.seed.tiles.choose(&mut rng).clone();
+                let occupant = random_occupant(&mut rng, &tile, &self.seed.occupants, self.seed.occupant_chance);
+                dungeon.cells[i][j].occupant = occupant;
                 dungeon.cells[i][j].tile = Some(tile);
             }
         }
