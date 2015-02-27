@@ -38,6 +38,11 @@ impl Config {
         table.keys().cloned().filter(|k| !invalid.contains(k.as_slice())).collect()
     }
 
+    pub fn get_float<'a>(&'a self, table: &'a Table, name: &str) -> f64 {
+        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
+        value.as_float().expect(format!("`{}` is not a float.", name).as_slice())
+    }
+
     pub fn get_integer<'a>(&'a self, table: &'a Table, name: &str) -> i64 {
         let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
         value.as_integer().expect(format!("`{}` is not an integer.", name).as_slice())

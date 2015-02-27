@@ -131,7 +131,7 @@ fn main() {
         //     box RandomSeed::new(&seed)
         // }
         "ListOfWalls" => {
-            box ListOfWalls::new(&seed)
+            box ListOfWalls::new(&config, &seed)
         }
         // "WallPatterns" => {
         //     box WallPatterns::new(&config, &seed)
