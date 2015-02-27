@@ -26,7 +26,7 @@ mutation = 0.33 # percentage points
 #strategy = "RandomSeed"
 #strategy = "ListOfWalls"
 strategy = "WallPatterns"
-evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", ]
+evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", "rooms_are_accessible", ]
 
 [wallpatterns.tiles]
 floor = "_"

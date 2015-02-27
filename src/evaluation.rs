@@ -1,5 +1,6 @@
 use std::collections::{HashSet};
 
+use cell::{Cell};
 use dungeon::{Dungeon, DungeonCells, SurroundingCells, Surrounding};
 
 pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
@@ -68,6 +69,12 @@ pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
 
 pub type Coords = HashSet<(u32, u32)>;
 
+// helper function.
+fn is_accessible(cell: &Cell) -> bool {
+    cell.has_attribute("floor") || cell.has_attribute("door")
+}
+
+// recursively traverse the dungeon (depth-first)
 fn search(dungeon: &Dungeon, visited: &Coords, x: u32, y: u32) -> Coords {
     let ref cell = dungeon.cells[x as usize][y as usize];
     let mut local = visited.clone();
@@ -76,7 +83,7 @@ fn search(dungeon: &Dungeon, visited: &Coords, x: u32, y: u32) -> Coords {
     for sc in SurroundingCells::new(dungeon, cell, Surrounding::AllDirections) {
         let new_x = sc.x;
         let new_y = sc.y;
-        if sc.has_attribute("floor") && !local.contains(&(new_x, new_y)) {
+        if is_accessible(&sc) && !local.contains(&(new_x, new_y)) {
             let results = search(&dungeon, &local, new_x, new_y);
             let search_results: Coords = local.union(&results).cloned().collect();
             local = search_results.clone();
@@ -89,7 +96,7 @@ pub fn rooms_are_accessible(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;
     let dc = DungeonCells::new(&dungeon);
     let mut visited: Coords = HashSet::new();
-    let floors: Coords = dc.filter(|ref cell| cell.has_attribute("floor")).map(|cell| (cell.x, cell.y)).collect();
+    let floors: Coords = dc.filter(|ref cell| is_accessible(cell)).map(|cell| (cell.x, cell.y)).collect();
     while {
         let remaining: Coords = floors.difference(&visited).cloned().collect();
         match remaining.len() {
