@@ -57,7 +57,7 @@ use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use wall_patterns::{WallPatterns};
 use mu_lambda::{MuLambda};
-use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful};
+use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful, rooms_are_accessible};
 use text::{render_text};
 use phenotype::{Seed};
 
@@ -116,9 +116,10 @@ fn main() {
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
     let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|eval| {
         match eval.as_slice() {
-            "check_1x1_rooms" => { box check_1x1_rooms as EvaluationFn }
-            "has_entrance_exit" => { box has_entrance_exit as EvaluationFn }
-            "doors_are_useful" => { box doors_are_useful as EvaluationFn }
+            "check_1x1_rooms" => box check_1x1_rooms as EvaluationFn,
+            "has_entrance_exit" => box has_entrance_exit as EvaluationFn,
+            "doors_are_useful" => box doors_are_useful as EvaluationFn,
+            "rooms_are_accessible" => box rooms_are_accessible as EvaluationFn,
             _ => panic!("Evaluation function {} could not be found.", eval)
         }
     }).collect();

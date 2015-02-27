@@ -1,4 +1,6 @@
-use dungeon::{Dungeon, SurroundingCells, Surrounding};
+use std::collections::{HashSet};
+
+use dungeon::{Dungeon, DungeonCells, SurroundingCells, Surrounding};
 
 pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
 
@@ -60,6 +62,49 @@ pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
                 }
             }
         }
+    }
+    hits as f64
+}
+
+pub type Coords = HashSet<(u32, u32)>;
+
+fn search(dungeon: &Dungeon, visited: &Coords, x: u32, y: u32) -> Coords {
+    let ref cell = dungeon.cells[x as usize][y as usize];
+    let mut local = visited.clone();
+    assert!(!local.contains(&(x, y)));
+    local.insert((x, y));
+    for sc in SurroundingCells::new(dungeon, cell, Surrounding::AllDirections) {
+        let new_x = sc.x;
+        let new_y = sc.y;
+        if sc.has_attribute("floor") && !local.contains(&(new_x, new_y)) {
+            let results = search(&dungeon, &local, new_x, new_y);
+            let search_results: Coords = local.union(&results).cloned().collect();
+            local = search_results.clone();
+        }
+    }
+    local.clone()
+}
+
+pub fn rooms_are_accessible(dungeon: &Dungeon) -> f64 {
+    let mut hits = 0;
+    let dc = DungeonCells::new(&dungeon);
+    let mut visited: Coords = HashSet::new();
+    let floors: Coords = dc.filter(|ref cell| cell.has_attribute("floor")).map(|cell| (cell.x, cell.y)).collect();
+    while {
+        let remaining: Coords = floors.difference(&visited).cloned().collect();
+        match remaining.len() {
+            0 => false,
+            _ => {
+                let &(x, y) = remaining.iter().next().unwrap();
+                let swept = search(&dungeon, &visited, x, y);
+                visited = visited.union(&swept).cloned().collect();
+                let total: Coords = visited.intersection(&floors).cloned().collect();
+                total.len() != floors.len()
+            }
+        }
+    }
+    {
+        hits += 1;
     }
     hits as f64
 }
