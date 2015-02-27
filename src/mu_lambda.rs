@@ -7,9 +7,6 @@ use genotype::{Genotype};
 use statistics::{Statistic};
 use util::{shuffle};
 
-// TODO?
-//type Result = (Genotype, Statistic);
-
 pub struct MuLambda<G: Genotype> {
     threads: usize,
     iterations: u32,

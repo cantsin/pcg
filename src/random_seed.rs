@@ -3,7 +3,6 @@ use genotype::{Genotype};
 use phenotype::{Seed};
 
 use rand::{Rng, thread_rng};
-use util::{odds};
 
 #[derive(Clone, Debug)]
 pub struct RandomSeed {

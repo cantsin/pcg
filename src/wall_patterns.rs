@@ -7,7 +7,6 @@ use config::{Config};
 use std::iter::{repeat};
 use std::collections::{HashMap};
 use rand::{Rng};
-use util::{odds};
 
 #[derive(Clone, Debug)]
 pub struct WallPatterns {
