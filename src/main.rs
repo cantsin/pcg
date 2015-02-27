@@ -123,6 +123,7 @@ fn main() {
             _ => panic!("Evaluation function {} could not be found.", eval)
         }
     }).collect();
+    let evaluation_weights: Vec<f64> = config.get_array(mulambda_vars, "evaluation_weights");
 
     let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants);
     // We cannot have trait objects that implement Clone. So this is commented out for now.
@@ -145,7 +146,8 @@ fn main() {
                                      lambda,
                                      mutation,
                                      *genotype.clone(),
-                                     evaluation_fns);
+                                     evaluation_fns,
+                                     evaluation_weights);
     let winners = mulambda.run();
 
     let spritesheet_path = Path::new(spritesheet_location);

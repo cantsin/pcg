@@ -15,7 +15,7 @@ pub struct MuLambda<G: Genotype> {
     lambda: usize, // number to generate
     mutation: f64, // mutation of genotype to mutate (between 0.0 and 1.0)
     genotype: G,
-    evaluations: Arc<Vec<EvaluationFn>>
+    evaluations: Arc<Vec<(EvaluationFn, f64)>>,
 }
 
 impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
@@ -25,7 +25,8 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
                lambda: usize,
                mutation: f64,
                genotype: G,
-               funcs: Vec<EvaluationFn>) -> MuLambda<G> {
+               funcs: Vec<EvaluationFn>,
+               weights: Vec<f64>) -> MuLambda<G> {
         MuLambda {
             threads: threads,
             iterations: iterations,
@@ -34,7 +35,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
             lambda: lambda,
             mutation: mutation,
             genotype: genotype,
-            evaluations: Arc::new(funcs)
+            evaluations: Arc::new(funcs.into_iter().zip(weights.iter().cloned()).collect()),
         }
     }
 
