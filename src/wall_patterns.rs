@@ -1,5 +1,5 @@
 use dungeon::{Dungeon};
-use celloption::{Tile};
+use celloption::{Tile, Occupant};
 use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
@@ -13,7 +13,8 @@ pub struct WallPatterns {
     patterns: Vec<Pattern>,
     pattern_width: u32,
     pattern_height: u32,
-    indices: Vec<usize>
+    indices: Vec<usize>,
+    occupants: Vec<(Occupant, (u32, u32))>,
 }
 
 #[derive(Clone, Debug)]
@@ -67,6 +68,7 @@ impl WallPatterns {
             pattern_width: pattern_width,
             pattern_height: pattern_height,
             indices: vec![],
+            occupants: vec![],
         }
     }
 
@@ -74,14 +76,17 @@ impl WallPatterns {
 
 impl Genotype for WallPatterns {
     fn initialize<T: Rng>(&self, rng: &mut T) -> WallPatterns {
-        assert!(self.patterns.len() != 0);
-        let indices = rng.gen_iter::<usize>().take(self.patterns.len()).map(|v| v % self.patterns.len()).collect();
+        let n = self.patterns.len();
+        assert!(n != 0);
+        let indices = rng.gen_iter::<usize>().take(n).map(|v| v % n).collect();
+        let occupants = self.seed.random_occupants(rng);
         WallPatterns {
             seed: self.seed.clone(),
             patterns: self.patterns.clone(),
             pattern_width: self.pattern_width,
             pattern_height: self.pattern_height,
             indices: indices,
+            occupants: occupants,
         }
     }
 
@@ -92,6 +97,7 @@ impl Genotype for WallPatterns {
             let index = rng.gen_range(1, length);
             self.indices[index] = index;
         }
+        self.occupants = self.seed.random_occupants(rng);
     }
 
     fn generate(&self) -> Dungeon {
@@ -112,6 +118,14 @@ impl Genotype for WallPatterns {
                 let tile_index = inner_y * self.pattern_width + inner_x;
                 let tile = pattern.pattern[tile_index as usize].clone();
                 dungeon.cells[i as usize][j as usize].tile = tile.clone();
+            }
+        }
+        // draw the occupants if their tile is not otherwise occupied.
+        for (occupant, coord) in self.occupants.clone() {
+            let x = coord.0 as usize;
+            let y = coord.1 as usize;
+            if dungeon.cells[x][y].has_attribute("floor") {
+                dungeon.cells[x][y].occupant = Some(occupant.clone());
             }
         }
         dungeon.clone()

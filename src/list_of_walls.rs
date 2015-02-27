@@ -1,4 +1,5 @@
 use dungeon::{Dungeon};
+use celloption::{Occupant};
 use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
@@ -15,6 +16,7 @@ pub struct ListOfWalls {
     door_chance: f64,
     entrance: (u32, u32),
     exit: (u32, u32),
+    occupants: Vec<(Occupant, (u32, u32))>,
 }
 
 #[derive(Clone, Debug)]
@@ -68,6 +70,7 @@ impl ListOfWalls {
             walls: vec![],
             entrance: (0, 0),
             exit: (0, 0),
+            occupants: vec![],
         }
     }
 }
@@ -83,6 +86,7 @@ impl Genotype for ListOfWalls {
             Wall::random(rng, w, h, door_chance)
         }).collect();
         // don't worry about collisions, just plop them down somewhere.
+        let occupants = self.seed.random_occupants(rng);
         let entrance = (rng.gen_range(1, w), rng.gen_range(1, h));
         let exit = (rng.gen_range(1, w), rng.gen_range(1, h));
         ListOfWalls {
@@ -92,6 +96,7 @@ impl Genotype for ListOfWalls {
             walls: walls,
             entrance: entrance,
             exit: exit,
+            occupants: occupants,
         }
     }
 
@@ -106,6 +111,7 @@ impl Genotype for ListOfWalls {
             let wall = Wall::random(rng, w, h, door_chance);
             self.walls[index] = wall;
         }
+        self.occupants = self.seed.random_occupants(rng);
     }
 
     fn generate(&self) -> Dungeon {
@@ -137,6 +143,14 @@ impl Genotype for ListOfWalls {
         let exit = self.seed.tiles.get("exit").unwrap();
         let (x, y) = self.exit;
         dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
+        // draw the occupants if their tile is not otherwise occupied.
+        for (occupant, coord) in self.occupants.clone() {
+            let x = coord.0 as usize;
+            let y = coord.1 as usize;
+            if dungeon.cells[x][y].has_attribute("floor") {
+                dungeon.cells[x][y].occupant = Some(occupant.clone());
+            }
+        }
         dungeon.clone()
     }
 }
