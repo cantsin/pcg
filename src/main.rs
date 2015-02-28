@@ -50,7 +50,7 @@ use std::old_path::Path as OldPath;
 use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use spritesheet::{SpriteSheet};
 use sprite::{Sprite};
-use dungeon::{DungeonCells};
+use dungeon::{Dungeon, DungeonCells};
 use config::{Config};
 use genotype::{Genotype};
 use random_seed::{RandomSeed};
@@ -60,6 +60,7 @@ use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful, rooms_are_accessible};
 use text::{render_text};
 use phenotype::{Seed};
+use statistics::{Statistic};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 
@@ -127,29 +128,39 @@ fn main() {
     let evaluation_weights: Vec<f64> = config.get_array(mulambda_vars, "evaluation_weights");
 
     let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants, occupant_chance);
-    // We cannot have trait objects that implement Clone. So this is commented out for now.
-    let genotype = match strategy {
-        // "RandomSeed" => {
-        //     box RandomSeed::new(&seed)
-        // }
-        "ListOfWalls" => {
-            box ListOfWalls::new(&config, &seed)
+
+    // We cannot have trait objects that implement Clone or use
+    // generic parameters. Instead, we use macros to make this section
+    // a bit cleaner.
+    macro_rules! mu_lambda_run (
+        ($genotype:expr) => {{
+            let mut mulambda = MuLambda::new(threads,
+                                             iterations,
+                                             mu,
+                                             lambda,
+                                             mutation,
+                                             $genotype.clone(),
+                                             evaluation_fns,
+                                             evaluation_weights);
+            let result = mulambda.run();
+            result.into_iter().map(|(individual, statistic)| (individual.generate(), statistic)).collect()
+        }}
+    );
+    let winners: Vec<(Dungeon, Statistic)> = match strategy {
+        "RandomSeed" => {
+            let genotype = RandomSeed::new(&seed);
+            mu_lambda_run!(genotype)
         }
-        // "WallPatterns" => {
-        //     box WallPatterns::new(&config, &seed)
-        // }
+        "ListOfWalls" => {
+            let genotype = ListOfWalls::new(&config, &seed);
+            mu_lambda_run!(genotype)
+        }
+        "WallPatterns" => {
+            let genotype = WallPatterns::new(&config, &seed);
+            mu_lambda_run!(genotype)
+        }
         _ => panic!("Strategy {} could not be found.", strategy)
     };
-
-    let mut mulambda = MuLambda::new(threads,
-                                     iterations,
-                                     mu,
-                                     lambda,
-                                     mutation,
-                                     *genotype.clone(),
-                                     evaluation_fns,
-                                     evaluation_weights);
-    let winners = mulambda.run();
 
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
@@ -159,8 +170,7 @@ fn main() {
     for e in event::events(&window) {
         graphics::clear(color::BLACK, gl);
         let ref current = winners[choice as usize];
-        let &(ref individual, ref statistic) = current;
-        let dungeon = individual.generate();
+        let &(ref dungeon, ref statistic) = current;
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
