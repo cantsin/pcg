@@ -31,6 +31,7 @@ mod evaluation;
 mod random_seed;
 mod list_of_walls;
 mod wall_patterns;
+mod desirable_properties;
 mod text;
 mod phenotype;
 
@@ -57,6 +58,7 @@ use genotype::{Genotype};
 use random_seed::{RandomSeed};
 use list_of_walls::{ListOfWalls};
 use wall_patterns::{WallPatterns};
+use desirable_properties::{DesirableProperties};
 use mu_lambda::{MuLambda};
 use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful, rooms_are_accessible};
 use text::{render_text};
@@ -158,6 +160,10 @@ fn main() {
         }
         "WallPatterns" => {
             let genotype = WallPatterns::new(&config, &seed);
+            mu_lambda_run!(genotype)
+        }
+        "DesirableProperties" => {
+            let genotype = DesirableProperties::new(&config, &seed);
             mu_lambda_run!(genotype)
         }
         _ => panic!("Strategy {} could not be found.", strategy)
