@@ -1,4 +1,4 @@
-#![feature(os, io, fs, path, old_path, core, std_misc, box_syntax, collections)]
+#![feature(os, io, fs, path, old_path, core, box_syntax, collections)]
 #![forbid(unused_typecasts)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
@@ -14,6 +14,7 @@ extern crate sdl2_window;
 extern crate opengl_graphics;
 extern crate window;
 extern crate freetype;
+extern crate threadpool;
 extern crate "rustc-serialize" as rustc_serialize;
 
 mod util;

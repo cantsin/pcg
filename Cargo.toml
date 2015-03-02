@@ -38,3 +38,6 @@ git = "https://github.com/alexcrichton/toml-rs"
 
 [dependencies.rand]
 rand = "0.1.2"
+
+[dependencies.threadpool]
+threadpool = "0.1.0"
