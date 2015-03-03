@@ -85,3 +85,10 @@ rand4 = ["__X__",
          "XXX__",
          "__XX_",
          "___X_"]
+
+[desirable_patterns]
+rooms = 10
+doors = 5
+monsters = 20
+path_length = 10
+branching = 5

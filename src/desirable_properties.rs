@@ -20,7 +20,7 @@ pub struct DesirableProperties {
 impl DesirableProperties {
     pub fn new(config: &Config, seed: &Seed) -> DesirableProperties {
         // read in the configurations
-        let desirables = config.get_table(None, "desirable");
+        let desirables = config.get_table(None, "desirable_patterns");
         let rooms = config.get_integer(desirables, "rooms") as u32;
         let doors = config.get_integer(desirables, "doors") as u32;
         let monsters = config.get_integer(desirables, "monsters") as u32;
