@@ -78,7 +78,7 @@ dependencies = [
 [[package]]
 name = "image"
 version = "0.2.0-alpha.10"
-source = "git+https://github.com/pistondevelopers/image#7ed0daee0ced910bcd111a9c88158da149151260"
+source = "git+https://github.com/cantsin/image#3c5d53b2e68e2871c78b082b98b7df2f3ad60602"
 dependencies = [
  "num 0.1.14 (git+https://github.com/rust-lang/num)",
 ]
