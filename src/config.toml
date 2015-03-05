@@ -5,7 +5,7 @@ tiles_width = 25
 tiles_height = 25
 tile_width = 16
 tile_height = 16
-spritesheet = "dungeon"
+spritesheet = "dawnlike"
 threads = 50
 font = "./assets/Inconsolata.otf"
 font_size = 14
@@ -15,6 +15,15 @@ path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"
 occupant_chance = 0.05 # purely for cosmetic flavor
 
 [spritesheets.dungeon.cells]
+tiles = ["floor", "wall", "entrance", "exit", "door"]
+occupants = ["monster", "treasure", "trap", "teleporter"]
+items = []
+
+[spritesheets.dawnlike]
+path = "./assets/dawnlike-pcg.png"
+occupant_chance = 0.05 # purely for cosmetic flavor
+
+[spritesheets.dawnlike.cells]
 tiles = ["floor", "wall", "entrance", "exit", "door"]
 occupants = ["monster", "treasure", "trap", "teleporter"]
 items = []

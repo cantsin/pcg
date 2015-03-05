@@ -1,0 +1,14 @@
+# dawnlike, 16x16 universal rogue-like tileset v1.8, created by DawnBringer
+# CC-BY-SA 3.0 license
+[sprites]
+tile_width = 16
+tile_height = 16
+floor = [0, 0]
+exit = [0, 1]
+entrance = [0, 2]
+wall = [0, 3]
+trap = [0, 4]
+teleporter = [0, 5]
+monster = [0, 6]
+door = [1, 0]
+treasure = [1, 1]
