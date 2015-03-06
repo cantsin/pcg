@@ -55,10 +55,6 @@ impl<T: CellOption> CellOptions<T> {
         assert!(self.options.len() > 0, "Cannot choose random cell option.");
         sample(rng, self.options.iter(), 1).into_iter().next().unwrap()
     }
-
-    pub fn sample<R: Rng>(&self, rng: &mut R, n: usize) -> Vec<&T> {
-        sample(rng, self.options.iter(), n)
-    }
 }
 
 #[derive(Clone, Debug)]

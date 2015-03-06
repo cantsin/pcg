@@ -37,8 +37,8 @@ lambda = 8
 mutation = 0.33 # percentage points
 #strategy = "RandomSeed"
 #strategy = "ListOfWalls"
-strategy = "WallPatterns"
-#strategy = "DesirableProperties"
+#strategy = "WallPatterns"
+strategy = "DesirableProperties"
 evaluations = ["check_1x1_rooms", "has_entrance_exit", "doors_are_useful", "rooms_are_accessible", ]
 evaluation_weights = [5.0, 20.0, 3.0, 10.0]
 
@@ -98,7 +98,8 @@ rand4 = ["__X__",
          "___X_"]
 
 [desirable_patterns]
-rooms = 10
+room_number = 20
+room_size = 10
 doors = 5
 monsters = 20
 path_length = 10
