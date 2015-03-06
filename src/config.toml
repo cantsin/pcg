@@ -9,6 +9,8 @@ spritesheet = "dawnlike"
 threads = 50
 font = "./assets/Inconsolata.otf"
 font_size = 14
+fps = 10
+animation_speed = 10 # once per X frames
 
 [spritesheets.dungeon]
 path = "./assets/16x16_Jerom_CC-BY-SA-3.0_0.png"

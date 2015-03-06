@@ -15,6 +15,7 @@ extern crate opengl_graphics;
 extern crate window;
 extern crate freetype;
 extern crate threadpool;
+extern crate quack;
 extern crate "rustc-serialize" as rustc_serialize;
 
 mod util;
@@ -41,8 +42,8 @@ use sdl2_window::{Sdl2Window};
 use window::{WindowSettings};
 use input::Button::{Keyboard};
 use input::keyboard::{Key};
-//use event::{RenderEvent, Event};
-use event::*;
+use event::{Ups, MaxFps, RenderEvent, PressEvent};
+use quack::{Set};
 
 use std::os::{num_cpus};
 use std::cell::{RefCell};
@@ -78,9 +79,11 @@ fn main() {
     let tile_height = config.get_integer(vars, "tile_height") as i32;
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
+    let animation_speed = config.get_default(vars, "animation_speed", 10);
     let threads = config.get_default(vars, "threads", num_cpus() * 2);
     let font_name = config.get_string(vars, "font");
     let font_size = config.get_default(vars, "font_size", 14);
+    let fps = config.get_default(vars, "fps", 10);
 
     let opengl = shader_version::OpenGL::_3_2;
     let window = Sdl2Window::new(opengl,
@@ -172,12 +175,14 @@ fn main() {
     let spritesheet_path = Path::new(spritesheet_location);
     let spritesheet = SpriteSheet::new(&spritesheet_path);
 
+    let mut frame = 0;
     let mut choice = 0;
     let window = RefCell::new(window);
-    for e in event::events(&window) {
+    for e in event::events(&window).set(Ups(fps)).set(MaxFps(fps)) {
         graphics::clear(color::BLACK, gl);
         let ref current = winners[choice as usize];
         let &(ref dungeon, ref statistic) = current;
+        let seconds = frame / animation_speed;
         e.render(|_| {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
@@ -186,7 +191,7 @@ fn main() {
                 match cell.tile {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                        sprite.draw(gl, x, y);
+                        sprite.draw(gl, x, y, seconds);
                     }
                     None => {
                          Sprite::missing(gl, x, y, tile_width, tile_height);
@@ -195,7 +200,7 @@ fn main() {
                 match cell.occupant {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                        sprite.draw(gl, x, y);
+                        sprite.draw(gl, x, y, seconds);
                     }
                     None => ()
                 }
@@ -212,12 +217,16 @@ fn main() {
                 choice -= 1;
                 if choice < 0 {
                     choice = (winners.len() - 1) as isize;
+                    frame = 0;
                 }
             }
             else if key == Key::Right {
                 choice += 1;
                 choice %= winners.len() as isize;
+                frame = 0;
             }
         };
+
+        frame += 1;
     }
 }

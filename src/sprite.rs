@@ -8,7 +8,6 @@ pub struct Sprite {
     images: Vec<Image>,
     height: i32,
     width: i32,
-    index: usize
 }
 
 impl Sprite {
@@ -19,17 +18,13 @@ impl Sprite {
             images: images,
             height: height,
             width: width,
-            index: 0
         }
     }
 
-    pub fn next(&mut self) {
-        self.index = (self.index + 1) % self.images.len();
-    }
-
-    pub fn draw(&self, gl: &mut Gl, x: i32, y: i32) {
+    pub fn draw(&self, gl: &mut Gl, x: i32, y: i32, index: usize) {
         let viewport = [x, y, self.width, self.height];
-        let image = self.images[self.index];
+        let idx = index % self.images.len();
+        let image = self.images[idx];
         gl.draw(viewport, |c, gl| {
             image.draw(&*self.texture, &c, gl);
         });
