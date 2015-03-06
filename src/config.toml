@@ -99,7 +99,7 @@ rand4 = ["__X__",
 
 [desirable_patterns]
 room_number = 20
-room_size = 10
+room_size = 7
 doors = 5
 monsters = 20
 path_length = 10
