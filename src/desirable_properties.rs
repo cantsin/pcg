@@ -3,8 +3,10 @@ use celloption::{Occupant};
 use genotype::{Genotype};
 use phenotype::{Seed};
 use config::{Config};
+use util::{odds};
 
 use std::iter::{range_step};
+use std::collections::{HashMap, HashSet};
 use rand::{Rng};
 
 #[derive(Clone, Debug)]
@@ -15,7 +17,7 @@ pub struct DesirableProperties {
     doors: u32,
     monsters: u32,
     path_length: u32,
-    branching: u32,
+    branching: f64,
     occupants: Vec<(Occupant, (u32, u32))>,
     rooms: Vec<Room>,
     mazes: Vec<Maze>,
@@ -32,16 +34,73 @@ struct Room {
 #[derive(Clone, Debug)]
 struct Maze {
     region: u32,
-    path: Vec<(u32, u32)>
+    path: HashSet<(u32, u32)>
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+enum Direction {
+    North,
+    East,
+    South,
+    West
+}
+
+pub type CollisionFn<'a> = Box<Fn(&(u32, u32)) -> bool + 'a>;
+
 impl Maze {
-    pub fn new(region: u32, x: u32, y: u32) -> Maze {
-        let path = vec!((x, y));
+    pub fn new<T: Rng>(rng: &mut T, positions: &HashSet<(u32, u32)>, collides: CollisionFn, branching: f64, region: u32, x: u32, y: u32) -> Maze {
+        let path = Maze::grow(rng, positions, collides, branching, x, y);
         Maze {
             region: region,
             path: path
         }
+    }
+
+    fn grow<T: Rng>(rng: &mut T, positions: &HashSet<(u32, u32)>, collides: CollisionFn, branching: f64, x: u32, y: u32) -> HashSet<(u32, u32)> {
+        let branching_factor = (branching * 100.0) as u64;
+        let all = vec!(Direction::North, Direction::East, Direction::South, Direction::West);
+        let mut path: HashSet<(u32, u32)> = HashSet::new();
+        let mut all_paths: HashSet<(u32, u32)> = positions.clone();
+        let mut direction = rng.choose(all.as_slice()).unwrap().clone();
+        path.insert((x, y));
+        all_paths.insert((x, y));
+        while !path.is_empty() {
+            let &(x, y) = path.iter().next().unwrap();
+            let sx = x as i32;
+            let sy = y as i32;
+            let sc = vec!((Direction::North, (0, 1)),
+                          (Direction::East, (1, 0)),
+                          (Direction::South, (0, -1)),
+                          (Direction::West, (-1, 0)));
+            let uncarved: HashMap<Direction, (i32, i32)> = sc.iter().filter(|&&(_, (dir_x, dir_y))| {
+                let coord1 = ((sx + dir_x*1) as u32, (sy + dir_y*1) as u32);
+                let coord2 = ((sx + dir_x*2) as u32, (sy + dir_y*2) as u32);
+                let coord3 = ((sx + dir_x*3) as u32, (sy + dir_y*3) as u32);
+                !all_paths.contains(&coord1) &&
+                    !all_paths.contains(&coord2) &&
+                    !all_paths.contains(&coord3) &&
+                    !collides(&coord2) &&
+                    !collides(&coord3)
+            }).cloned().collect();
+            if !uncarved.is_empty() {
+                let same_direction = odds(rng, branching_factor, 100);
+                let (rel_x, rel_y) = if same_direction && uncarved.contains_key(&direction) {
+                    uncarved[direction]
+                } else {
+                    let (dir, coords) = uncarved.into_iter().next().unwrap();
+                    direction = dir;
+                    coords
+                };
+                let coord1 = ((sx + rel_x*1) as u32, (sy + rel_y*1) as u32);
+                let coord2 = ((sx + rel_x*2) as u32, (sy + rel_y*2) as u32);
+                path.insert(coord2);
+                all_paths.insert(coord1);
+                all_paths.insert(coord2);
+            } else {
+                path.remove(&(x, y));
+            }
+        }
+        all_paths
     }
 }
 
@@ -61,7 +120,7 @@ impl Room {
         }
     }
 
-    pub fn make_odd(n: u32) -> u32 {
+    fn make_odd(n: u32) -> u32 {
         if n % 2 == 0 { n - 1 } else { n }
     }
 
@@ -94,7 +153,7 @@ impl DesirableProperties {
         let doors = config.get_integer(desirables, "doors") as u32;
         let monsters = config.get_integer(desirables, "monsters") as u32;
         let path_length = config.get_integer(desirables, "path_length") as u32;
-        let branching = config.get_integer(desirables, "branching") as u32;
+        let branching = config.get_float(desirables, "branching");
         DesirableProperties {
             seed: seed.clone(),
             room_size: room_size,
@@ -113,12 +172,14 @@ impl DesirableProperties {
 
 impl Genotype for DesirableProperties {
     fn initialize<T: Rng>(&self, rng: &mut T) -> DesirableProperties {
+        let w = self.seed.width;
+        let h = self.seed.height;
         let occupants = self.seed.random_occupants(rng).iter().take(self.monsters as usize).cloned().collect();
         // randomly generate rooms
         let mut rooms = vec![];
         for _ in range(0, self.room_number) {
             for _ in range(0, 10) {
-                let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size);
+                let room = Room::random(rng, w, h, self.room_size);
                 if !room.intersects(&rooms) {
                     rooms.push(room);
                     break;
@@ -127,12 +188,15 @@ impl Genotype for DesirableProperties {
         }
         // fill in mazes
         let mut mazes = vec![];
+        let mut positions: HashSet<(u32, u32)> = HashSet::new();
         let mut region = 0;
-        for x in range_step(1, self.seed.width, 2) {
-            for y in range_step(1, self.seed.height, 2) {
-                let is_occupied = rooms.iter().fold(false, |accum, ref m| accum || m.contains(x, y));
-                if !is_occupied {
-                    let maze = Maze::new(region, x, y);
+        let is_occupied = |x, y| rooms.clone().iter().fold(false, |accum, ref m| accum || m.contains(x, y));
+        for x in range_step(1, w, 2) {
+            for y in range_step(1, h, 2) {
+                if !is_occupied(x, y) && !positions.contains(&(x, y)) {
+                    let collides: CollisionFn = box |&(cx, cy)| cx >= w || cy >= h || is_occupied(cx, cy);
+                    let maze = Maze::new(rng, &positions, collides, self.branching, region, x, y);
+                    positions = positions.union(&maze.path).cloned().collect();
                     mazes.push(maze);
                     region += 1;
                 }
@@ -149,7 +213,7 @@ impl Genotype for DesirableProperties {
             path_length: self.path_length,
             branching: self.branching,
             occupants: occupants,
-            rooms: rooms,
+            rooms: rooms.clone(),
             mazes: mazes,
         }
     }
@@ -162,11 +226,12 @@ impl Genotype for DesirableProperties {
         let w = self.seed.width;
         let h = self.seed.height;
         let mut dungeon = Dungeon::new(w, h, None);
+        let wall = self.seed.tiles.get("wall").unwrap();
         let floor = self.seed.tiles.get("floor").unwrap();
         for room in self.rooms.iter() {
             for i in range(room.x, room.x + room.w) {
                 for j in range(room.y, room.y + room.h) {
-                    dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
+                    dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
                 }
             }
         }
