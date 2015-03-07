@@ -21,6 +21,7 @@ pub struct DesirableProperties {
     occupants: Vec<(Occupant, (u32, u32))>,
     rooms: Vec<Room>,
     mazes: Vec<Maze>,
+    connectors: Vec<Connector>,
 }
 
 #[derive(Clone, Debug)]
@@ -28,13 +29,14 @@ struct Room {
     x: u32,
     y: u32,
     w: u32,
-    h: u32
+    h: u32,
+    region: u32,
 }
 
 #[derive(Clone, Debug)]
 struct Maze {
+    path: HashSet<(u32, u32)>,
     region: u32,
-    path: HashSet<(u32, u32)>
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -43,6 +45,31 @@ enum Direction {
     East,
     South,
     West
+}
+
+#[derive(Clone, Debug)]
+struct Connector {
+    location: (u32, u32),
+    regions: Vec<u32>,
+}
+
+impl Connector {
+    pub fn new(location: (u32, u32), regions: &Vec<u32>) -> Connector {
+        Connector {
+            location: location,
+            regions: regions.clone(),
+        }
+    }
+
+    pub fn find_all(mazes: &Vec<Maze>, rooms: &Vec<Room>) -> Vec<Connector> {
+        // given all the mazes and rooms
+        // for all the available spots (room sides, maze paths)
+        //   see if we have a connector (a blank spot that joins the two)
+        //   if we have more than two connectors, save it as a connector
+
+
+        vec![]
+    }
 }
 
 pub type CollisionFn<'a> = Box<Fn(&(u32, u32)) -> bool + 'a>;
@@ -66,8 +93,8 @@ impl Maze {
                     previous: &HashSet<(u32, u32)>,
                     collides: CollisionFn,
                     branching: f64,
-                    x: u32,
-                    y: u32) -> HashSet<(u32, u32)> {
+                    orig_x: u32,
+                    orig_y: u32) -> HashSet<(u32, u32)> {
         let branching_factor = (branching * 100.0) as u64;
         let mut path: Vec<(u32, u32)> = Vec::new();
         let mut all_paths: HashSet<(u32, u32)> = previous.clone();
@@ -77,8 +104,8 @@ impl Maze {
                       (Direction::East, (1, 0)),
                       (Direction::South, (0, -1)),
                       (Direction::West, (-1, 0)));
-        path.push((x, y));
-        all_paths.insert((x, y));
+        path.push((orig_x, orig_y));
+        all_paths.insert((orig_x, orig_y));
         while !path.is_empty() {
             let (x, y) = path[path.len()-1];
             let coord_at = |(vx, vy): (i32, i32), n| ((x as i32 + vx*n) as u32, (y as i32 + vy*n) as u32);
@@ -115,7 +142,7 @@ impl Maze {
 }
 
 impl Room {
-    pub fn random<T: Rng>(rng: &mut T, width: u32, height: u32, room_size: u32) -> Room {
+    pub fn random<T: Rng>(rng: &mut T, width: u32, height: u32, room_size: u32, region: u32) -> Room {
         let w: u32 = rng.gen_range(3, room_size);
         let h: u32 = rng.gen_range(3, room_size);
         assert!(width >= w);
@@ -128,6 +155,7 @@ impl Room {
             y: make_odd(y),
             w: make_odd(w),
             h: make_odd(h),
+            region: region,
         }
     }
 
@@ -148,6 +176,19 @@ impl Room {
         let roomw = self.x + self.w;
         let roomh = self.y + self.h;
         x >= self.x && x < roomw && y >= self.y && y < roomh
+    }
+
+    pub fn border(&self) -> Vec<(u32, u32)> {
+        let mut surrounding = vec![];
+        for i in range(0, self.w) {
+            surrounding.push(((self.x + i), self.y));
+            surrounding.push(((self.x + i), self.y + self.h - 1));
+        }
+        for i in range(0, self.h) {
+            surrounding.push((self.x, self.y + i));
+            surrounding.push((self.x + self.w - 1, self.y + i));
+        }
+        surrounding
     }
 }
 
@@ -171,7 +212,8 @@ impl DesirableProperties {
             branching: branching,
             occupants: vec![],
             rooms: vec![],
-            mazes: vec![]
+            mazes: vec![],
+            connectors: vec![],
         }
     }
 
@@ -182,13 +224,15 @@ impl Genotype for DesirableProperties {
         let w = self.seed.width;
         let h = self.seed.height;
         let occupants = self.seed.random_occupants(rng).iter().take(self.monsters as usize).cloned().collect();
+        let mut region = 0;
         // randomly generate rooms
         let mut rooms = vec![];
         for _ in range(0, self.room_number) {
             for _ in range(0, 10) {
-                let room = Room::random(rng, w, h, self.room_size);
+                let room = Room::random(rng, w, h, self.room_size, region);
                 if !room.intersects(&rooms) {
                     rooms.push(room);
+                    region += 1;
                     break;
                 }
             }
@@ -196,7 +240,6 @@ impl Genotype for DesirableProperties {
         // fill in mazes
         let mut mazes = vec![];
         let mut positions: HashSet<(u32, u32)> = HashSet::new();
-        let mut region = 0;
         let is_occupied = |x, y| rooms.clone().iter().fold(false, |accum, ref m| accum || m.contains(x, y));
         for x in range_step(1, w, 2) {
             for y in range_step(1, h, 2) {
@@ -210,6 +253,7 @@ impl Genotype for DesirableProperties {
             }
         }
         // find connectors
+        let connectors = Connector::find_all(&mazes, &rooms);
         // remove dead ends
         DesirableProperties {
             seed: self.seed.clone(),
@@ -222,6 +266,7 @@ impl Genotype for DesirableProperties {
             occupants: occupants,
             rooms: rooms.clone(),
             mazes: mazes,
+            connectors: connectors,
         }
     }
 
@@ -234,6 +279,7 @@ impl Genotype for DesirableProperties {
         let h = self.seed.height;
         let mut dungeon = Dungeon::new(w, h, None);
         let wall = self.seed.tiles.get("wall").unwrap();
+        let door = self.seed.tiles.get("door").unwrap();
         let floor = self.seed.tiles.get("floor").unwrap();
         for room in self.rooms.iter() {
             for i in range(room.x, room.x + room.w) {
@@ -241,12 +287,19 @@ impl Genotype for DesirableProperties {
                     dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
                 }
             }
+            for (i, j) in room.border() {
+                dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
+            }
         }
         for maze in self.mazes.iter() {
             for path in maze.path.iter() {
                 let (x, y): (u32, u32) = *path;
                 dungeon.cells[x as usize][y as usize].tile = Some(floor.clone());
             }
+        }
+        for connector in self.connectors.iter() {
+            let (x, y) = connector.location;
+            dungeon.cells[x as usize][y as usize].tile = Some(door.clone());
         }
         dungeon.clone()
     }

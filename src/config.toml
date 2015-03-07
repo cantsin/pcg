@@ -98,7 +98,7 @@ rand4 = ["__X__",
          "___X_"]
 
 [desirable_patterns]
-room_number = 2
+room_number = 20
 room_size = 7
 doors = 5
 monsters = 20
