@@ -47,14 +47,27 @@ enum Direction {
     West
 }
 
+static CARDINALS: [(Direction, (i32, i32)); 4] = [(Direction::North, (0, 1)),
+                                                  (Direction::East, (1, 0)),
+                                                  (Direction::South, (0, -1)),
+                                                  (Direction::West, (-1, 0))];
+
+// helper function: given a coordinate and a relative direction, get
+// the coordinate n spaces away in that direction.
+fn scale(coord: (u32, u32), dir: (i32, i32), n: i32) -> (u32, u32) {
+    let (x, y) = coord;
+    let (dx, dy) = dir;
+    (((x as i32 + dx * n) as u32), ((y as i32 + dy * n) as u32))
+}
+
 #[derive(Clone, Debug)]
 struct Connector {
     location: (u32, u32),
-    regions: Vec<u32>,
+    regions: HashSet<u32>,
 }
 
 impl Connector {
-    pub fn new(location: (u32, u32), regions: &Vec<u32>) -> Connector {
+    pub fn new(location: (u32, u32), regions: &HashSet<u32>) -> Connector {
         Connector {
             location: location,
             regions: regions.clone(),
@@ -62,13 +75,43 @@ impl Connector {
     }
 
     pub fn find_all(mazes: &Vec<Maze>, rooms: &Vec<Room>) -> Vec<Connector> {
-        // given all the mazes and rooms
-        // for all the available spots (room sides, maze paths)
-        //   see if we have a connector (a blank spot that joins the two)
-        //   if we have more than two connectors, save it as a connector
-
-
-        vec![]
+        // build up a hashmap of coords to region id
+        let mut lookup: HashMap<(u32, u32), u32> = HashMap::new();
+        for maze in mazes {
+            for coord in maze.clone().path {
+                lookup.insert(coord, maze.region);
+            }
+        }
+        for room in rooms {
+            for coord in room.border() {
+                lookup.insert(coord, room.region);
+            }
+        }
+        // find connectors (blank spaces between two regions)
+        let mut connectors: Vec<Connector> = Vec::new();
+        let mut examined: HashSet<(u32, u32)> = HashSet::new();
+        for (&coord, &region) in lookup.iter() {
+            examined.insert(coord);
+            let possibles: Vec<(u32, u32)> = CARDINALS.iter().map(|&(_, rel_dir)| scale(coord, rel_dir, 1)).collect();
+            for new_coord in possibles {
+                if !examined.contains(&new_coord) || !lookup.contains_key(&new_coord) {
+                    let regions: HashSet<u32> = CARDINALS.iter().map(|&(_, rel_dir)| {
+                        let coord = scale(new_coord, rel_dir, 1);
+                        if lookup.contains_key(&coord) {
+                            lookup[coord]
+                        } else {
+                            region
+                        }
+                    }).collect();
+                    if regions.len() >= 2 {
+                        let connector = Connector::new(new_coord, &regions);
+                        connectors.push(connector);
+                    }
+                    examined.insert(new_coord);
+                }
+            }
+        }
+        connectors
     }
 }
 
@@ -100,19 +143,15 @@ impl Maze {
         let mut all_paths: HashSet<(u32, u32)> = previous.clone();
         let all = vec!(Direction::North, Direction::East, Direction::South, Direction::West);
         let mut direction = rng.choose(all.as_slice()).unwrap().clone();
-        let sc = vec!((Direction::North, (0, 1)),
-                      (Direction::East, (1, 0)),
-                      (Direction::South, (0, -1)),
-                      (Direction::West, (-1, 0)));
         path.push((orig_x, orig_y));
         all_paths.insert((orig_x, orig_y));
+        // "growing-tree" algorithm
         while !path.is_empty() {
-            let (x, y) = path[path.len()-1];
-            let coord_at = |(vx, vy): (i32, i32), n| ((x as i32 + vx*n) as u32, (y as i32 + vy*n) as u32);
-            let uncarved: HashMap<Direction, (i32, i32)> = sc.iter().filter(|&&(_, new_dir)| {
-                let coord1 = coord_at(new_dir, 1);
-                let coord2 = coord_at(new_dir, 2);
-                let coord3 = coord_at(new_dir, 3);
+            let new_coord = path[path.len()-1];
+            let uncarved: HashMap<Direction, (i32, i32)> = CARDINALS.iter().filter(|&&(_, new_dir)| {
+                let coord1 = scale(new_coord, new_dir, 1);
+                let coord2 = scale(new_coord, new_dir, 2);
+                let coord3 = scale(new_coord, new_dir, 3);
                 !all_paths.contains(&coord1) &&
                     !all_paths.contains(&coord2) &&
                     !all_paths.contains(&coord3) &&
@@ -121,15 +160,15 @@ impl Maze {
             }).cloned().collect();
             if !uncarved.is_empty() {
                 let same_direction = odds(rng, branching_factor, 100);
-                let rel = if same_direction && uncarved.contains_key(&direction) {
+                let rel_dir = if same_direction && uncarved.contains_key(&direction) {
                     uncarved[direction]
                 } else {
                     let (dir, coords) = uncarved.into_iter().next().unwrap();
                     direction = dir;
                     coords
                 };
-                let coord1 = coord_at(rel, 1);
-                let coord2 = coord_at(rel, 2);
+                let coord1 = scale(new_coord, rel_dir, 1);
+                let coord2 = scale(new_coord, rel_dir, 2);
                 all_paths.insert(coord1);
                 all_paths.insert(coord2);
                 path.push(coord2);
@@ -287,6 +326,7 @@ impl Genotype for DesirableProperties {
                     dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
                 }
             }
+            // will overdraw, but that's OK.
             for (i, j) in room.border() {
                 dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
             }
