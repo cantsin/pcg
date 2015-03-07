@@ -48,34 +48,44 @@ enum Direction {
 pub type CollisionFn<'a> = Box<Fn(&(u32, u32)) -> bool + 'a>;
 
 impl Maze {
-    pub fn new<T: Rng>(rng: &mut T, positions: &HashSet<(u32, u32)>, collides: CollisionFn, branching: f64, region: u32, x: u32, y: u32) -> Maze {
-        let path = Maze::grow(rng, positions, collides, branching, x, y);
+    pub fn new<T: Rng>(rng: &mut T,
+                       previous: &HashSet<(u32, u32)>,
+                       collides: CollisionFn,
+                       branching: f64,
+                       region: u32,
+                       x: u32,
+                       y: u32) -> Maze {
+        let path = Maze::grow(rng, previous, collides, branching, x, y);
         Maze {
             region: region,
             path: path
         }
     }
 
-    fn grow<T: Rng>(rng: &mut T, positions: &HashSet<(u32, u32)>, collides: CollisionFn, branching: f64, x: u32, y: u32) -> HashSet<(u32, u32)> {
+    fn grow<T: Rng>(rng: &mut T,
+                    previous: &HashSet<(u32, u32)>,
+                    collides: CollisionFn,
+                    branching: f64,
+                    x: u32,
+                    y: u32) -> HashSet<(u32, u32)> {
         let branching_factor = (branching * 100.0) as u64;
+        let mut path: Vec<(u32, u32)> = Vec::new();
+        let mut all_paths: HashSet<(u32, u32)> = previous.clone();
         let all = vec!(Direction::North, Direction::East, Direction::South, Direction::West);
-        let mut path: HashSet<(u32, u32)> = HashSet::new();
-        let mut all_paths: HashSet<(u32, u32)> = positions.clone();
         let mut direction = rng.choose(all.as_slice()).unwrap().clone();
-        path.insert((x, y));
+        let sc = vec!((Direction::North, (0, 1)),
+                      (Direction::East, (1, 0)),
+                      (Direction::South, (0, -1)),
+                      (Direction::West, (-1, 0)));
+        path.push((x, y));
         all_paths.insert((x, y));
         while !path.is_empty() {
-            let &(x, y) = path.iter().next().unwrap();
-            let sx = x as i32;
-            let sy = y as i32;
-            let sc = vec!((Direction::North, (0, 1)),
-                          (Direction::East, (1, 0)),
-                          (Direction::South, (0, -1)),
-                          (Direction::West, (-1, 0)));
-            let uncarved: HashMap<Direction, (i32, i32)> = sc.iter().filter(|&&(_, (dir_x, dir_y))| {
-                let coord1 = ((sx + dir_x*1) as u32, (sy + dir_y*1) as u32);
-                let coord2 = ((sx + dir_x*2) as u32, (sy + dir_y*2) as u32);
-                let coord3 = ((sx + dir_x*3) as u32, (sy + dir_y*3) as u32);
+            let (x, y) = path[path.len()-1];
+            let coord_at = |(vx, vy): (i32, i32), n| ((x as i32 + vx*n) as u32, (y as i32 + vy*n) as u32);
+            let uncarved: HashMap<Direction, (i32, i32)> = sc.iter().filter(|&&(_, new_dir)| {
+                let coord1 = coord_at(new_dir, 1);
+                let coord2 = coord_at(new_dir, 2);
+                let coord3 = coord_at(new_dir, 3);
                 !all_paths.contains(&coord1) &&
                     !all_paths.contains(&coord2) &&
                     !all_paths.contains(&coord3) &&
@@ -84,23 +94,23 @@ impl Maze {
             }).cloned().collect();
             if !uncarved.is_empty() {
                 let same_direction = odds(rng, branching_factor, 100);
-                let (rel_x, rel_y) = if same_direction && uncarved.contains_key(&direction) {
+                let rel = if same_direction && uncarved.contains_key(&direction) {
                     uncarved[direction]
                 } else {
                     let (dir, coords) = uncarved.into_iter().next().unwrap();
                     direction = dir;
                     coords
                 };
-                let coord1 = ((sx + rel_x*1) as u32, (sy + rel_y*1) as u32);
-                let coord2 = ((sx + rel_x*2) as u32, (sy + rel_y*2) as u32);
-                path.insert(coord2);
+                let coord1 = coord_at(rel, 1);
+                let coord2 = coord_at(rel, 2);
                 all_paths.insert(coord1);
                 all_paths.insert(coord2);
+                path.push(coord2);
             } else {
-                path.remove(&(x, y));
+                path.pop();
             }
         }
-        all_paths
+        all_paths.difference(previous).cloned().collect()
     }
 }
 
@@ -112,16 +122,13 @@ impl Room {
         assert!(height >= h);
         let x: u32 = rng.gen_range(1, width - w);
         let y: u32 = rng.gen_range(1, height - h);
+        let make_odd = |n| if n % 2 == 0 { n - 1 } else { n };
         Room {
-            x: Room::make_odd(x),
-            y: Room::make_odd(y),
-            w: Room::make_odd(w),
-            h: Room::make_odd(h),
+            x: make_odd(x),
+            y: make_odd(y),
+            w: make_odd(w),
+            h: make_odd(h),
         }
-    }
-
-    fn make_odd(n: u32) -> u32 {
-        if n % 2 == 0 { n - 1 } else { n }
     }
 
     pub fn intersects(&self, rooms: &Vec<Room>) -> bool {
@@ -130,7 +137,7 @@ impl Room {
             let rh = r.y + r.h;
             let roomw = self.x + self.w;
             let roomh = self.y + self.h;
-            if roomw >= r.x && roomh >= r.y && self.x <= rw && self.y <= rh {
+            if roomw > r.x && roomh > r.y && self.x < rw && self.y < rh {
                 return true
             }
         }
@@ -140,7 +147,7 @@ impl Room {
     pub fn contains(&self, x: u32, y: u32) -> bool {
         let roomw = self.x + self.w;
         let roomh = self.y + self.h;
-        x >= self.x && x <= roomw && y >= self.y && y <= roomh
+        x >= self.x && x < roomw && y >= self.y && y < roomh
     }
 }
 
