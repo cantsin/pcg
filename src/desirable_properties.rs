@@ -100,7 +100,7 @@ impl Connector {
                         if lookup.contains_key(&coord) {
                             lookup[coord]
                         } else {
-                            region
+                            region // by design, at least two directions must fail
                         }
                     }).collect();
                     if regions.len() >= 2 {
@@ -112,6 +112,30 @@ impl Connector {
             }
         }
         connectors
+    }
+
+    pub fn merge<T: Rng>(rng: &mut T,
+                         connectors: &Vec<Connector>,
+                         mazes: &Vec<Maze>,
+                         rooms: &Vec<Room>) -> Vec<Connector> {
+        let mut current = connectors.clone();
+        let mut open: HashSet<u32> = HashSet::new();
+        for connector in connectors {
+            for region in connector.regions.clone() {
+                open.insert(region);
+            }
+        }
+        let mut merged_connectors: Vec<Connector> = Vec::new();
+        while open.len() > 1 {
+            // pick a random connector and region to merge
+            let index = rng.gen_range(0, current.len());
+            let connector = current.remove(index);
+            let regions: Vec<u32> = connector.regions.iter().cloned().collect();
+            merged_connectors.push(connector);
+            let region = rng.choose(regions.as_slice()).unwrap();
+            open.remove(region);
+        }
+        merged_connectors.clone()
     }
 }
 
@@ -292,7 +316,8 @@ impl Genotype for DesirableProperties {
             }
         }
         // find connectors
-        let connectors = Connector::find_all(&mazes, &rooms);
+        let all_connectors = Connector::find_all(&mazes, &rooms);
+        let connectors = Connector::merge(rng, &all_connectors, &mazes, &rooms);
         // remove dead ends
         DesirableProperties {
             seed: self.seed.clone(),
