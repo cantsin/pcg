@@ -121,19 +121,31 @@ impl Connector {
         let mut current = connectors.clone();
         let mut open: HashSet<u32> = HashSet::new();
         for connector in connectors {
-            for region in connector.regions.clone() {
-                open.insert(region);
-            }
+            open = open.union(&connector.regions.clone()).cloned().collect();
         }
         let mut merged_connectors: Vec<Connector> = Vec::new();
-        while open.len() > 1 {
-            // pick a random connector and region to merge
-            let index = rng.gen_range(0, current.len());
+        while current.len() > 1 {
+            // pick a random connector
+            let index = rng.gen_range(0, current.clone().len());
             let connector = current.remove(index);
-            let regions: Vec<u32> = connector.regions.iter().cloned().collect();
+            let regions = connector.regions.clone();
             merged_connectors.push(connector);
-            let region = rng.choose(regions.as_slice()).unwrap();
-            open.remove(region);
+            // actually merge.
+            for other_connector in current.iter_mut() {
+                // remove only if this connector already has all regions
+                let result: HashSet<u32> = other_connector.regions.union(&regions).cloned().collect();
+                if result.len() == regions.len() {
+                    other_connector.regions.clear();
+                }
+
+                // for other_region in regions.clone() {
+                //     other_connector.regions.remove(&other_region);
+                // }
+                //other_connector.regions.remove(&first);
+            }
+            // remove unnecessary connectors
+            current = current.iter().filter(|&c| c.regions.len() > 0).cloned().collect();
+            //open.remove(&first);
         }
         merged_connectors.clone()
     }
