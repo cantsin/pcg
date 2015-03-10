@@ -371,8 +371,10 @@ impl Genotype for DesirableProperties {
         let all_connectors = Connector::find_all(&mazes, &rooms);
         let filtered_connectors = Connector::merge(rng, &all_connectors);
         // remove dead ends
+        positions.clear();
         for maze in mazes.iter_mut() {
             maze.prune(&filtered_connectors);
+            positions = positions.union(&maze.path).cloned().collect();
         }
         let connectors: Vec<Connector> = filtered_connectors.iter().filter(|&c| {
             // must have at least two adjacent edges
