@@ -16,7 +16,6 @@ pub struct DesirableProperties {
     room_size: u32,
     doors: u32,
     monsters: u32,
-    path_length: u32,
     branching: f64,
     occupants: Vec<(Occupant, (u32, u32))>,
     rooms: Vec<Room>,
@@ -317,7 +316,6 @@ impl DesirableProperties {
         let room_size = config.get_integer(desirables, "room_size") as u32;
         let doors = config.get_integer(desirables, "doors") as u32;
         let monsters = config.get_integer(desirables, "monsters") as u32;
-        let path_length = config.get_integer(desirables, "path_length") as u32;
         let branching = config.get_float(desirables, "branching");
         assert!(room_number > 0);
         DesirableProperties {
@@ -326,7 +324,6 @@ impl DesirableProperties {
             room_number: room_number,
             doors: doors,
             monsters: monsters,
-            path_length: path_length,
             branching: branching,
             occupants: vec![],
             rooms: vec![],
@@ -406,7 +403,6 @@ impl Genotype for DesirableProperties {
             room_size: self.room_size,
             doors: self.doors,
             monsters: self.monsters,
-            path_length: self.path_length,
             branching: self.branching,
             occupants: occupants,
             rooms: rooms.clone(),

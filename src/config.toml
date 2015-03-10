@@ -102,5 +102,4 @@ room_number = 20
 room_size = 7
 doors = 5
 monsters = 20
-path_length = 10
 branching = 0.05
