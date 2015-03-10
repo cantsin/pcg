@@ -1,4 +1,4 @@
-use dungeon::{Dungeon};
+use dungeon::{Dungeon, SurroundingCells, Surrounding};
 use celloption::{Occupant};
 use genotype::{Genotype};
 use phenotype::{Seed};
@@ -432,7 +432,7 @@ impl Genotype for DesirableProperties {
             }
             // will overdraw, but that's OK.
             for (i, j) in room.border() {
-                dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
+                dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
             }
         }
         for maze in self.mazes.iter() {
@@ -441,9 +441,22 @@ impl Genotype for DesirableProperties {
                 dungeon.cells[x as usize][y as usize].tile = Some(floor.clone());
             }
         }
+        let mut door_number = 0;
         for connector in self.connectors.iter() {
             let (x, y) = connector.location;
-            dungeon.cells[x as usize][y as usize].tile = Some(door.clone());
+            if door_number < self.doors {
+                dungeon.cells[x as usize][y as usize].tile = Some(door.clone());
+                door_number += 1;
+            } else {
+                dungeon.cells[x as usize][y as usize].tile = Some(floor.clone());
+            }
+            // make sure connectors are accessible (not walled off)
+            let cell = dungeon.cells[x as usize][y as usize].clone();
+            for sc in SurroundingCells::new(&dungeon, &cell, Surrounding::AllDirections) {
+                if sc.has_attribute("wall") {
+                    dungeon.cells[sc.x as usize][sc.y as usize].tile = Some(floor.clone());
+                }
+            }
         }
         // entrance/exit, if applicable
         let entrance = self.seed.tiles.get("entrance").unwrap();
