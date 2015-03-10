@@ -122,12 +122,9 @@ impl Connector {
         }
         // lookup for merged regions
         let region_number = open.len();
-        let mut merged_lookup: Vec<u32> = Vec::new();
-        for i in range(0, region_number as u32) {
-            merged_lookup.push(i);
-        }
-        let mut current = connectors.clone();
+        let mut merged_lookup: Vec<u32> = range(0, region_number as u32).collect();
         let mut merged_connectors: Vec<Connector> = Vec::new();
+        let mut current = connectors.clone();
         while open.len() > 1 {
             // pick a random connector and region
             let connectors = current.clone();
@@ -214,6 +211,48 @@ impl Maze {
             }
         }
         all_paths.difference(previous).cloned().collect()
+    }
+
+    pub fn prune(&mut self, connectors: &Vec<Connector>) {
+        // given a maze, make sure there are no dead ends. we need to
+        // use connectors to make sure we don't have paths to other
+        // regions.
+        let coords: HashSet<(u32, u32)> = connectors.iter().map(|&ref c| c.location).collect();
+        let mut extraneous: HashSet<(u32, u32)> = HashSet::new();
+        for &coord in self.path.iter() {
+            let possibles: Vec<(u32, u32)> = CARDINALS.iter().map(|&(_, rel_dir)| scale(coord, rel_dir, 1)).collect();
+            // if we only have one exit, consider this coord extraneous
+            let exits = possibles.iter().fold(0, |accum, &c| {
+                if coords.contains(&c) || self.path.contains(&c) {
+                    accum + 1
+                } else {
+                    accum
+                }
+            });
+            if exits == 1 {
+                extraneous.insert(coord);
+            }
+        }
+        // follow the extraneous ends to their inevitable conclusion
+        let mut mod_path: HashSet<(u32, u32)> = self.path.difference(&extraneous).cloned().collect();
+        for coord in extraneous {
+            let mut new_coord = coord;
+            loop {
+                let paths: Vec<(u32, u32)> = CARDINALS
+                    .iter()
+                    .map(|&(_, rel_dir)| scale(new_coord, rel_dir, 1))
+                    .filter(|&c| coords.contains(&c) || mod_path.contains(&c))
+                    .collect();
+                match paths.len() {
+                    1 => {
+                        mod_path.remove(&new_coord);
+                        new_coord = paths[0];
+                    }
+                    _ => break
+                }
+            }
+        }
+        self.path = mod_path;
     }
 }
 
@@ -332,6 +371,9 @@ impl Genotype for DesirableProperties {
         let all_connectors = Connector::find_all(&mazes, &rooms);
         let connectors = Connector::merge(rng, &all_connectors);
         // remove dead ends
+        for maze in mazes.iter_mut() {
+            maze.prune(&connectors);
+        }
         DesirableProperties {
             seed: self.seed.clone(),
             room_number: self.room_number,
