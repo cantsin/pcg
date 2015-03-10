@@ -114,38 +114,39 @@ impl Connector {
         connectors
     }
 
-    pub fn merge<T: Rng>(rng: &mut T,
-                         connectors: &Vec<Connector>,
-                         mazes: &Vec<Maze>,
-                         rooms: &Vec<Room>) -> Vec<Connector> {
-        let mut current = connectors.clone();
+    pub fn merge<T: Rng>(rng: &mut T, connectors: &Vec<Connector>) -> Vec<Connector> {
+        // accumulate all of the regions
         let mut open: HashSet<u32> = HashSet::new();
         for connector in connectors {
             open = open.union(&connector.regions.clone()).cloned().collect();
         }
+        // lookup for merged regions
+        let region_number = open.len();
+        let mut merged_lookup: Vec<u32> = Vec::new();
+        for i in range(0, region_number as u32) {
+            merged_lookup.push(i);
+        }
+        let mut current = connectors.clone();
         let mut merged_connectors: Vec<Connector> = Vec::new();
-        while current.len() > 1 {
-            // pick a random connector
-            let index = rng.gen_range(0, current.clone().len());
-            let connector = current.remove(index);
-            let regions = connector.regions.clone();
-            merged_connectors.push(connector);
-            // actually merge.
-            for other_connector in current.iter_mut() {
-                // remove only if this connector already has all regions
-                let result: HashSet<u32> = other_connector.regions.union(&regions).cloned().collect();
-                if result.len() == regions.len() {
-                    other_connector.regions.clear();
+        while open.len() > 1 {
+            // pick a random connector and region
+            let connectors = current.clone();
+            let connector = rng.choose(connectors.as_slice()).unwrap();
+            let mut regions: Vec<u32> = connector.regions.iter().map(|&r| merged_lookup[r as usize]).collect();
+            let first = regions.pop().unwrap();
+            let rest: HashSet<u32> = regions.clone().iter().cloned().collect();
+            merged_connectors.push(connector.clone());
+            for i in range(0, region_number) {
+                if rest.contains(&merged_lookup[i]) {
+                    merged_lookup[i] = first;
                 }
-
-                // for other_region in regions.clone() {
-                //     other_connector.regions.remove(&other_region);
-                // }
-                //other_connector.regions.remove(&first);
             }
             // remove unnecessary connectors
-            current = current.iter().filter(|&c| c.regions.len() > 0).cloned().collect();
-            //open.remove(&first);
+            current = current.iter().filter(|&c| {
+                let regions: HashSet<u32> = c.regions.iter().map(|&r| merged_lookup[r as usize]).collect();
+                regions.len() > 1
+            }).cloned().collect();
+            open = open.difference(&rest).cloned().collect();
         }
         merged_connectors.clone()
     }
@@ -329,7 +330,7 @@ impl Genotype for DesirableProperties {
         }
         // find connectors
         let all_connectors = Connector::find_all(&mazes, &rooms);
-        let connectors = Connector::merge(rng, &all_connectors, &mazes, &rooms);
+        let connectors = Connector::merge(rng, &all_connectors);
         // remove dead ends
         DesirableProperties {
             seed: self.seed.clone(),
