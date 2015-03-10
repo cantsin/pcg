@@ -431,7 +431,7 @@ impl Genotype for DesirableProperties {
         for room in self.rooms.iter() {
             for i in range(room.x, room.x + room.w) {
                 for j in range(room.y, room.y + room.h) {
-                    dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
+                    dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
                 }
             }
             // will overdraw, but that's OK.
@@ -456,6 +456,14 @@ impl Genotype for DesirableProperties {
         let exit = self.seed.tiles.get("exit").unwrap();
         let (x, y) = self.exit;
         dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
+        // draw the occupants if their tile is not otherwise occupied.
+        for (occupant, coord) in self.occupants.clone() {
+            let x = coord.0 as usize;
+            let y = coord.1 as usize;
+            if dungeon.cells[x][y].has_attribute("floor") {
+                dungeon.cells[x][y].occupant = Some(occupant.clone());
+            }
+        }
         dungeon.clone()
     }
 }

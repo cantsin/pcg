@@ -22,7 +22,7 @@ impl Cell {
 
     pub fn has_attribute(&self, attribute: &str) -> bool {
         match self.tile {
-            None => true,
+            None => false,
             Some(ref t) => t.name() == attribute
         }
     }
