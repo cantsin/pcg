@@ -369,11 +369,21 @@ impl Genotype for DesirableProperties {
         }
         // find connectors
         let all_connectors = Connector::find_all(&mazes, &rooms);
-        let connectors = Connector::merge(rng, &all_connectors);
+        let filtered_connectors = Connector::merge(rng, &all_connectors);
         // remove dead ends
         for maze in mazes.iter_mut() {
-            maze.prune(&connectors);
+            maze.prune(&filtered_connectors);
         }
+        let connectors: Vec<Connector> = filtered_connectors.iter().filter(|&c| {
+            // must have at least two adjacent edges
+            let is_occupied = |(x, y)| rooms.clone().iter().fold(false, |accum, ref m| accum || m.contains(x, y));
+            let possibles: Vec<(u32, u32)> = CARDINALS
+                .iter()
+                .map(|&(_, rel_dir)| scale(c.location, rel_dir, 1))
+                .filter(|&new_coord| is_occupied(new_coord) || positions.contains(&new_coord))
+                .collect();
+            possibles.len() > 1
+        }).cloned().collect();
         DesirableProperties {
             seed: self.seed.clone(),
             room_number: self.room_number,
