@@ -22,6 +22,8 @@ pub struct DesirableProperties {
     rooms: Vec<Room>,
     mazes: Vec<Maze>,
     connectors: Vec<Connector>,
+    entrance: (u32, u32),
+    exit: (u32, u32),
 }
 
 #[derive(Clone, Debug)]
@@ -317,6 +319,7 @@ impl DesirableProperties {
         let monsters = config.get_integer(desirables, "monsters") as u32;
         let path_length = config.get_integer(desirables, "path_length") as u32;
         let branching = config.get_float(desirables, "branching");
+        assert!(room_number > 0);
         DesirableProperties {
             seed: seed.clone(),
             room_size: room_size,
@@ -329,6 +332,8 @@ impl DesirableProperties {
             rooms: vec![],
             mazes: vec![],
             connectors: vec![],
+            entrance: (0, 0),
+            exit: (0, 0),
         }
     }
 
@@ -386,6 +391,15 @@ impl Genotype for DesirableProperties {
                 .collect();
             possibles.len() > 1
         }).cloned().collect();
+        // randomly place entrance/exit in separate rooms
+        let result: Vec<(u32, u32)> = range(0, 2).map(|_| {
+            let ref room = rng.choose(rooms.as_slice()).unwrap();
+            let xw = room.x + room.w - 1;
+            let xh = room.y + room.h - 1;
+            (rng.gen_range(room.x, xw), rng.gen_range(room.y, xh))
+        }).collect();
+        let entrance = result[0];
+        let exit = result[1];
         DesirableProperties {
             seed: self.seed.clone(),
             room_number: self.room_number,
@@ -398,6 +412,8 @@ impl Genotype for DesirableProperties {
             rooms: rooms.clone(),
             mazes: mazes,
             connectors: connectors,
+            entrance: entrance,
+            exit: exit,
         }
     }
 
@@ -433,6 +449,13 @@ impl Genotype for DesirableProperties {
             let (x, y) = connector.location;
             dungeon.cells[x as usize][y as usize].tile = Some(door.clone());
         }
+        // entrance/exit, if applicable
+        let entrance = self.seed.tiles.get("entrance").unwrap();
+        let (x, y) = self.entrance;
+        dungeon.cells[x as usize][y as usize].tile = Some(entrance.clone());
+        let exit = self.seed.tiles.get("exit").unwrap();
+        let (x, y) = self.exit;
+        dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
         dungeon.clone()
     }
 }
