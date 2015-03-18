@@ -448,44 +448,44 @@ impl Genotype for DesirableProperties {
         for room in self.rooms.iter() {
             for i in range(room.x, room.x + room.w) {
                 for j in range(room.y, room.y + room.h) {
-                    dungeon.cells[i as usize][j as usize].tile = Some(floor.clone())
+                    dungeon.set_tile(i, j, &floor);
                 }
             }
             // will overdraw, but that's OK.
             for (i, j) in room.border() {
-                dungeon.cells[i as usize][j as usize].tile = Some(wall.clone())
+                dungeon.set_tile(i, j, &wall);
             }
         }
         for maze in self.mazes.iter() {
             for path in maze.path.iter() {
                 let (x, y): (u32, u32) = *path;
-                dungeon.cells[x as usize][y as usize].tile = Some(floor.clone());
+                dungeon.set_tile(x, y, &floor);
             }
         }
         let mut door_number = 0;
         for connector in self.connectors.iter() {
             let (x, y) = connector.location;
             if door_number < self.doors {
-                dungeon.cells[x as usize][y as usize].tile = Some(door.clone());
+                dungeon.set_tile(x, y, &door);
                 door_number += 1;
             } else {
-                dungeon.cells[x as usize][y as usize].tile = Some(floor.clone());
+                dungeon.set_tile(x, y, &floor);
             }
             // make sure connectors are accessible (not walled off)
             let cell = dungeon.cells[x as usize][y as usize].clone();
             for sc in SurroundingCells::new(&dungeon, &cell, Surrounding::AllDirections) {
                 if sc.has_attribute("wall") {
-                    dungeon.cells[sc.x as usize][sc.y as usize].tile = Some(floor.clone());
+                    dungeon.set_tile(sc.x, sc.y, &floor);
                 }
             }
         }
         // entrance/exit, if applicable
         let entrance = self.seed.tiles.get("entrance").unwrap();
         let (x, y) = self.entrance;
-        dungeon.cells[x as usize][y as usize].tile = Some(entrance.clone());
+        dungeon.set_tile(x, y, &entrance);
         let exit = self.seed.tiles.get("exit").unwrap();
         let (x, y) = self.exit;
-        dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
+        dungeon.set_tile(x, y, &exit);
         // draw the occupants if their tile is not otherwise occupied.
         for (occupant, coord) in self.occupants.clone() {
             let x = coord.0 as usize;

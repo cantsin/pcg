@@ -28,6 +28,10 @@ impl Dungeon {
     pub fn in_bounds(&self, x: i32, y: i32) -> bool {
         x >= 0 && x < self.width as i32 && y >= 0 && y < self.height as i32
     }
+
+    pub fn set_tile(&mut self, x: u32, y: u32, tile: &Tile) {
+        self.cells[x as usize][y as usize].tile = Some(tile.clone());
+    }
 }
 
 // external iterator.

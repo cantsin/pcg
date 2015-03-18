@@ -130,19 +130,19 @@ impl Genotype for ListOfWalls {
                 if dungeon.in_bounds(x, y) {
                     match wall.door {
                         Some((dx, dy)) if dx == x && dy == y =>
-                            dungeon.cells[x as usize][y as usize].tile = Some(door_tile.clone()),
+                            dungeon.set_tile(x as u32, y as u32, &door_tile),
                         _ =>
-                            dungeon.cells[x as usize][y as usize].tile = Some(wall_tile.clone())
+                            dungeon.set_tile(x as u32, y as u32, &wall_tile)
                     }
                 }
             }
         }
         let entrance = self.seed.tiles.get("entrance").unwrap();
         let (x, y) = self.entrance;
-        dungeon.cells[x as usize][y as usize].tile = Some(entrance.clone());
+        dungeon.set_tile(x, y, &entrance);
         let exit = self.seed.tiles.get("exit").unwrap();
         let (x, y) = self.exit;
-        dungeon.cells[x as usize][y as usize].tile = Some(exit.clone());
+        dungeon.set_tile(x, y, &exit);
         // draw the occupants if their tile is not otherwise occupied.
         for (occupant, coord) in self.occupants.clone() {
             let x = coord.0 as usize;

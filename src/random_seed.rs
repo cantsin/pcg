@@ -28,7 +28,7 @@ impl Genotype for RandomSeed {
                 let tile = self.seed.tiles.choose(&mut rng).clone();
                 let occupant = self.seed.random_occupant(&mut rng, &tile);
                 dungeon.cells[i][j].occupant = occupant;
-                dungeon.cells[i][j].tile = Some(tile);
+                dungeon.set_tile(i as u32, j as u32, &tile);
             }
         }
         dungeon.clone()
