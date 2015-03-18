@@ -334,26 +334,11 @@ impl DesirableProperties {
         }
     }
 
-}
-
-impl Genotype for DesirableProperties {
-    fn initialize<T: Rng>(&self, rng: &mut T) -> DesirableProperties {
+    pub fn build<T: Rng>(&self, rng: &mut T, rooms: Vec<Room>, current_region: u32) -> DesirableProperties {
         let w = self.seed.width;
         let h = self.seed.height;
         let occupants = self.seed.random_occupants(rng).iter().take(self.monsters as usize).cloned().collect();
-        let mut region = 0;
-        // randomly generate rooms
-        let mut rooms = vec![];
-        for _ in range(0, self.room_number) {
-            for _ in range(0, 10) {
-                let room = Room::random(rng, w, h, self.room_size, region);
-                if !room.intersects(&rooms) {
-                    rooms.push(room);
-                    region += 1;
-                    break;
-                }
-            }
-        }
+        let mut region = current_region;
         // fill in mazes
         let mut mazes = vec![];
         let mut positions: HashSet<(u32, u32)> = HashSet::new();
@@ -412,9 +397,28 @@ impl Genotype for DesirableProperties {
             exit: exit,
         }
     }
+}
 
-    fn mutate<T: Rng>(&mut self, _: &mut T, _: f64) {
-        // mutate a certain % of the rooms and start again
+impl Genotype for DesirableProperties {
+    fn initialize<T: Rng>(&self, rng: &mut T) -> DesirableProperties {
+        // randomly generate all rooms
+        let mut region = 0;
+        let mut rooms = vec![];
+        for _ in range(0, self.room_number) {
+            for _ in range(0, 10) {
+                let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, region);
+                if !room.intersects(&rooms) {
+                    rooms.push(room);
+                    region += 1;
+                    break;
+                }
+            }
+        }
+        self.build(rng, rooms, region)
+    }
+
+    fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
+        // mutate a certain % of the rooms
     }
 
     fn generate(&self) -> Dungeon {
