@@ -8,7 +8,7 @@ use celloption::{Tile, Occupant};
 pub struct Dungeon {
     pub width: usize,
     pub height: usize,
-    pub cells: Vec<Vec<Cell>>
+    cells: Vec<Vec<Cell>>
 }
 
 impl Dungeon {
@@ -38,8 +38,12 @@ impl Dungeon {
         self.cells[x as usize][y as usize].occupant = Some(occupant.clone());
     }
 
-    pub fn has_attribute(&mut self, x: u32, y: u32, attribute: &str) -> bool {
+    pub fn has_attribute(&self, x: u32, y: u32, attribute: &str) -> bool {
         self.cells[x as usize][y as usize].has_attribute(attribute)
+    }
+
+    pub fn is_empty(&self, x: u32, y: u32) -> bool {
+        self.cells[x as usize][y as usize].is_empty()
     }
 }
 
@@ -94,7 +98,8 @@ pub enum Surrounding {
 }
 
 impl SurroundingCells {
-    pub fn new(dungeon: &Dungeon, cell: &Cell, around: Surrounding) -> SurroundingCells {
+    pub fn new(dungeon: &Dungeon, x: u32, y: u32, around: Surrounding) -> SurroundingCells {
+        let ref cell = dungeon.cells[x as usize][y as usize];
         let x = cell.x as i32;
         let y = cell.y as i32;
         // clockwise, starting from the top

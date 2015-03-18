@@ -472,8 +472,7 @@ impl Genotype for DesirableProperties {
                 dungeon.set_tile(x, y, &floor);
             }
             // make sure connectors are accessible (not walled off)
-            let cell = dungeon.cells[x as usize][y as usize].clone();
-            for sc in SurroundingCells::new(&dungeon, &cell, Surrounding::AllDirections) {
+            for sc in SurroundingCells::new(&dungeon, x, y, Surrounding::AllDirections) {
                 if sc.has_attribute("wall") {
                     dungeon.set_tile(sc.x, sc.y, &floor);
                 }

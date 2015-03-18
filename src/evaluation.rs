@@ -7,11 +7,10 @@ pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
 
 pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
-            let ref cell = dungeon.cells[i][j];
-            if cell.is_empty() {
-                let sc = SurroundingCells::new(dungeon, cell, Surrounding::Cardinal);
+    for i in 0..dungeon.width as u32 {
+        for j in 0..dungeon.height as u32 {
+            if dungeon.is_empty(i, j) {
+                let sc = SurroundingCells::new(dungeon, i, j, Surrounding::Cardinal);
                 // check to see if all walls surround us.
                 let surrounded = sc.fold(true, |accum, c| accum && !c.is_empty());
                 if surrounded {
@@ -26,13 +25,12 @@ pub fn check_1x1_rooms(dungeon: &Dungeon) -> f64 {
 pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
     let mut has_entrance = false;
     let mut has_exit = false;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
-            let ref cell = dungeon.cells[i][j];
-            if cell.has_attribute("entrance") {
+    for i in 0..dungeon.width as u32 {
+        for j in 0..dungeon.height as u32 {
+            if dungeon.has_attribute(i, j, "entrance") {
                 has_entrance = true;
             }
-            if cell.has_attribute("exit") {
+            if dungeon.has_attribute(i, j, "exit") {
                 has_exit = true;
             }
         }
@@ -47,13 +45,12 @@ pub fn has_entrance_exit(dungeon: &Dungeon) -> f64 {
 
 pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
     let mut hits = 0;
-    for i in 0..dungeon.width {
-        for j in 0..dungeon.height {
-            let ref cell = dungeon.cells[i][j];
+    for i in 0..dungeon.width as u32 {
+        for j in 0..dungeon.height as u32 {
             // check to see if doors have exactly two walls or gaps abutting them
-            if cell.has_attribute("door") {
+            if dungeon.has_attribute(i, j, "door") {
                 let mut count = 0;
-                for sc in SurroundingCells::new(dungeon, cell, Surrounding::Cardinal) {
+                for sc in SurroundingCells::new(dungeon, i, j, Surrounding::Cardinal) {
                     if sc.tile.is_none() || sc.has_attribute("wall") {
                         count += 1;
                     }
@@ -76,11 +73,10 @@ fn is_accessible(cell: &Cell) -> bool {
 
 // recursively traverse the dungeon (depth-first)
 fn search(dungeon: &Dungeon, visited: &Coords, x: u32, y: u32) -> Coords {
-    let ref cell = dungeon.cells[x as usize][y as usize];
     let mut local = visited.clone();
     assert!(!local.contains(&(x, y)));
     local.insert((x, y));
-    for sc in SurroundingCells::new(dungeon, cell, Surrounding::AllDirections) {
+    for sc in SurroundingCells::new(dungeon, x, y, Surrounding::AllDirections) {
         let new_x = sc.x;
         let new_y = sc.y;
         if is_accessible(&sc) && !local.contains(&(new_x, new_y)) {
