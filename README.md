@@ -7,6 +7,9 @@ I also follow the [PCG Book](http://pcgbook.com/) as a rough guideline for ideas
 Sample results:
 
 A random phenotype: ![Random Phenotype](/screenshots/random-sample.png)
+
 A "list of walls" phenotype: ![List of Walls Phenotype](/screenshots/list-of-walls-sample.png)
-A "wall pattern" phenotype: ![Wall Pattern Phenotype](/screenshots/wall-pattern-sample.png)
+
+A "wall pattern" phenotype: ![Wall Pattern Phenotype](/screenshots/wall-patterns-sample.png)
+
 A "desirable properties" phenotype: ![Desirable Properties Phenotype](/screenshots/desirable-properties-sample.png)
