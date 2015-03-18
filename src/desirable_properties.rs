@@ -419,6 +419,23 @@ impl Genotype for DesirableProperties {
 
     fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
         // mutate a certain % of the rooms
+        let length = self.rooms.len();
+        let n = (length as f64 * percentage) as u32;
+        for _ in range(0, n) {
+            let index = rng.gen_range(0, n);
+            for _ in range(0, 10) {
+                let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, index);
+                if !room.intersects(&self.rooms) {
+                    self.rooms[index as usize] = room;
+                    break;
+                }
+            }
+        }
+        let result = self.build(rng, self.rooms.clone(), length as u32);
+        self.mazes = result.mazes;
+        self.connectors = result.connectors;
+        self.entrance = result.entrance;
+        self.exit = result.exit;
     }
 
     fn generate(&self) -> Dungeon {
