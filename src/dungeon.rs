@@ -2,7 +2,7 @@ use std::vec::{Vec};
 use std::iter::{Iterator, range};
 
 use cell::{Cell};
-use celloption::{Tile};
+use celloption::{Tile, Occupant};
 
 #[derive(Clone, Debug)]
 pub struct Dungeon {
@@ -29,8 +29,17 @@ impl Dungeon {
         x >= 0 && x < self.width as i32 && y >= 0 && y < self.height as i32
     }
 
+    // these methods proxy to self.cells.
     pub fn set_tile(&mut self, x: u32, y: u32, tile: &Tile) {
         self.cells[x as usize][y as usize].tile = Some(tile.clone());
+    }
+
+    pub fn set_occupant(&mut self, x: u32, y: u32, occupant: &Occupant) {
+        self.cells[x as usize][y as usize].occupant = Some(occupant.clone());
+    }
+
+    pub fn has_attribute(&mut self, x: u32, y: u32, attribute: &str) -> bool {
+        self.cells[x as usize][y as usize].has_attribute(attribute)
     }
 }
 

@@ -122,10 +122,10 @@ impl Genotype for WallPatterns {
         }
         // draw the occupants if their tile is not otherwise occupied.
         for (occupant, coord) in self.occupants.clone() {
-            let x = coord.0 as usize;
-            let y = coord.1 as usize;
-            if dungeon.cells[x][y].has_attribute("floor") {
-                dungeon.cells[x][y].occupant = Some(occupant.clone());
+            let x = coord.0;
+            let y = coord.1;
+            if dungeon.has_attribute(x, y, "floor") {
+                dungeon.set_occupant(x, y, &occupant);
             }
         }
         dungeon.clone()
