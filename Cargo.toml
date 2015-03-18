@@ -1,6 +1,6 @@
 [package]
 name = "pcg"
-version = "0.0.1"
+version = "0.2.0" # reflects current chapter
 authors = ["James Tranovich <jtranovich@gmail.com>"]
 
 [dependencies]
