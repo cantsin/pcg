@@ -116,8 +116,9 @@ impl Genotype for WallPatterns {
                 // here, we have to invert due to a mismatch between how we draw the patterns and opengl coords
                 let inner_y = self.pattern_height - (j % self.pattern_height) - 1;
                 let tile_index = inner_y * self.pattern_width + inner_x;
-                let tile = pattern.pattern[tile_index as usize].clone().unwrap();
-                dungeon.set_tile(i, j, &tile);
+                if let Some(tile) = pattern.pattern[tile_index as usize].clone() {
+                    dungeon.set_tile(i, j, &tile);
+                }
             }
         }
         // draw the occupants if their tile is not otherwise occupied.
