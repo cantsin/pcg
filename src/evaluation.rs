@@ -50,11 +50,11 @@ pub fn doors_are_useful(dungeon: &Dungeon) -> f64 {
     for i in 0..dungeon.width {
         for j in 0..dungeon.height {
             let ref cell = dungeon.cells[i][j];
-            // check to see if doors have exactly two walls abutting them
+            // check to see if doors have exactly two walls or gaps abutting them
             if cell.has_attribute("door") {
                 let mut count = 0;
                 for sc in SurroundingCells::new(dungeon, cell, Surrounding::Cardinal) {
-                    if sc.has_attribute("wall") {
+                    if sc.tile.is_none() || sc.has_attribute("wall") {
                         count += 1;
                     }
                 }
