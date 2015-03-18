@@ -94,8 +94,9 @@ impl Genotype for WallPatterns {
         let length = self.patterns.len();
         let n = (length as f64 * percentage) as u32;
         for _ in range(0, n) {
-            let index = rng.gen_range(1, length);
-            self.indices[index] = index;
+            let index = rng.gen_range(0, length);
+            let val = rng.gen_range(0, length);
+            self.indices[index] = val;
         }
         self.occupants = self.seed.random_occupants(rng);
     }
@@ -111,6 +112,7 @@ impl Genotype for WallPatterns {
             let inner_x = i % self.pattern_width;
             for j in 0..h {
                 let y: u32 = j / self.pattern_height;
+                // NB: patterns will show up when # of patterns is not enough to tile the whole area
                 let index = self.indices[(y * self.pattern_width + x) as usize % n];
                 let ref pattern = self.patterns[index];
                 // here, we have to invert due to a mismatch between how we draw the patterns and opengl coords

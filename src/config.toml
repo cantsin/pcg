@@ -96,6 +96,21 @@ rand4 = ["__X__",
          "XXX__",
          "__XX_",
          "___X_"]
+rand5 = ["X____",
+         "X___X",
+         "X____",
+         "___X_",
+         "___X_"]
+rand6 = ["XXXX_",
+         "X__X_",
+         "X__X_",
+         "XdXX_",
+         "_____"]
+rand7 = ["_X___",
+         "__X__",
+         "__X__",
+         "___X_",
+         "XX___"]
 
 [desirable_patterns]
 room_number = 20
