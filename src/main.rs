@@ -37,7 +37,7 @@ mod text;
 mod phenotype;
 
 use opengl_graphics::{Gl};
-use graphics::{color};
+use graphics::{RelativeTransform, color};
 use sdl2_window::{Sdl2Window};
 use window::{WindowSettings};
 use input::Button::{Keyboard};
@@ -151,7 +151,7 @@ fn main() {
             let result = mulambda.run();
             result.into_iter().map(|(individual, statistic)| (individual.generate(), statistic)).collect()
         }}
-    );
+        );
     let winners: Vec<(Dungeon, Statistic)> = match strategy {
         "RandomSeed" => {
             let genotype = RandomSeed::new(&seed);
@@ -194,7 +194,7 @@ fn main() {
                         sprite.draw(gl, x, y, seconds);
                     }
                     None => {
-                         Sprite::missing(gl, x, y, tile_width, tile_height);
+                        Sprite::missing(gl, x, y, tile_width, tile_height);
                     }
                 }
                 match cell.occupant {
@@ -209,7 +209,10 @@ fn main() {
                                choice,
                                statistic.iteration,
                                statistic.fitness);
-            render_text(&mut face, gl, 10, 10, info.as_slice());
+            gl.draw([0, 0, window_width as i32, window_height as i32], |c, gl| {
+                let transform = c.transform.trans(10.0, 10.0);
+                render_text(&mut face, gl, transform, info.as_slice());
+            });
         });
 
         if let Some(Keyboard(key)) = e.press_args() {

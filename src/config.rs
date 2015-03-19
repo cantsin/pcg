@@ -1,7 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::io::{Read};
 use std::fs::{File};
-use std::slice::{SliceExt};
 use std::collections::{HashMap, HashSet};
 use toml::{Parser, Value, Table, decode};
 use rustc_serialize::{Decodable};

@@ -1,7 +1,6 @@
 use std::fs::{PathExt};
 use std::path::{Path, PathBuf};
 use std::old_path::Path as OldPath;
-use std::slice::{SliceExt};
 use std::collections::{HashMap};
 use std::rc::{Rc};
 use opengl_graphics::{Texture};
