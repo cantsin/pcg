@@ -5,7 +5,6 @@ use phenotype::{Seed};
 use config::{Config};
 use util::{odds};
 
-use std::iter::{range_step};
 use std::collections::{HashMap, HashSet};
 use rand::{Rng};
 
@@ -123,7 +122,7 @@ impl Connector {
         }
         // lookup for merged regions
         let region_number = open.len();
-        let mut merged_lookup: Vec<u32> = range(0, region_number as u32).collect();
+        let mut merged_lookup: Vec<u32> = (0..region_number as u32).collect();
         let mut merged_connectors: Vec<Connector> = Vec::new();
         let mut current = connectors.clone();
         while open.len() > 1 {
@@ -134,7 +133,7 @@ impl Connector {
             let first = regions.pop().unwrap();
             let rest: HashSet<u32> = regions.clone().iter().cloned().collect();
             merged_connectors.push(connector.clone());
-            for i in range(0, region_number) {
+            for i in (0..region_number) {
                 if rest.contains(&merged_lookup[i]) {
                     merged_lookup[i] = first;
                 }
@@ -296,11 +295,11 @@ impl Room {
 
     pub fn border(&self) -> Vec<(u32, u32)> {
         let mut surrounding = vec![];
-        for i in range(0, self.w) {
+        for i in (0..self.w) {
             surrounding.push(((self.x + i), self.y));
             surrounding.push(((self.x + i), self.y + self.h - 1));
         }
-        for i in range(0, self.h) {
+        for i in (0..self.h) {
             surrounding.push((self.x, self.y + i));
             surrounding.push((self.x + self.w - 1, self.y + i));
         }
@@ -343,8 +342,8 @@ impl DesirableProperties {
         let mut mazes = vec![];
         let mut positions: HashSet<(u32, u32)> = HashSet::new();
         let is_occupied = |x, y| rooms.clone().iter().fold(false, |accum, ref m| accum || m.contains(x, y));
-        for x in range_step(1, w, 2) {
-            for y in range_step(1, h, 2) {
+        for x in (1..w).step_by(2) {
+            for y in (1..h).step_by(2) {
                 if !is_occupied(x, y) && !positions.contains(&(x, y)) {
                     let collides: CollisionFn = box |&(cx, cy)| cx >= w || cy >= h || is_occupied(cx, cy);
                     let maze = Maze::new(rng, &positions, collides, self.branching, region, x, y);
@@ -374,7 +373,7 @@ impl DesirableProperties {
             possibles.len() > 1
         }).cloned().collect();
         // randomly place entrance/exit in separate rooms
-        let result: Vec<(u32, u32)> = range(0, 2).map(|_| {
+        let result: Vec<(u32, u32)> = (0..2).map(|_| {
             let ref room = rng.choose(rooms.as_slice()).unwrap();
             let xw = room.x + room.w - 1;
             let xh = room.y + room.h - 1;
@@ -404,8 +403,8 @@ impl Genotype for DesirableProperties {
         // randomly generate all rooms
         let mut region = 0;
         let mut rooms = vec![];
-        for _ in range(0, self.room_number) {
-            for _ in range(0, 10) {
+        for _ in (0..self.room_number) {
+            for _ in (0..10) {
                 let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, region);
                 if !room.intersects(&rooms) {
                     rooms.push(room);
@@ -421,9 +420,9 @@ impl Genotype for DesirableProperties {
         // mutate a certain % of the rooms
         let length = self.rooms.len();
         let n = (length as f64 * percentage) as u32;
-        for _ in range(0, n) {
+        for _ in (0..n) {
             let index = rng.gen_range(0, n);
-            for _ in range(0, 10) {
+            for _ in (0..10) {
                 let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, index);
                 if !room.intersects(&self.rooms) {
                     self.rooms[index as usize] = room;
@@ -446,8 +445,8 @@ impl Genotype for DesirableProperties {
         let door = self.seed.tiles.get("door").unwrap();
         let floor = self.seed.tiles.get("floor").unwrap();
         for room in self.rooms.iter() {
-            for i in range(room.x, room.x + room.w) {
-                for j in range(room.y, room.y + room.h) {
+            for i in (room.x..room.x + room.w) {
+                for j in (room.y..room.y + room.h) {
                     dungeon.set_tile(i, j, &floor);
                 }
             }

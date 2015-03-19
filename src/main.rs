@@ -1,4 +1,4 @@
-#![feature(os, io, fs, path, old_path, core, box_syntax, collections)]
+#![feature(os, step_by, old_path, path_ext, core, box_syntax, collections)]
 #![forbid(unused_typecasts)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]

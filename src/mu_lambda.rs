@@ -43,7 +43,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
     pub fn run(&mut self) -> Vec<(G, Statistic)> {
         let total = self.mu + self.lambda;
         let mut rng = thread_rng();
-        let mut primer: Vec<(G, Statistic)> = range(0, total).map(|_| {
+        let mut primer: Vec<(G, Statistic)> = (0..total).map(|_| {
             (self.genotype.initialize(&mut rng), Statistic::empty())
         }).collect();
         // for each iteration except the last, do a full generation life-cycle.
@@ -75,7 +75,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
                 sender.send((individual, statistic)).unwrap();
             });
         }
-        let mut colony: Vec<(G, Statistic)> = range(0, n).map(|_| rx.recv().unwrap()).collect();
+        let mut colony: Vec<(G, Statistic)> = (0..n).map(|_| rx.recv().unwrap()).collect();
         // sort by fitness
         colony.sort_by(|&(_, ref i1), &(_, ref i2)| {
             match i1.fitness.partial_cmp(&i2.fitness) {

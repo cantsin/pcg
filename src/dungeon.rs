@@ -1,5 +1,5 @@
 use std::vec::{Vec};
-use std::iter::{Iterator, range};
+use std::iter::{Iterator};
 
 use cell::{Cell};
 use celloption::{Tile, Occupant};
@@ -13,8 +13,8 @@ pub struct Dungeon {
 
 impl Dungeon {
     pub fn new(width: u32, height: u32, tile: Option<Tile>) -> Dungeon {
-        let cells = range(0, width).map(|i| {
-            range(0, height).map(|j| {
+        let cells = (0..width).map(|i| {
+            (0..height).map(|j| {
                 Cell::new(i, j, tile.clone())
             }).collect()
         }).collect();

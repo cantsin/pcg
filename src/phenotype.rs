@@ -47,7 +47,7 @@ impl Seed {
     pub fn random_occupants<R: Rng>(&self, rng: &mut R) -> Vec<(Occupant, (u32, u32))>{
         let n = (self.width * self.height) as f64;
         let percentage = (self.occupant_chance * n) as u64;
-        range(0, percentage).map(|_| {
+        (0..percentage).map(|_| {
             let x = rng.gen_range(1, self.width);
             let y = rng.gen_range(1, self.height);
             let o = self.occupants.choose(rng).clone();

@@ -82,7 +82,7 @@ impl Genotype for ListOfWalls {
         let door_chance = (self.door_chance * 100.0) as u64;
         let percentage = (100.0 - self.coverage * 100.0) as u32;
         let n = w * h / percentage;
-        let walls = range(0, n).map(|_| {
+        let walls = (0..n).map(|_| {
             Wall::random(rng, w, h, door_chance)
         }).collect();
         // don't worry about collisions, just plop them down somewhere.
@@ -105,7 +105,7 @@ impl Genotype for ListOfWalls {
         let h = self.seed.height;
         let length = self.walls.len();
         let n = (length as f64 * percentage) as u32;
-        for _ in range(0, n) {
+        for _ in (0..n) {
             let index = rng.gen_range(1, length);
             let door_chance = (self.door_chance * 100.0) as u64;
             let wall = Wall::random(rng, w, h, door_chance);
@@ -124,7 +124,7 @@ impl Genotype for ListOfWalls {
         for wall in self.walls.iter() {
             let mut x = wall.x as i32;
             let mut y = wall.y as i32;
-            for _ in range(0, wall.length) {
+            for _ in (0..wall.length) {
                 x += wall.xstep;
                 y += wall.ystep;
                 if dungeon.in_bounds(x, y) {
