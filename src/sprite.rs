@@ -65,8 +65,8 @@ impl SpriteRect {
             rectangle: None,
             source_rectangle: Some([self.x * self.w,
                                     self.y * self.h,
-                                    self.w,
-                                    self.h])
+                                    self.x * self.w + self.w * 64,
+                                    self.y * self.h + self.h * 64])
         }
     }
 }
