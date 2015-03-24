@@ -18,23 +18,28 @@ extern crate threadpool;
 extern crate quack;
 extern crate "rustc-serialize" as rustc_serialize;
 
-mod util;
-mod config;
-mod sprite;
-mod spritesheet;
-mod dungeon;
-mod cell;
-mod celloption;
-mod genotype;
-mod statistics;
-mod mu_lambda;
-mod evaluation;
-mod random_seed;
-mod list_of_walls;
-mod wall_patterns;
-mod desirable_properties;
-mod text;
-mod phenotype;
+pub mod util {
+    pub mod util;
+    pub mod config;
+    pub mod sprite;
+    pub mod spritesheet;
+    pub mod text;
+}
+
+pub mod chapter2 {
+    pub mod dungeon;
+    pub mod cell;
+    pub mod celloption;
+    pub mod genotype;
+    pub mod statistics;
+    pub mod mu_lambda;
+    pub mod evaluation;
+    pub mod random_seed;
+    pub mod list_of_walls;
+    pub mod wall_patterns;
+    pub mod desirable_properties;
+    pub mod phenotype;
+}
 
 use opengl_graphics::{Gl};
 use graphics::{RelativeTransform, color};
@@ -50,21 +55,22 @@ use std::cell::{RefCell};
 use std::path::{Path};
 use std::old_path::Path as OldPath;
 
-use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
-use spritesheet::{SpriteSheet};
-use sprite::{Sprite};
-use dungeon::{Dungeon, DungeonCells};
-use config::{Config};
-use genotype::{Genotype};
-use random_seed::{RandomSeed};
-use list_of_walls::{ListOfWalls};
-use wall_patterns::{WallPatterns};
-use desirable_properties::{DesirableProperties};
-use mu_lambda::{MuLambda};
-use evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful, rooms_are_accessible};
-use text::{render_text};
-use phenotype::{Seed};
-use statistics::{Statistic};
+use chapter2::celloption::{CellOptions, CellOption, Tile, Item, Occupant};
+use chapter2::dungeon::{Dungeon, DungeonCells};
+use chapter2::genotype::{Genotype};
+use chapter2::random_seed::{RandomSeed};
+use chapter2::list_of_walls::{ListOfWalls};
+use chapter2::wall_patterns::{WallPatterns};
+use chapter2::desirable_properties::{DesirableProperties};
+use chapter2::mu_lambda::{MuLambda};
+use chapter2::evaluation::{EvaluationFn, check_1x1_rooms, has_entrance_exit, doors_are_useful, rooms_are_accessible};
+use chapter2::phenotype::{Seed};
+use chapter2::statistics::{Statistic};
+
+use util::spritesheet::{SpriteSheet};
+use util::text::{render_text};
+use util::sprite::{Sprite};
+use util::config::{Config};
 
 const TOML_CONFIG: &'static str = "src/config.toml";
 

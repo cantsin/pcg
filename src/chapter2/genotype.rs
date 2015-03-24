@@ -1,5 +1,5 @@
-use dungeon::{Dungeon};
-use evaluation::{EvaluationFn};
+use chapter2::dungeon::{Dungeon};
+use chapter2::evaluation::{EvaluationFn};
 
 use rand::{Rng};
 

@@ -1,8 +1,8 @@
-use dungeon::{Dungeon};
-use celloption::{Tile, Occupant};
-use genotype::{Genotype};
-use phenotype::{Seed};
-use config::{Config};
+use chapter2::dungeon::{Dungeon};
+use chapter2::celloption::{Tile, Occupant};
+use chapter2::genotype::{Genotype};
+use chapter2::phenotype::{Seed};
+use util::config::{Config};
 
 use std::collections::{HashMap};
 use rand::{Rng};

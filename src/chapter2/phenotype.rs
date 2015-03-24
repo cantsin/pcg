@@ -1,7 +1,7 @@
-use dungeon::{Dungeon};
-use statistics::{Statistic};
-use celloption::{CellOptions, CellOption, Tile, Item, Occupant};
-use util::{odds};
+use chapter2::dungeon::{Dungeon};
+use chapter2::statistics::{Statistic};
+use chapter2::celloption::{CellOptions, CellOption, Tile, Item, Occupant};
+use util::util::{odds};
 
 use rand::{Rng};
 

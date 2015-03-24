@@ -1,6 +1,6 @@
-use dungeon::{Dungeon};
-use genotype::{Genotype};
-use phenotype::{Seed};
+use chapter2::dungeon::{Dungeon};
+use chapter2::genotype::{Genotype};
+use chapter2::phenotype::{Seed};
 
 use rand::{Rng, thread_rng};
 

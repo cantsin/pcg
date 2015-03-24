@@ -1,9 +1,9 @@
-use dungeon::{Dungeon};
-use celloption::{Occupant};
-use genotype::{Genotype};
-use phenotype::{Seed};
-use config::{Config};
-use util::{odds};
+use chapter2::dungeon::{Dungeon};
+use chapter2::celloption::{Occupant};
+use chapter2::genotype::{Genotype};
+use chapter2::phenotype::{Seed};
+use util::config::{Config};
+use util::util::{odds};
 
 use std::num::{Float};
 use rand::{Rng};

@@ -1,4 +1,4 @@
-use celloption::{CellOption, Tile, Occupant, Item};
+use chapter2::celloption::{CellOption, Tile, Occupant, Item};
 
 #[derive(Clone, Debug)]
 pub struct Cell {

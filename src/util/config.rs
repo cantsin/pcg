@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 use toml::{Parser, Value, Table, decode};
 use rustc_serialize::{Decodable};
 
-use sprite::{SpriteRect};
+use util::sprite::{SpriteRect};
 
 pub struct Config {
     content: Table

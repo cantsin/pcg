@@ -3,10 +3,10 @@ use std::sync::{mpsc, Arc};
 use rand::{Rng, thread_rng};
 use threadpool::{ThreadPool};
 
-use evaluation::{EvaluationFn};
-use genotype::{Genotype};
-use statistics::{Statistic};
-use util::{shuffle};
+use chapter2::evaluation::{EvaluationFn};
+use chapter2::genotype::{Genotype};
+use chapter2::statistics::{Statistic};
+use util::util::{shuffle};
 
 pub struct MuLambda<G: Genotype> {
     threads: usize,

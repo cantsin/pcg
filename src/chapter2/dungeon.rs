@@ -1,8 +1,8 @@
 use std::vec::{Vec};
 use std::iter::{Iterator};
 
-use cell::{Cell};
-use celloption::{Tile, Occupant};
+use chapter2::cell::{Cell};
+use chapter2::celloption::{Tile, Occupant};
 
 #[derive(Clone, Debug)]
 pub struct Dungeon {

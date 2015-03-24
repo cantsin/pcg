@@ -1,9 +1,9 @@
-use dungeon::{Dungeon, SurroundingCells, Surrounding};
-use celloption::{Occupant};
-use genotype::{Genotype};
-use phenotype::{Seed};
-use config::{Config};
-use util::{odds};
+use chapter2::dungeon::{Dungeon, SurroundingCells, Surrounding};
+use chapter2::celloption::{Occupant};
+use chapter2::genotype::{Genotype};
+use chapter2::phenotype::{Seed};
+use util::config::{Config};
+use util::util::{odds};
 
 use std::collections::{HashMap, HashSet};
 use rand::{Rng};
@@ -25,7 +25,7 @@ pub struct DesirableProperties {
 }
 
 #[derive(Clone, Debug)]
-struct Room {
+pub struct Room {
     x: u32,
     y: u32,
     w: u32,

@@ -5,8 +5,8 @@ use std::collections::{HashMap};
 use std::rc::{Rc};
 use opengl_graphics::{Texture};
 
-use config::{SpriteConfig};
-use sprite::{Sprite};
+use util::config::{SpriteConfig};
+use util::sprite::{Sprite};
 
 pub struct SpriteSheet {
     pub sprites: HashMap<String, Sprite>

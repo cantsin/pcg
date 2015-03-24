@@ -1,7 +1,7 @@
 use std::collections::{HashSet};
 
-use cell::{Cell};
-use dungeon::{Dungeon, DungeonCells, SurroundingCells, Surrounding};
+use chapter2::cell::{Cell};
+use chapter2::dungeon::{Dungeon, DungeonCells, SurroundingCells, Surrounding};
 
 pub type EvaluationFn = Box<Fn(&Dungeon) -> f64 + 'static + Send + Sync + Copy>;
 
