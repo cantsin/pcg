@@ -72,7 +72,7 @@ use util::text::{render_text};
 use util::sprite::{Sprite};
 use util::config::{Config};
 
-const TOML_CONFIG: &'static str = "src/config.toml";
+const TOML_CONFIG: &'static str = "src/chapter2/chapter2.toml";
 
 fn main() {
 

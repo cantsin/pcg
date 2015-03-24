@@ -13,9 +13,13 @@ pub struct Config {
 
 impl Config {
     pub fn new(config_path: &Path) -> Config {
-        let mut config_file = File::open(config_path).unwrap();
+        let config_file = File::open(config_path);
+        let mut config = match config_file {
+            Ok(c) => c,
+            Err(why) => panic!("Could not open configuration file {}: {}", config_path.display(), why)
+        };
         let mut contents = String::new();
-        match config_file.read_to_string(&mut contents) {
+        match config.read_to_string(&mut contents) {
             Err(why) => panic!("Could not read configuration file {}: {}", config_path.display(), why),
             _ => ()
         };
