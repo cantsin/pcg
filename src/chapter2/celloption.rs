@@ -43,7 +43,7 @@ impl<T: CellOption> CellOptions<T> {
 
     pub fn get(&self, name: &str) -> Option<&T> {
         let options: Vec<&T> = self.options.iter().filter(|&opt| {
-            opt.name().as_slice() == name
+            &opt.name()[..] == name
         }).collect();
         match options.is_empty() {
             true => None,

@@ -128,7 +128,7 @@ impl Connector {
         while open.len() > 1 {
             // pick a random connector and region
             let connectors = current.clone();
-            let connector = rng.choose(connectors.as_slice()).unwrap();
+            let connector = rng.choose(&connectors[..]).unwrap();
             let mut regions: Vec<u32> = connector.regions.iter().map(|&r| merged_lookup[r as usize]).collect();
             let first = regions.pop().unwrap();
             let rest: HashSet<u32> = regions.clone().iter().cloned().collect();
@@ -176,7 +176,7 @@ impl Maze {
         let mut path: Vec<(u32, u32)> = Vec::new();
         let mut all_paths: HashSet<(u32, u32)> = previous.clone();
         let all = vec!(Direction::North, Direction::East, Direction::South, Direction::West);
-        let mut direction = rng.choose(all.as_slice()).unwrap().clone();
+        let mut direction = rng.choose(&all[..]).unwrap().clone();
         path.push((orig_x, orig_y));
         all_paths.insert((orig_x, orig_y));
         // "growing-tree" algorithm
@@ -374,7 +374,7 @@ impl DesirableProperties {
         }).cloned().collect();
         // randomly place entrance/exit in separate rooms
         let result: Vec<(u32, u32)> = (0..2).map(|_| {
-            let ref room = rng.choose(rooms.as_slice()).unwrap();
+            let ref room = rng.choose(&rooms[..]).unwrap();
             let xw = room.x + room.w - 1;
             let xh = room.y + room.h - 1;
             (rng.gen_range(room.x, xw), rng.gen_range(room.y, xh))

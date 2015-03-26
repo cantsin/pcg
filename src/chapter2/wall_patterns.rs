@@ -52,7 +52,7 @@ impl WallPatterns {
         let mut mapping = HashMap::new();
         let tiles = config.get_listing(tile_vars, vec!["width", "height"]);
         for tile in tiles {
-            let name = tile.as_slice();
+            let name = &tile[..];
             let graphical_tile = seed.tiles.get(name).unwrap();
             mapping.insert(config.get_char(tile_vars, name), graphical_tile);
         }

@@ -48,9 +48,9 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
     let tiles: Vec<String> = config.get_array(cell_data, "tiles");
     let items: Vec<String> = config.get_array(cell_data, "items");
     let occupants: Vec<String> = config.get_array(cell_data, "occupants");
-    let cell_tiles: CellOptions<Tile> = CellOptions::new(tiles.as_slice());
-    let cell_items: CellOptions<Item> = CellOptions::new(items.as_slice());
-    let cell_occupants: CellOptions<Occupant> = CellOptions::new(occupants.as_slice());
+    let cell_tiles: CellOptions<Tile> = CellOptions::new(&tiles[..]);
+    let cell_items: CellOptions<Item> = CellOptions::new(&items[..]);
+    let cell_occupants: CellOptions<Occupant> = CellOptions::new(&occupants[..]);
     let occupant_chance = config.get_float(spritesheet_config, "occupant_chance");
 
     let mulambda_vars = config.get_table(None, "mu-lambda");
@@ -61,7 +61,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
     let strategy = config.get_string(mulambda_vars, "strategy");
     let evaluations: Vec<String> = config.get_array(mulambda_vars, "evaluations");
     let evaluation_fns: Vec<EvaluationFn> = evaluations.iter().map(|eval| {
-        match eval.as_slice() {
+        match &eval[..] {
             "check_1x1_rooms" => box check_1x1_rooms as EvaluationFn,
             "has_entrance_exit" => box has_entrance_exit as EvaluationFn,
             "doors_are_useful" => box doors_are_useful as EvaluationFn,
@@ -146,7 +146,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
                                choice,
                                statistic.iteration,
                                statistic.fitness);
-            render_text(face, gl, 10.0, 10.0, info.as_slice());
+            render_text(face, gl, 10.0, 10.0, &info[..]);
         });
 
         if let Some(Keyboard(key)) = e.press_args() {

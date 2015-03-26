@@ -70,7 +70,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
             let fns = self.evaluations.clone();
             pool.execute(move || {
                 let dungeon = individual.generate();
-                let fitness = individual.evaluate(&dungeon, fns.as_slice());
+                let fitness = individual.evaluate(&dungeon, &fns[..]);
                 let statistic = Statistic::new(iteration, fitness);
                 sender.send((individual, statistic)).unwrap();
             });
@@ -96,7 +96,7 @@ impl<G: Genotype + Clone + Send + 'static> MuLambda<G> {
             baby.mutate(&mut new_rng, self.mutation);
             (baby, Statistic::empty())
         }).skip(self.mu).collect();
-        survivors.push_all(next_generation.as_slice());
+        survivors.push_all(&next_generation[..]);
         survivors
     }
 }

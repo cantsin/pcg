@@ -23,7 +23,7 @@ impl Config {
             Err(why) => panic!("Could not read configuration file {}: {}", config_path.display(), why),
             _ => ()
         };
-        let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
+        let value = Parser::new(&contents[..]).parse().expect("Configuration file is not valid TOML.");
         Config {
             content: value
         }
@@ -31,28 +31,28 @@ impl Config {
 
     pub fn get_table<'a>(&'a self, table: Option<&'a Table>, name: &str) -> &Table {
         let lookup = table.unwrap_or(&self.content);
-        let value = lookup.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_table().expect(format!("`{}` is not a TOML.", name).as_slice())
+        let value = lookup.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        value.as_table().expect(&format!("`{}` is not a TOML.", name)[..])
     }
 
     pub fn get_listing(&self, table: &Table, excluded: Vec<&str>) -> Vec<String> {
         let invalid: HashSet<&str> = excluded.into_iter().collect();
-        table.keys().cloned().filter(|k| !invalid.contains(k.as_slice())).collect()
+        table.keys().cloned().filter(|k| !invalid.contains(&k[..])).collect()
     }
 
     pub fn get_float<'a>(&'a self, table: &'a Table, name: &str) -> f64 {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_float().expect(format!("`{}` is not a float.", name).as_slice())
+        let value = table.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        value.as_float().expect(&format!("`{}` is not a float.", name)[..])
     }
 
     pub fn get_integer<'a>(&'a self, table: &'a Table, name: &str) -> i64 {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_integer().expect(format!("`{}` is not an integer.", name).as_slice())
+        let value = table.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        value.as_integer().expect(&format!("`{}` is not an integer.", name)[..])
     }
 
     pub fn get_char<'a>(&'a self, table: &'a Table, name: &str) -> char {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        let contents = value.as_str().expect(format!("`{}` is not a char.", name).as_slice());
+        let value = table.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        let contents = value.as_str().expect(&format!("`{}` is not a char.", name)[..]);
         if contents.len() != 1 {
             panic!("{} is a string, but expected a character.", name);
         }
@@ -60,13 +60,13 @@ impl Config {
     }
 
     pub fn get_string<'a>(&'a self, table: &'a Table, name: &str) -> &str {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        value.as_str().expect(format!("`{}` is not a string.", name).as_slice())
+        let value = table.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        value.as_str().expect(&format!("`{}` is not a string.", name)[..])
     }
 
     pub fn get_array<T: Decodable>(&self, table: &Table, name: &str) -> Vec<T> {
-        let value = table.get(name).expect(format!("`{}` was not found.", name).as_slice());
-        let arr = value.as_slice().expect(format!("`{}` is not an array.", name).as_slice());
+        let value = table.get(name).expect(&format!("`{}` was not found.", name)[..]);
+        let arr = value.as_slice().expect(&format!("`{}` is not an array.", name)[..]);
         arr.iter().map(|v| decode(v.clone()).unwrap()).collect()
     }
 
@@ -88,7 +88,7 @@ impl SpriteConfig {
     fn defaults(what: &Table, attribute: &str, default: i64) -> i64 {
         let wrapped_default = Value::Integer(default);
         let attr = what.get(attribute).unwrap_or(&wrapped_default);
-        attr.as_integer().expect(format!("`{}` must be an integer", attribute).as_slice())
+        attr.as_integer().expect(&format!("`{}` must be an integer", attribute)[..])
     }
 
     /// helper function to obtain sprite coordinates
@@ -111,7 +111,7 @@ impl SpriteConfig {
                     coords.push((x, y));
                 }
                 _ => {
-                    match name.as_slice() {
+                    match &name[..] {
                         "tile_width" | "tile_height" => {} // ignore
                         _ => panic!("unknown TOML type {:?}", name)
                     }
@@ -130,7 +130,7 @@ impl SpriteConfig {
             Err(why) => panic!("Could not read configuration file {}: {}", toml_path.display(), why),
             _ => ()
         };
-        let value = Parser::new(contents.as_slice()).parse().expect("Configuration file is not valid TOML.");
+        let value = Parser::new(&contents[..]).parse().expect("Configuration file is not valid TOML.");
         let sprites = value.get("sprites").expect("Configuration file does not have `sprites` entry.");
         let sprites_table = sprites.as_table().expect("`sprites` entry is not a TOML table.");
         let tile_width = SpriteConfig::defaults(sprites_table, "tile_width", DEFAULT_TILE_SIZE);
@@ -156,7 +156,7 @@ impl SpriteConfig {
                     sprites.insert(name.clone(), rects);
                 }
                 _ => {
-                    match name.as_slice() {
+                    match &name[..] {
                         "tile_width" | "tile_height" => {} // ignore
                         _ => panic!("unknown TOML type {:?}", name)
                     }

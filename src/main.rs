@@ -1,5 +1,4 @@
-#![feature(os, step_by, path_ext, core, convert, box_syntax, box_patterns, collections)]
-#![forbid(unused_typecasts)]
+#![feature(os, step_by, path_ext, convert, box_syntax, box_patterns, collections)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
@@ -72,7 +71,7 @@ fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
         .unwrap_or_else(|e| e.exit());
-    let (chapter_config, chapter_callback) = match args.arg_chapter.as_slice() {
+    let (chapter_config, chapter_callback) = match &args.arg_chapter[..] {
         "chapter2" => ("src/chapter2/chapter2.toml", chapter2_entry),
         _ => panic!("Could not find chapter.")
     };
