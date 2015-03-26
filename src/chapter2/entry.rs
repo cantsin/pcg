@@ -1,11 +1,12 @@
+use freetype::{Face};
 use event::{Event, RenderEvent, PressEvent};
 use opengl_graphics::{Gl};
-use graphics::{RelativeTransform};
 use input::Button::{Keyboard};
 use input::keyboard::{Key};
+
 use std::os::{num_cpus};
 use std::path::{Path};
-use std::sync::atomic::{AtomicUsize, AtomicInt, Ordering, ATOMIC_USIZE_INIT, ATOMIC_INT_INIT};
+use std::sync::atomic::{AtomicUsize, AtomicIsize, Ordering, ATOMIC_USIZE_INIT, ATOMIC_ISIZE_INIT};
 
 use chapter2::celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use chapter2::dungeon::{Dungeon, DungeonCells};
@@ -25,10 +26,11 @@ use util::text::{render_text};
 use util::config::{Config};
 
 static FRAME: AtomicUsize = ATOMIC_USIZE_INIT;
-static CHOICE: AtomicInt = ATOMIC_INT_INIT;
+static CHOICE: AtomicIsize = ATOMIC_ISIZE_INIT;
 
-pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
+pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> ()> {
 
+    // load a whole bunch of configurable options
     let vars = config.get_table(None, "main");
     let tile_width = config.get_integer(vars, "tile_width") as i32;
     let tile_height = config.get_integer(vars, "tile_height") as i32;
@@ -111,7 +113,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
         _ => panic!("Strategy {} could not be found.", strategy)
     };
 
-    box move |gl: &mut Gl, e: Event| {
+    box move |gl: &mut Gl, face: &mut Face, e: Event| {
         let choice = CHOICE.load(Ordering::Relaxed);
         let frame = FRAME.load(Ordering::Relaxed);
 
@@ -141,15 +143,10 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
                 }
             }
             let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
-                               CHOICE.load(Ordering::Relaxed),
+                               choice,
                                statistic.iteration,
                                statistic.fitness);
-
-
-            // gl.draw([0, 0, window_width as i32, window_height as i32], |c, gl| {
-            //     let transform = c.transform.trans(10.0, 10.0);
-            //     render_text(&mut face, gl, transform, info.as_slice());
-            // });
+            render_text(face, gl, 10.0, 10.0, info.as_slice());
         });
 
         if let Some(Keyboard(key)) = e.press_args() {

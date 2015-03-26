@@ -90,6 +90,6 @@ fn main() {
     let window = RefCell::new(window);
     for e in event::events(&window).set(Ups(fps)).set(MaxFps(fps)) {
         graphics::clear(color::BLACK, gl);
-        cb(gl, e);
+        cb(gl, &mut face, e);
     }
 }
