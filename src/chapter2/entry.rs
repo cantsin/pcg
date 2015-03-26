@@ -153,14 +153,16 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
             let n = winners.len() as isize;
             if key == Key::Left {
                 CHOICE.fetch_sub(1, Ordering::Relaxed);
-                if choice < 0 {
+                let new_choice = CHOICE.load(Ordering::Relaxed);
+                if new_choice < 0 {
                     CHOICE.store(n - 1, Ordering::Relaxed);
                     FRAME.store(0, Ordering::Relaxed);
                 }
             }
             else if key == Key::Right {
                 CHOICE.fetch_add(1, Ordering::Relaxed);
-                CHOICE.store(choice % n, Ordering::Relaxed);
+                let new_choice = CHOICE.load(Ordering::Relaxed);
+                CHOICE.store(new_choice % n, Ordering::Relaxed);
                 FRAME.store(0, Ordering::Relaxed);
             }
         };
