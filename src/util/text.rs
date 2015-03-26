@@ -4,7 +4,8 @@ use opengl_graphics::{Gl, Texture};
 use graphics::{RelativeTransform, Image, color, default_draw_state};
 
 pub fn render_text(face: &mut Face, gl: &mut Gl, xcoord: f64, ycoord: f64, text: &str) {
-    gl.draw([0, 0, 1000, 1000], |c, gl| {
+    // TODO: account for window size correctly
+    gl.draw([0, 0, 400, 416], |c, gl| {
         let transform = c.transform.trans(xcoord, ycoord);
         let mut x = 0;
         let mut y = 0;
