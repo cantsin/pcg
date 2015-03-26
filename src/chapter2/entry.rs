@@ -5,6 +5,7 @@ use input::Button::{Keyboard};
 use input::keyboard::{Key};
 use std::os::{num_cpus};
 use std::path::{Path};
+use std::sync::atomic::{AtomicUsize, AtomicInt, Ordering, ATOMIC_USIZE_INIT, ATOMIC_INT_INIT};
 
 use chapter2::celloption::{CellOptions, CellOption, Tile, Item, Occupant};
 use chapter2::dungeon::{Dungeon, DungeonCells};
@@ -22,6 +23,9 @@ use util::spritesheet::{SpriteSheet};
 use util::sprite::{Sprite};
 use util::text::{render_text};
 use util::config::{Config};
+
+static FRAME: AtomicUsize = ATOMIC_USIZE_INIT;
+static CHOICE: AtomicInt = ATOMIC_INT_INIT;
 
 pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
 
@@ -67,6 +71,9 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
 
     let seed = Seed::new(tiles_width, tiles_height, cell_tiles, cell_items, cell_occupants, occupant_chance);
 
+    let spritesheet_path = Path::new(spritesheet_location);
+    let spritesheet = SpriteSheet::new(&spritesheet_path);
+
     // We cannot have trait objects that implement Clone or use
     // generic parameters. Instead, we use macros to make this section
     // a bit cleaner.
@@ -104,13 +111,10 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
         _ => panic!("Strategy {} could not be found.", strategy)
     };
 
-    let spritesheet_path = Path::new(spritesheet_location);
-    let spritesheet = SpriteSheet::new(&spritesheet_path);
+    box move |gl: &mut Gl, e: Event| {
+        let choice = CHOICE.load(Ordering::Relaxed);
+        let frame = FRAME.load(Ordering::Relaxed);
 
-    let mut frame = 0;
-    let mut choice = 0;
-
-    box |gl, e| {
         let ref current = winners[choice as usize];
         let &(ref dungeon, ref statistic) = current;
         let seconds = frame / animation_speed;
@@ -137,7 +141,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
                 }
             }
             let info = format!("Dungeon no. #{} (born on iteration {}, ranking {})",
-                               choice,
+                               CHOICE.load(Ordering::Relaxed),
                                statistic.iteration,
                                statistic.fitness);
 
@@ -149,20 +153,21 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, Event) -> ()> {
         });
 
         if let Some(Keyboard(key)) = e.press_args() {
+            let n = winners.len() as isize;
             if key == Key::Left {
-                choice -= 1;
+                CHOICE.fetch_sub(1, Ordering::Relaxed);
                 if choice < 0 {
-                    choice = (winners.len() - 1) as isize;
-                    frame = 0;
+                    CHOICE.store(n - 1, Ordering::Relaxed);
+                    FRAME.store(0, Ordering::Relaxed);
                 }
             }
             else if key == Key::Right {
-                choice += 1;
-                choice %= winners.len() as isize;
-                frame = 0;
+                CHOICE.fetch_add(1, Ordering::Relaxed);
+                CHOICE.store(choice % n, Ordering::Relaxed);
+                FRAME.store(0, Ordering::Relaxed);
             }
         };
 
-        frame += 1;
+        FRAME.fetch_add(1, Ordering::Relaxed);
     }
 }

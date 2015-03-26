@@ -1,4 +1,4 @@
-#![feature(os, step_by, old_path, path_ext, core, box_syntax, collections)]
+#![feature(os, step_by, old_path, path_ext, core, box_syntax, box_patterns, collections)]
 #![forbid(unused_typecasts)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
@@ -45,7 +45,7 @@ pub mod chapter2 {
 use opengl_graphics::{Gl};
 use sdl2_window::{Sdl2Window};
 use window::{WindowSettings};
-use event::{Ups, MaxFps, RenderEvent, PressEvent};
+use event::{Ups, MaxFps};
 use quack::{Set};
 use graphics::{color};
 
