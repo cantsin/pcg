@@ -1,4 +1,4 @@
-#![feature(os, step_by, old_path, path_ext, core, box_syntax, box_patterns, collections)]
+#![feature(os, step_by, path_ext, core, convert, box_syntax, box_patterns, collections)]
 #![forbid(unused_typecasts)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
@@ -16,7 +16,8 @@ extern crate window;
 extern crate freetype;
 extern crate threadpool;
 extern crate quack;
-extern crate "rustc-serialize" as rustc_serialize;
+extern crate rustc_serialize;
+extern crate docopt;
 
 pub mod util {
     pub mod util;
@@ -48,20 +49,35 @@ use window::{WindowSettings};
 use event::{Ups, MaxFps};
 use quack::{Set};
 use graphics::{color};
+use docopt::{Docopt};
 
 use std::cell::{RefCell};
 use std::path::{Path};
-use std::old_path::Path as OldPath;
 
 use util::config::{Config};
 
 use chapter2::entry::{chapter2_entry};
 
-const TOML_CONFIG: &'static str = "src/chapter2/chapter2.toml";
+static USAGE: &'static str = "
+Usage: pcg <chapter>
+";
+
+#[derive(RustcDecodable, Debug)]
+struct Args {
+    arg_chapter: String,
+}
 
 fn main() {
 
-    let config_path = Path::new(TOML_CONFIG);
+    let args: Args = Docopt::new(USAGE)
+        .and_then(|d| d.decode())
+        .unwrap_or_else(|e| e.exit());
+    let (chapter_config, chapter_callback) = match args.arg_chapter.as_slice() {
+        "chapter2" => ("src/chapter2/chapter2.toml", chapter2_entry),
+        _ => panic!("Could not find chapter.")
+    };
+
+    let config_path = Path::new(chapter_config);
     let config = Config::new(config_path);
     let vars = config.get_table(None, "main");
     let window_width = config.get_default(vars, "window_width", 800);
@@ -80,13 +96,12 @@ fn main() {
                                      samples: 0,
                                  });
     let ref mut gl = Gl::new(opengl);
-
     let ft = freetype::Library::init().unwrap();
-    let font = OldPath::new(font_name);
+    let font = Path::new(font_name);
     let mut face = ft.new_face(&font, 0).unwrap();
     face.set_pixel_sizes(0, font_size).unwrap();
 
-    let cb = chapter2_entry(&config);
+    let cb = chapter_callback(&config);
     let window = RefCell::new(window);
     for e in event::events(&window).set(Ups(fps)).set(MaxFps(fps)) {
         graphics::clear(color::BLACK, gl);

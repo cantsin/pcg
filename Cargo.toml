@@ -4,7 +4,8 @@ version = "0.2.0" # reflects current chapter
 authors = ["James Tranovich <jtranovich@gmail.com>"]
 
 [dependencies]
-rustc-serialize = "0.3"
+docopt = "*"
+rustc-serialize = "*"
 
 [dependencies.pistoncore-event]
 git = "https://github.com/pistondevelopers/event"

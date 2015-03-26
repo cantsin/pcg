@@ -16,7 +16,7 @@ impl SpriteSheet {
     /// the spritesheet configuration file must have the same base
     /// file name as the spritesheet itself.
     fn location(path: &Path) -> Option<PathBuf> {
-        let mut new_path = PathBuf::new(path);
+        let mut new_path = PathBuf::from(path);
         new_path.set_extension("toml");
         if new_path.exists() && new_path.is_file() {
             Some(new_path)
