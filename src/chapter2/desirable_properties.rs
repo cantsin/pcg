@@ -98,7 +98,7 @@ impl Connector {
                     let regions: HashSet<u32> = CARDINALS.iter().map(|&(_, rel_dir)| {
                         let coord = scale(new_coord, rel_dir, 1);
                         if lookup.contains_key(&coord) {
-                            lookup[coord]
+                            lookup[&coord]
                         } else {
                             region // by design, at least two directions must fail
                         }
@@ -195,7 +195,7 @@ impl Maze {
             if !uncarved.is_empty() {
                 let same_direction = odds(rng, branching_factor, 100);
                 let rel_dir = if same_direction && uncarved.contains_key(&direction) {
-                    uncarved[direction]
+                    uncarved[&direction]
                 } else {
                     let (dir, coords) = uncarved.into_iter().next().unwrap();
                     direction = dir;

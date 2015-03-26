@@ -1,6 +1,5 @@
 use std::fs::{PathExt};
 use std::path::{Path, PathBuf};
-use std::old_path::Path as OldPath;
 use std::collections::{HashMap};
 use std::rc::{Rc};
 use opengl_graphics::{Texture};
@@ -27,8 +26,7 @@ impl SpriteSheet {
     }
 
     pub fn new(filepath: &Path) -> SpriteSheet {
-        let old_filepath = OldPath::new(format!("{}", filepath.display()));
-        let texture_data = Texture::from_path(&old_filepath).unwrap();
+        let texture_data = Texture::from_path(&filepath).unwrap();
         let texture = Rc::new(texture_data);
         let toml_path = SpriteSheet::location(filepath).expect("No spritesheet configuration file.");
         let config = SpriteConfig::process_spritesheet(&toml_path);
