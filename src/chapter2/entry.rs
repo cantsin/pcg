@@ -3,8 +3,8 @@ use event::{Event, RenderEvent, PressEvent};
 use opengl_graphics::{Gl};
 use input::Button::{Keyboard};
 use input::keyboard::{Key};
+use num_cpus::{get};
 
-use std::os::{num_cpus};
 use std::path::{Path};
 use std::sync::atomic::{AtomicUsize, AtomicIsize, Ordering, ATOMIC_USIZE_INIT, ATOMIC_ISIZE_INIT};
 
@@ -37,7 +37,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
     let tiles_width = config.get_default(vars, "tiles_width", 50);
     let tiles_height = config.get_default(vars, "tiles_height", 50);
     let animation_speed = config.get_default(vars, "animation_speed", 10);
-    let threads = config.get_default(vars, "threads", num_cpus() * 2);
+    let threads = config.get_default(vars, "threads", get() * 2);
 
     let spritesheet_name = config.get_string(vars, "spritesheet");
     let spritesheets = config.get_table(None, "spritesheets");
@@ -120,7 +120,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
         let ref current = winners[choice as usize];
         let &(ref dungeon, ref statistic) = current;
         let seconds = frame / animation_speed;
-        e.render(|_| {
+        if let Some(args) = e.render_args() {
             let dc = DungeonCells::new(&dungeon);
             for cell in dc {
                 let x = cell.x as i32 * tile_width;
@@ -128,16 +128,16 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
                 match cell.tile {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                        sprite.draw(gl, x, y, seconds);
+                        sprite.draw(gl, args.viewport(), x, y, seconds);
                     }
                     None => {
-                        Sprite::missing(gl, x, y, tile_width, tile_height);
+                        Sprite::missing(gl, args.viewport(), x, y, tile_width, tile_height);
                     }
                 }
                 match cell.occupant {
                     Some(ref val) => {
                         let sprite = spritesheet.sprites.get(&val.name()).unwrap();
-                        sprite.draw(gl, x, y, seconds);
+                        sprite.draw(gl, args.viewport(), x, y, seconds);
                     }
                     None => ()
                 }
@@ -146,8 +146,8 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
                                choice,
                                statistic.iteration,
                                statistic.fitness);
-            render_text(face, gl, 10.0, 10.0, &info[..]);
-        });
+            render_text(face, gl, args.viewport(), 10.0, 10.0, &info[..]);
+        };
 
         if let Some(Keyboard(key)) = e.press_args() {
             let n = winners.len() as isize;

@@ -1,6 +1,6 @@
 [package]
 name = "pcg"
-version = "0.2.0" # reflects current chapter
+version = "0.3.0" # reflects current chapter
 authors = ["James Tranovich <jtranovich@gmail.com>"]
 
 [dependencies]
@@ -28,20 +28,23 @@ git = "https://github.com/pistondevelopers/sdl2_window"
 [dependencies.pistoncore-window]
 git = "https://github.com/pistondevelopers/window"
 
+[dependencies.piston-viewport]
+git = "https://github.com/pistondevelopers/viewport"
+
 [dependencies.freetype-rs]
 git = "https://github.com/pistondevelopers/freetype-rs"
 
 [dependencies.toml]
 git = "https://github.com/alexcrichton/toml-rs"
 
-[dependencies.quack]
-git = "https://github.com/pistondevelopers/quack"
-
 [dependencies.rand]
 rand = "0.1.2"
 
 [dependencies.threadpool]
 threadpool = "0.1.0"
+
+[dependencies.num_cpus]
+num_cpus = "*"
 
 [profile.dev]
 debug = false

@@ -14,9 +14,10 @@ extern crate opengl_graphics;
 extern crate window;
 extern crate freetype;
 extern crate threadpool;
-extern crate quack;
 extern crate rustc_serialize;
 extern crate docopt;
+extern crate num_cpus;
+extern crate viewport;
 
 pub mod util {
     pub mod util;
@@ -45,12 +46,10 @@ pub mod chapter2 {
 use opengl_graphics::{Gl};
 use sdl2_window::{Sdl2Window};
 use window::{WindowSettings};
-use event::{Ups, MaxFps};
-use quack::{Set};
 use graphics::{color};
 use docopt::{Docopt};
+use event::{Events};
 
-use std::cell::{RefCell};
 use std::path::{Path};
 
 use util::config::{Config};
@@ -86,14 +85,10 @@ fn main() {
     let fps = config.get_default(vars, "fps", 10);
 
     let opengl = shader_version::OpenGL::_3_2;
-    let window = Sdl2Window::new(opengl,
-                                 WindowSettings {
-                                     title: "PCG".to_string(),
-                                     size: [window_width, window_height],
-                                     fullscreen: false,
-                                     exit_on_esc: true,
-                                     samples: 0,
-                                 });
+    let windowsettings = WindowSettings::new("PCG", [window_width, window_height])
+        .exit_on_esc(true)
+        .fullscreen(false);
+    let window = Sdl2Window::new(opengl, windowsettings);
     let ref mut gl = Gl::new(opengl);
     let ft = freetype::Library::init().unwrap();
     let font = Path::new(font_name);
@@ -101,8 +96,7 @@ fn main() {
     face.set_pixel_sizes(0, font_size).unwrap();
 
     let cb = chapter_callback(&config);
-    let window = RefCell::new(window);
-    for e in event::events(&window).set(Ups(fps)).set(MaxFps(fps)) {
+    for e in window.events().ups(fps).max_fps(fps) {
         graphics::clear(color::BLACK, gl);
         cb(gl, &mut face, e);
     }

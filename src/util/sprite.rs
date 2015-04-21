@@ -1,5 +1,6 @@
 use opengl_graphics::{Gl, Texture};
 use graphics::{Image, Line, default_draw_state};
+use viewport::{Viewport};
 use std::rc::Rc;
 
 /// sprites can have several images (they must be the same height/width).
@@ -21,8 +22,8 @@ impl Sprite {
         }
     }
 
-    pub fn draw(&self, gl: &mut Gl, x: i32, y: i32, index: usize) {
-        let viewport = [x, y, self.width, self.height];
+    pub fn draw(&self, gl: &mut Gl, viewport: Viewport, x: i32, y: i32, index: usize) {
+        //let viewport = [x, y, self.width, self.height];
         let idx = index % self.images.len();
         let image = self.images[idx];
         gl.draw(viewport, |c, gl| {
@@ -31,9 +32,10 @@ impl Sprite {
     }
 
     /// draw a red 'X'.
-    pub fn missing(gl: &mut Gl, x: i32, y: i32, w: i32, h: i32) {
+    pub fn missing(gl: &mut Gl, viewport: Viewport, x: i32, y: i32, w: i32, h: i32) {
         let line = Line::new([1.0, 0.0, 0.0, 1.0], 1.0);
-        gl.draw([x, y, w, h], |c, gl| {
+        //gl.draw([x, y, w, h], |c, gl| {
+        gl.draw(viewport, |c, gl| {
             line.draw([0.0, 0.0, w as f64, h as f64], default_draw_state(), c.transform, gl);
             line.draw([w as f64, 0.0, 0.0, h as f64], default_draw_state(), c.transform, gl);
         });
