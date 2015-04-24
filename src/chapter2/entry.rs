@@ -146,7 +146,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut GlGraphics, &mut Face, Eve
                                choice,
                                statistic.iteration,
                                statistic.fitness);
-            render_text(face, gl, args.viewport(), 10.0, 10.0, &info[..]);
+            render_text(face, gl, args.viewport(), 10.0, 410.0, &info[..]);
         };
 
         if let Some(Keyboard(key)) = e.press_args() {
