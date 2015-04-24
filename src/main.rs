@@ -1,4 +1,4 @@
-#![feature(os, step_by, path_ext, convert, box_syntax, box_patterns, collections)]
+#![feature(step_by, path_ext, convert, box_syntax, box_patterns, collections)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
@@ -43,7 +43,7 @@ pub mod chapter2 {
     pub mod phenotype;
 }
 
-use opengl_graphics::{Gl};
+use opengl_graphics::{GlGraphics};
 use sdl2_window::{Sdl2Window};
 use window::{WindowSettings};
 use graphics::{color};
@@ -89,7 +89,7 @@ fn main() {
         .exit_on_esc(true)
         .fullscreen(false);
     let window = Sdl2Window::new(opengl, windowsettings);
-    let ref mut gl = Gl::new(opengl);
+    let ref mut gl = GlGraphics::new(opengl);
     let ft = freetype::Library::init().unwrap();
     let font = Path::new(font_name);
     let mut face = ft.new_face(&font, 0).unwrap();

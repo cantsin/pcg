@@ -1,6 +1,6 @@
 use freetype::{Face};
 use event::{Event, RenderEvent, PressEvent};
-use opengl_graphics::{Gl};
+use opengl_graphics::{GlGraphics};
 use input::Button::{Keyboard};
 use input::keyboard::{Key};
 use num_cpus::{get};
@@ -28,7 +28,7 @@ use util::config::{Config};
 static FRAME: AtomicUsize = ATOMIC_USIZE_INIT;
 static CHOICE: AtomicIsize = ATOMIC_ISIZE_INIT;
 
-pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> ()> {
+pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut GlGraphics, &mut Face, Event) -> ()> {
 
     // load a whole bunch of configurable options
     let vars = config.get_table(None, "main");
@@ -113,7 +113,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut Gl, &mut Face, Event) -> (
         _ => panic!("Strategy {} could not be found.", strategy)
     };
 
-    box move |gl: &mut Gl, face: &mut Face, e: Event| {
+    box move |gl: &mut GlGraphics, face: &mut Face, e: Event| {
         let choice = CHOICE.load(Ordering::Relaxed);
         let frame = FRAME.load(Ordering::Relaxed);
 

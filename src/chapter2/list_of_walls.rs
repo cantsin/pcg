@@ -5,7 +5,6 @@ use chapter2::phenotype::{Seed};
 use util::config::{Config};
 use util::util::{odds};
 
-use std::num::{Float};
 use rand::{Rng};
 
 #[derive(Clone, Debug)]
