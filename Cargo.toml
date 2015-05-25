@@ -7,6 +7,9 @@ authors = ["James Tranovich <jtranovich@gmail.com>"]
 docopt = "*"
 rustc-serialize = "*"
 
+[dependencies.piston]
+git = "https://github.com/PistonDevelopers/piston"
+
 [dependencies.pistoncore-event]
 git = "https://github.com/pistondevelopers/event"
 

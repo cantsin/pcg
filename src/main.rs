@@ -3,6 +3,7 @@
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
 
+extern crate piston;
 extern crate rand;
 extern crate toml;
 extern crate shader_version;
@@ -45,10 +46,10 @@ pub mod chapter2 {
 
 use opengl_graphics::{GlGraphics};
 use sdl2_window::{Sdl2Window};
-use window::{WindowSettings};
-use graphics::{color};
+use piston::window::{WindowSettings};
 use docopt::{Docopt};
 use event::{Events};
+use graphics::{color};
 
 use std::path::{Path};
 

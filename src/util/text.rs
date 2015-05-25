@@ -1,8 +1,7 @@
 use freetype::{Face};
 use freetype::face::{RENDER};
 use opengl_graphics::{GlGraphics, Texture};
-use graphics::{Transformed, Image, color, default_draw_state};
-use viewport::{Viewport};
+use graphics::{Transformed, Image, Viewport, color, default_draw_state};
 
 pub fn render_text(face: &mut Face, gl: &mut GlGraphics, viewport: Viewport, xcoord: f64, ycoord: f64, text: &str) {
     // TODO: account for window size correctly

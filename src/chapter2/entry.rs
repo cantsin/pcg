@@ -1,8 +1,8 @@
 use freetype::{Face};
 use event::{Event, RenderEvent, PressEvent};
 use opengl_graphics::{GlGraphics};
-use input::Button::{Keyboard};
-use input::keyboard::{Key};
+use piston::input::Button::{Keyboard};
+use piston::input::keyboard::{Key};
 use num_cpus::{get};
 
 use std::path::{Path};
