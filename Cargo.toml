@@ -6,18 +6,14 @@ authors = ["James Tranovich <jtranovich@gmail.com>"]
 [dependencies]
 docopt = "*"
 rustc-serialize = "*"
-
-[dependencies.piston]
-git = "https://github.com/PistonDevelopers/piston"
+piston = "0.10.1"
+piston2d-opengl_graphics = "0.12.0"
+piston2d-graphics = "0.9.0"
+pistoncore-sdl2_window = "0.13.0"
+freetype-rs = "0.3.0"
 
 [dependencies.pistoncore-event]
 git = "https://github.com/pistondevelopers/event"
-
-[dependencies.piston2d-graphics]
-git = "https://github.com/pistondevelopers/graphics"
-
-[dependencies.piston2d-opengl_graphics]
-git = "https://github.com/pistondevelopers/opengl_graphics"
 
 [dependencies.shader_version]
 git = "https://github.com/pistondevelopers/shader_version"
@@ -25,17 +21,11 @@ git = "https://github.com/pistondevelopers/shader_version"
 [dependencies.pistoncore-input]
 git = "https://github.com/pistondevelopers/input"
 
-[dependencies.pistoncore-sdl2_window]
-git = "https://github.com/pistondevelopers/sdl2_window"
-
 [dependencies.pistoncore-window]
 git = "https://github.com/pistondevelopers/window"
 
 [dependencies.piston-viewport]
 git = "https://github.com/pistondevelopers/viewport"
-
-[dependencies.freetype-rs]
-git = "https://github.com/pistondevelopers/freetype-rs"
 
 [dependencies.toml]
 git = "https://github.com/alexcrichton/toml-rs"

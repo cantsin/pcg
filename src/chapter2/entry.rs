@@ -1,7 +1,6 @@
 use freetype::{Face};
-use event::{Event, RenderEvent, PressEvent};
 use opengl_graphics::{GlGraphics};
-use piston::input::Button::{Keyboard};
+use piston::input::{Event, Button, RenderEvent, PressEvent};
 use piston::input::keyboard::{Key};
 use num_cpus::{get};
 
@@ -149,7 +148,7 @@ pub fn chapter2_entry(config: &Config) -> Box<Fn(&mut GlGraphics, &mut Face, Eve
             render_text(face, gl, args.viewport(), 10.0, 410.0, &info[..]);
         };
 
-        if let Some(Keyboard(key)) = e.press_args() {
+        if let Some(Button::Keyboard(key)) = e.press_args() {
             let n = winners.len() as isize;
             if key == Key::Left {
                 CHOICE.fetch_sub(1, Ordering::Relaxed);

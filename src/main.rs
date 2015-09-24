@@ -1,4 +1,4 @@
-#![feature(step_by, path_ext, convert, box_syntax, box_patterns, collections)]
+#![feature(step_by, path_ext, convert, box_syntax, box_patterns, vec_push_all)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
@@ -44,11 +44,11 @@ pub mod chapter2 {
     pub mod phenotype;
 }
 
-use opengl_graphics::{GlGraphics};
+use opengl_graphics::{GlGraphics, OpenGL};
 use sdl2_window::{Sdl2Window};
 use piston::window::{WindowSettings};
+use piston::event_loop::{Events};
 use docopt::{Docopt};
-use event::{Events};
 use graphics::{color};
 
 use std::path::{Path};
@@ -85,11 +85,13 @@ fn main() {
     let font_size = config.get_default(vars, "font_size", 14);
     let fps = config.get_default(vars, "fps", 10);
 
-    let opengl = shader_version::OpenGL::_3_2;
-    let windowsettings = WindowSettings::new("PCG", [window_width, window_height])
+    let opengl = OpenGL::V3_2;
+    let window: Sdl2Window = WindowSettings::new("PCG", [window_width, window_height])
         .exit_on_esc(true)
-        .fullscreen(false);
-    let window = Sdl2Window::new(opengl, windowsettings);
+        .fullscreen(false)
+        .opengl(opengl)
+        .build()
+        .unwrap();
     let ref mut gl = GlGraphics::new(opengl);
     let ft = freetype::Library::init().unwrap();
     let font = Path::new(font_name);
@@ -97,7 +99,8 @@ fn main() {
     face.set_pixel_sizes(0, font_size).unwrap();
 
     let cb = chapter_callback(&config);
-    for e in window.events().ups(fps).max_fps(fps) {
+    // TODO fps
+    for e in window.events() {
         graphics::clear(color::BLACK, gl);
         cb(gl, &mut face, e);
     }

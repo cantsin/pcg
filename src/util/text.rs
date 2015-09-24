@@ -16,10 +16,10 @@ pub fn render_text(face: &mut Face, gl: &mut GlGraphics, viewport: Viewport, xco
             let texture = Texture::from_memory_alpha(bitmap.buffer(),
                                                      bitmap.width() as u32,
                                                      bitmap.rows() as u32).unwrap();
-            Image::new_colored(color::WHITE).draw(&texture,
-                                                  default_draw_state(),
-                                                  transform.trans((x + g.bitmap_left()) as f64, (y - g.bitmap_top()) as f64),
-                                                  gl);
+            Image::new_color(color::WHITE).draw(&texture,
+                                                default_draw_state(),
+                                                transform.trans((x + g.bitmap_left()) as f64, (y - g.bitmap_top()) as f64),
+                                                gl);
             x += (g.advance().x >> 6) as i32;
             y += (g.advance().y >> 6) as i32;
         }
