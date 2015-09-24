@@ -11,33 +11,34 @@ piston2d-opengl_graphics = "0.12.0"
 piston2d-graphics = "0.9.0"
 pistoncore-sdl2_window = "0.13.0"
 freetype-rs = "0.3.0"
+shader_version = "0.2.0"
+rand = "0.1.4"
+threadpool = "*"
+num_cpus = "*"
+libc = "0.1.8"
+pistoncore-input = "0.1.0"
+pistoncore-window = "0.1.6"
+pistoncore-event_loop = "0.2.2"
 
-[dependencies.pistoncore-event]
-git = "https://github.com/pistondevelopers/event"
+[features]
+default = ["image_png"]
+image_gif = ["image/gif"]
+image_jpeg = ["image/jpeg"]
+image_png = ["image/png"]
+image_ppm = ["image/ppm"]
+image_tga = ["image/tga"]
+image_tiff = ["image/tiff"]
+image_webp = ["image/webp"]
 
-[dependencies.shader_version]
-git = "https://github.com/pistondevelopers/shader_version"
-
-[dependencies.pistoncore-input]
-git = "https://github.com/pistondevelopers/input"
-
-[dependencies.pistoncore-window]
-git = "https://github.com/pistondevelopers/window"
+[dependencies.image]
+version = "0.3.12"
+default-features = true
 
 [dependencies.piston-viewport]
 git = "https://github.com/pistondevelopers/viewport"
 
 [dependencies.toml]
 git = "https://github.com/alexcrichton/toml-rs"
-
-[dependencies.rand]
-rand = "0.1.2"
-
-[dependencies.threadpool]
-threadpool = "0.1.0"
-
-[dependencies.num_cpus]
-num_cpus = "*"
 
 [profile.dev]
 debug = false
