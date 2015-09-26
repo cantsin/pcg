@@ -524,7 +524,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "toml"
 version = "0.1.22"
-source = "git+https://github.com/alexcrichton/toml-rs#bb12015a8a830b3c35292ded6f1f933762aa0355"
+source = "git+https://github.com/alexcrichton/toml-rs#283abf4a945f035132e1c3ba0c07e05ef06718de"
 dependencies = [
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
