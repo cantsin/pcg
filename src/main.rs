@@ -8,7 +8,7 @@ extern crate rand;
 extern crate toml;
 extern crate shader_version;
 extern crate input;
-extern crate event;
+extern crate event_loop;
 extern crate graphics;
 extern crate sdl2_window;
 extern crate opengl_graphics;
