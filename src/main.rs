@@ -44,18 +44,25 @@ pub mod chapter2 {
     pub mod phenotype;
 }
 
+pub mod chapter3 {
+    pub mod entry;
+}
+
 use opengl_graphics::{GlGraphics, OpenGL};
 use sdl2_window::{Sdl2Window};
 use piston::window::{WindowSettings};
 use piston::event_loop::{Events};
 use docopt::{Docopt};
 use graphics::{color};
+use freetype::{Face};
+use piston::input::{Event};
 
 use std::path::{Path};
 
 use util::config::{Config};
 
 use chapter2::entry::{chapter2_entry};
+use chapter3::entry::{chapter3_entry};
 
 static USAGE: &'static str = "
 Usage: pcg <chapter>
@@ -66,13 +73,16 @@ struct Args {
     arg_chapter: String,
 }
 
+type ChapterCallback = Box<Fn(&Config) -> Box<Fn(&mut GlGraphics, &mut Face, Event) -> ()>>;
+
 fn main() {
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
         .unwrap_or_else(|e| e.exit());
-    let (chapter_config, chapter_callback) = match &args.arg_chapter[..] {
-        "chapter2" => ("src/chapter2/chapter2.toml", chapter2_entry),
+    let (chapter_config, chapter_callback): (&str, ChapterCallback) = match &args.arg_chapter[..] {
+        "chapter2" => ("src/chapter2/chapter2.toml", box chapter2_entry),
+        "chapter3" => ("src/chapter3/chapter3.toml", box chapter3_entry),
         _ => panic!("Could not find chapter.")
     };
 

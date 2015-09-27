@@ -1,0 +1,5 @@
+[main]
+window_width = 400
+window_height = 416
+font = "./assets/Inconsolata.otf"
+font_size = 14
