@@ -133,7 +133,7 @@ impl Connector {
             let first = regions.pop().unwrap();
             let rest: HashSet<u32> = regions.clone().iter().cloned().collect();
             merged_connectors.push(connector.clone());
-            for i in (0..region_number) {
+            for i in 0..region_number {
                 if rest.contains(&merged_lookup[i]) {
                     merged_lookup[i] = first;
                 }
@@ -295,11 +295,11 @@ impl Room {
 
     pub fn border(&self) -> Vec<(u32, u32)> {
         let mut surrounding = vec![];
-        for i in (0..self.w) {
+        for i in 0..self.w {
             surrounding.push(((self.x + i), self.y));
             surrounding.push(((self.x + i), self.y + self.h - 1));
         }
-        for i in (0..self.h) {
+        for i in 0..self.h {
             surrounding.push((self.x, self.y + i));
             surrounding.push((self.x + self.w - 1, self.y + i));
         }
@@ -403,8 +403,8 @@ impl Genotype for DesirableProperties {
         // randomly generate all rooms
         let mut region = 0;
         let mut rooms = vec![];
-        for _ in (0..self.room_number) {
-            for _ in (0..10) {
+        for _ in 0..self.room_number {
+            for _ in 0..10 {
                 let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, region);
                 if !room.intersects(&rooms) {
                     rooms.push(room);
@@ -420,9 +420,9 @@ impl Genotype for DesirableProperties {
         // mutate a certain % of the rooms
         let length = self.rooms.len();
         let n = (length as f64 * percentage) as u32;
-        for _ in (0..n) {
+        for _ in 0..n {
             let index = rng.gen_range(0, n);
-            for _ in (0..10) {
+            for _ in 0..10 {
                 let room = Room::random(rng, self.seed.width, self.seed.height, self.room_size, index);
                 if !room.intersects(&self.rooms) {
                     self.rooms[index as usize] = room;
@@ -445,8 +445,8 @@ impl Genotype for DesirableProperties {
         let door = self.seed.tiles.get("door").unwrap();
         let floor = self.seed.tiles.get("floor").unwrap();
         for room in self.rooms.iter() {
-            for i in (room.x..room.x + room.w) {
-                for j in (room.y..room.y + room.h) {
+            for i in room.x..room.x + room.w {
+                for j in room.y..room.y + room.h {
                     dungeon.set_tile(i, j, &floor);
                 }
             }

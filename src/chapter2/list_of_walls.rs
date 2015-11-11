@@ -104,7 +104,7 @@ impl Genotype for ListOfWalls {
         let h = self.seed.height;
         let length = self.walls.len();
         let n = (length as f64 * percentage) as u32;
-        for _ in (0..n) {
+        for _ in 0..n {
             let index = rng.gen_range(1, length);
             let door_chance = (self.door_chance * 100.0) as u64;
             let wall = Wall::random(rng, w, h, door_chance);
@@ -123,7 +123,7 @@ impl Genotype for ListOfWalls {
         for wall in self.walls.iter() {
             let mut x = wall.x as i32;
             let mut y = wall.y as i32;
-            for _ in (0..wall.length) {
+            for _ in 0..wall.length {
                 x += wall.xstep;
                 y += wall.ystep;
                 if dungeon.in_bounds(x, y) {

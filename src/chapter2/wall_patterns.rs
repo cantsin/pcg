@@ -93,7 +93,7 @@ impl Genotype for WallPatterns {
     fn mutate<T: Rng>(&mut self, rng: &mut T, percentage: f64) {
         let length = self.patterns.len();
         let n = (length as f64 * percentage) as u32;
-        for _ in (0..n) {
+        for _ in 0..n {
             let index = rng.gen_range(0, length);
             let val = rng.gen_range(0, length);
             self.indices[index] = val;
