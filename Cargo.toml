@@ -4,21 +4,22 @@ version = "0.3.0" # reflects current chapter
 authors = ["James Tranovich <jtranovich@gmail.com>"]
 
 [dependencies]
-docopt = "*"
-rustc-serialize = "*"
-piston = "*"
-piston2d-opengl_graphics = "*"
-piston2d-graphics = "*"
-pistoncore-sdl2_window = "*"
-freetype-rs = "*"
-shader_version = "*"
-rand = "*"
-threadpool = "*"
-num_cpus = "*"
-libc = "*"
-pistoncore-input = "*"
-pistoncore-window = "*"
-pistoncore-event_loop = "*"
+docopt = "0.6.75"
+rustc-serialize = "0.3.16"
+piston = "0.15.1"
+piston2d-opengl_graphics = "0.14.0"
+piston2d-graphics = "0.11.0"
+pistoncore-input = "0.8.0"
+pistoncore-window = "0.13.0"
+pistoncore-event_loop = "0.15.0"
+pistoncore-sdl2_window = "0.15.0"
+freetype-rs = "0.4.0"
+shader_version = "0.2.1"
+rand = "0.3.12"
+threadpool = "0.1.4"
+num_cpus = "0.2.7"
+libc = "0.2.2"
+toml = "0.1.23"
 
 [features]
 default = ["image_png"]
@@ -31,14 +32,8 @@ image_tiff = ["image/tiff"]
 image_webp = ["image/webp"]
 
 [dependencies.image]
-version = "*"
+version = "0.5.0"
 default-features = true
-
-[dependencies.piston-viewport]
-git = "https://github.com/pistondevelopers/viewport"
-
-[dependencies.toml]
-git = "https://github.com/alexcrichton/toml-rs"
 
 [profile.dev]
 debug = false
