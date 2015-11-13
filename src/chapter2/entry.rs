@@ -1,7 +1,7 @@
 use freetype::{Face};
 use opengl_graphics::{GlGraphics};
-use piston::input::{Event, Button, RenderEvent, PressEvent};
-use piston::input::keyboard::{Key};
+use input::{Event, Button, RenderEvent, PressEvent};
+use input::keyboard::{Key};
 use num_cpus::{get};
 
 use std::path::{Path};

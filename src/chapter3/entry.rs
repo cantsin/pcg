@@ -1,6 +1,6 @@
 use freetype::{Face};
 use opengl_graphics::{GlGraphics};
-use piston::input::{Event, RenderEvent};
+use input::{Event, RenderEvent};
 
 use util::text::{render_text};
 use util::config::{Config};

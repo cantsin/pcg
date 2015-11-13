@@ -1,24 +1,22 @@
-#![feature(step_by, path_ext, convert, box_syntax, box_patterns, vec_push_all)]
+#![feature(step_by, convert, box_syntax, box_patterns, vec_push_all)]
 // #![allow(dead_code)]
 // #![allow(unused_variables)]
 // #![allow(unused_imports)]
 
-extern crate piston;
 extern crate rand;
 extern crate toml;
 extern crate shader_version;
 extern crate input;
 extern crate event_loop;
 extern crate graphics;
+extern crate window;
 extern crate sdl2_window;
 extern crate opengl_graphics;
-extern crate window;
 extern crate freetype;
 extern crate threadpool;
 extern crate rustc_serialize;
 extern crate docopt;
 extern crate num_cpus;
-extern crate viewport;
 
 pub mod util {
     pub mod util;
@@ -48,14 +46,14 @@ pub mod chapter3 {
     pub mod entry;
 }
 
-use opengl_graphics::{GlGraphics, OpenGL};
+use opengl_graphics::{GlGraphics};
 use sdl2_window::{Sdl2Window};
-use piston::window::{WindowSettings};
-use piston::event_loop::{Events};
+use window::{WindowSettings, Size};
+use event_loop::{Events};
 use docopt::{Docopt};
 use graphics::{color};
 use freetype::{Face};
-use piston::input::{Event};
+use input::{Event};
 
 use std::path::{Path};
 
@@ -95,13 +93,14 @@ fn main() {
     let font_size = config.get_default(vars, "font_size", 14);
     let fps = config.get_default(vars, "fps", 10);
 
-    let opengl = OpenGL::V3_2;
-    let window: Sdl2Window = WindowSettings::new("PCG", [window_width, window_height])
+    let opengl = shader_version::OpenGL::V3_2;
+    let size = Size { width: window_width, height: window_height };
+    let settings = WindowSettings::new("PCG", (window_width, window_height))
         .exit_on_esc(true)
-        .fullscreen(false)
-        .opengl(opengl)
-        .build()
-        .unwrap();
+        .opengl(opengl);
+        //.build()
+        //.unwrap();
+    let window = Sdl2Window::new(settings).unwrap();
     let ref mut gl = GlGraphics::new(opengl);
     let ft = freetype::Library::init().unwrap();
     let font = Path::new(font_name);
